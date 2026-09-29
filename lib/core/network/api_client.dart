@@ -17,12 +17,13 @@ class ApiClient {
           baseUrl: ApiConfig.baseUrl,
           connectTimeout: ApiConfig.connectTimeout,
           receiveTimeout: ApiConfig.receiveTimeout,
-          headers: const {'Accept': 'application/json'},
+
         ),
       ) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          options.headers['Accept'] = 'application/json';
           final token = readToken();
           if (token != null) options.headers['Authorization'] = 'Bearer $token';
           handler.next(options);
