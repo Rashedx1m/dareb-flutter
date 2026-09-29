@@ -98,7 +98,7 @@ abstract final class AppStrings {
   static const featuredCourses = 'أبرز الدورات';
   static const chaptersLabel = 'فصول';
   static const lessonsLabel = 'درس';
-  static const homeLoadError = 'تعذّر تحميل الصفحة، حاول مرة أخرى';
+  static const loadError = 'تعذّر تحميل الصفحة، حاول مرة أخرى';
   static const retry = 'إعادة المحاولة';
   // نافذة/بطاقة «أكمل حسابك».
   static const completeAccountNow = 'أكمل حسابك الان';

@@ -1,24 +1,19 @@
-import '../../features/auth/domain/entities/user.dart';
+import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/courses/domain/entities/course.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
 import '../../features/notifications/domain/entities/app_notification.dart';
-import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/quiz/domain/entities/quiz.dart';
 import '../../features/subscription/domain/entities/plan.dart';
 import '../theme/app_assets.dart';
 
+/// بيانات تجريبية إلى أن تُربط واجهات الـ API.
+///
+/// لا يستوردها إلا مصادر البيانات التجريبية في `features/*/data/datasources/`؛
+/// الصفحات والـ Cubits تصل إلى البيانات عبر الـ UseCases فقط.
 abstract final class MockCatalog {
-  static const user = User(
-    id: 'u1',
-    name: 'Rashed eybo',
-    phone: '0937857596',
-    email: 'ahmed@darb.app',
-    avatarUrl: 'https://i.pravatar.cc/150?img=12',
-    progress: 0.4,
-    points: 55,
-    enrolledCoursesCount: 6,
-  );
+  /// زمن الاستجابة المحاكى لطلبات الشبكة.
+  static const latency = Duration(milliseconds: 250);
 
   // المواد الدراسية (مرحلة التعليم العام). مجموع الدورات = 22 (يظهر في بطاقة التقدم).
   static const categories = [

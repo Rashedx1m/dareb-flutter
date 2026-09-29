@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/data/mock_catalog.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../cubit/gallery_cubit.dart';
 import '../widgets/album_card.dart';
 import '../widgets/gallery_header.dart';
 
@@ -12,7 +14,6 @@ class GalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final albums = MockCatalog.galleryAlbums;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
       child: Scaffold(
@@ -21,21 +22,32 @@ class GalleryPage extends StatelessWidget {
           children: [
             GalleryHeader(onNotify: () => context.push('/notifications')),
             Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.9,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: albums.length,
-                itemBuilder: (context, i) {
-                  final album = albums[i];
-                  return AlbumCard(
-                    album: album,
-                    onTap: () => context.push('/gallery/${album.id}'),
-                  );
+              child: BlocBuilder<GalleryCubit, GalleryState>(
+                builder: (context, state) {
+                  return switch (state.status) {
+                    GalleryStatus.initial || GalleryStatus.loading => const LoadingView(),
+                    GalleryStatus.failure => ErrorView(
+                        message: state.error,
+                        onRetry: () => context.read<GalleryCubit>().loadAlbums(),
+                      ),
+                    GalleryStatus.success => GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.9,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemCount: state.albums.length,
+                        itemBuilder: (context, i) {
+                          final album = state.albums[i];
+                          return AlbumCard(
+                            album: album,
+                            onTap: () => context.push('/gallery/${album.id}'),
+                          );
+                        },
+                      ),
+                  };
                 },
               ),
             ),

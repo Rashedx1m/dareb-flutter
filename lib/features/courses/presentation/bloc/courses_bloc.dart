@@ -10,15 +10,11 @@ part 'courses_state.dart';
 
 class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
   CoursesBloc({
-    required GetCourses getCourses,
-    required GetCourse getCourse,
-    required SearchCourses searchCourses,
-    required GetCategories getCategories,
-  })  : _getCourses = getCourses,
-        _getCourse = getCourse,
-        _searchCourses = searchCourses,
-        _getCategories = getCategories,
-        super(const CoursesState()) {
+    required this._getCourses,
+    required this._getCourse,
+    required this._searchCourses,
+    required this._getCategories,
+  }) : super(const CoursesState()) {
     on<CoursesStarted>(_onStarted);
     on<CourseOpened>(_onOpened);
     on<CoursesSearched>(_onSearched);

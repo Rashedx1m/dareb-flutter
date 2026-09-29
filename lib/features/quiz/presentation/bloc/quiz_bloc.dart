@@ -9,12 +9,7 @@ part 'quiz_event.dart';
 part 'quiz_state.dart';
 
 class QuizBloc extends Bloc<QuizEvent, QuizState> {
-  QuizBloc({
-    required GetQuizzes getQuizzes,
-    required GetQuiz getQuiz,
-  })  : _getQuizzes = getQuizzes,
-        _getQuiz = getQuiz,
-        super(const QuizState()) {
+  QuizBloc({required this._getQuizzes, required this._getQuiz}) : super(const QuizState()) {
     on<QuizzesStarted>(_onStarted);
     on<QuizOpened>(_onOpened);
     on<QuizAnswerSelected>(_onAnswered);

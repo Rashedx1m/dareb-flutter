@@ -1,10 +1,20 @@
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/features/auth/domain/entities/user.dart';
+import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
+import 'package:educational_app/features/home/domain/entities/news_item.dart';
+import 'package:educational_app/features/home/domain/repositories/news_repository.dart';
+import 'package:educational_app/features/home/domain/usecases/get_news.dart';
 import 'package:educational_app/features/home/presentation/cubit/home_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+const _user = User(id: 'u1', name: 'أحمد', phone: '0501234567', progress: 0.4, points: 55);
+
+const _news = [NewsItem(id: 'nw1', title: 'خبر', imageUrl: 'x', date: 'اليوم')];
 
 const _courses = [
   Course(
@@ -54,10 +64,36 @@ class _FakeCoursesRepository implements CoursesRepository {
   Future<Either<Failure, List<Course>>> searchCourses(String query) async => const Right(_courses);
 }
 
-HomeCubit _cubit(_FakeCoursesRepository repository) {
+class _FakeNewsRepository implements NewsRepository {
+  _FakeNewsRepository({this.failure});
+
+  final Failure? failure;
+
+  @override
+  Future<Either<Failure, List<NewsItem>>> getNews() async =>
+      failure != null ? Left(failure!) : const Right(_news);
+}
+
+/// الصفحة الرئيسية تحتاج `currentUser` فقط من مستودع المصادقة.
+class _FakeAuthRepository extends Fake implements AuthRepository {
+  _FakeAuthRepository(this.user);
+
+  final User? user;
+
+  @override
+  Future<Either<Failure, User?>> currentUser() async => Right(user);
+}
+
+HomeCubit _cubit(
+  _FakeCoursesRepository repository, {
+  _FakeNewsRepository? news,
+  User? user = _user,
+}) {
   return HomeCubit(
     getCourses: GetCourses(repository),
     getCategories: GetCategories(repository),
+    getNews: GetNews(news ?? _FakeNewsRepository()),
+    getCurrentUser: GetCurrentUserUseCase(_FakeAuthRepository(user)),
   );
 }
 
@@ -69,7 +105,35 @@ void main() {
     expect(cubit.state.status, HomeStatus.success);
     expect(cubit.state.courses, _courses);
     expect(cubit.state.categories, _categories);
-    expect(cubit.state.news, isNotEmpty);
+    expect(cubit.state.news, _news);
+  });
+
+  test('load يأخذ الاسم والنقاط والإنجاز من مستخدم الجلسة', () async {
+    final cubit = _cubit(_FakeCoursesRepository());
+    await cubit.load();
+
+    expect(cubit.state.user, _user);
+    expect(cubit.state.points, 55);
+    expect(cubit.state.progress, 0.4);
+  });
+
+  test('غياب الجلسة لا يُفشل الصفحة', () async {
+    final cubit = _cubit(_FakeCoursesRepository(), user: null);
+    await cubit.load();
+
+    expect(cubit.state.status, HomeStatus.success);
+    expect(cubit.state.points, 0);
+  });
+
+  test('فشل الأخبار يضبط الحالة failure', () async {
+    final cubit = _cubit(
+      _FakeCoursesRepository(),
+      news: _FakeNewsRepository(failure: const ServerFailure('تعذر جلب الأخبار')),
+    );
+    await cubit.load();
+
+    expect(cubit.state.status, HomeStatus.failure);
+    expect(cubit.state.error, 'تعذر جلب الأخبار');
   });
 
   test('load يحسب إجمالي دورات المنهاج من مجموع المواد', () async {

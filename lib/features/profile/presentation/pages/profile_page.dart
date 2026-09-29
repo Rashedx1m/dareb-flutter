@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../cubit/profile_cubit.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -22,18 +24,10 @@ class ProfilePage extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Column(
-                children: [
-                  CircleAvatar(
-                    radius: 42,
-                    backgroundImage: user.avatarUrl == null ? null : NetworkImage(user.avatarUrl!),
-                    child: user.avatarUrl == null ? const Icon(Icons.person, size: 40) : null,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(user.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-                  Text(user.phone, style: const TextStyle(color: AppColors.textSecondary)),
-                ],
-              ),
+              if (user == null)
+                const SizedBox(height: 130, child: LoadingView())
+              else
+                _ProfileHeader(user: user),
               const SizedBox(height: 20),
               _Item(Icons.edit_outlined, AppStrings.editProfile, () => context.push('/edit-profile')),
               _Item(Icons.menu_book_outlined, AppStrings.myCourses, () => context.push('/my-courses')),
@@ -47,6 +41,29 @@ class ProfilePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.user});
+
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarUrl = user.avatarUrl;
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 42,
+          backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl),
+          child: avatarUrl == null ? const Icon(Icons.person, size: 40) : null,
+        ),
+        const SizedBox(height: 10),
+        Text(user.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+        Text(user.phone, style: const TextStyle(color: AppColors.textSecondary)),
+      ],
     );
   }
 }

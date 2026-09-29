@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/achievements/presentation/cubit/achievements_cubit.dart';
 import '../../features/achievements/presentation/pages/achievements_page.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
@@ -9,15 +10,19 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/courses/presentation/bloc/courses_bloc.dart';
+import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
 import '../../features/courses/presentation/pages/categories_page.dart';
 import '../../features/courses/presentation/pages/course_detail_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
+import '../../features/courses/presentation/pages/my_courses_page.dart';
 import '../../features/courses/presentation/pages/video_page.dart';
+import '../../features/gallery/presentation/cubit/gallery_cubit.dart';
 import '../../features/gallery/presentation/pages/album_page.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
 import '../../features/gallery/presentation/pages/photo_viewer_page.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -29,6 +34,7 @@ import '../../features/quiz/presentation/pages/tests_page.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/subscription/presentation/cubit/plans_cubit.dart';
 import '../../features/subscription/presentation/pages/checkout_page.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../di/injection.dart';
@@ -36,15 +42,22 @@ import '../widgets/app_shell.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
 
+/// مسارات تدفق الدخول، وهي وحدها المتاحة بلا جلسة (مع شاشة البداية).
+const _authRoutes = {'/login', '/register', '/otp'};
+
 GoRouter createRouter() {
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: '/',
     redirect: (context, state) {
       final location = state.matchedLocation;
-      const authRoutes = {'/login', '/register', '/otp'};
-      if (!authRoutes.contains(location)) return null;
-      return sl<AuthRepository>().cachedUser == null ? null : '/home';
+      // شاشة البداية تقرر وجهتها بنفسها بعد عرض الشعار.
+      if (location == '/') return null;
+      final loggedIn = sl<AuthRepository>().cachedUser != null;
+      final onAuthRoute = _authRoutes.contains(location);
+      if (!loggedIn && !onAuthRoute) return '/login';
+      if (loggedIn && onAuthRoute) return '/home';
+      return null;
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashPage()),
@@ -81,7 +94,10 @@ GoRouter createRouter() {
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/gallery',
-              builder: (_, _) => const GalleryPage(),
+              builder: (_, _) => BlocProvider(
+                create: (_) => sl<GalleryCubit>()..loadAlbums(),
+                child: const GalleryPage(),
+              ),
             ),
           ]),
           StatefulShellBranch(routes: [
@@ -127,18 +143,36 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: '/gallery/:id',
-        builder: (context, state) => AlbumPage(albumId: state.pathParameters['id']!),
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return BlocProvider(
+            create: (_) => sl<GalleryCubit>()..loadAlbum(id),
+            child: AlbumPage(albumId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/gallery/:id/photo/:index',
-        builder: (context, state) => PhotoViewerPage(
-          albumId: state.pathParameters['id']!,
-          initialIndex: int.tryParse(state.pathParameters['index'] ?? '0') ?? 0,
-        ),
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return BlocProvider(
+            create: (_) => sl<GalleryCubit>()..loadAlbum(id),
+            child: PhotoViewerPage(
+              albumId: id,
+              initialIndex: int.tryParse(state.pathParameters['index'] ?? '0') ?? 0,
+            ),
+          );
+        },
       ),
       // شاشة «إختباراتي» ليست تبويباً في الشريط السفلي (استبدلها المعرض حسب
-      // التصميم)؛ تُفتح كمسار مستقل وتقرأ بياناتها مباشرة من MockCatalog.
-      GoRoute(path: '/tests', builder: (_, _) => const TestsPage()),
+      // التصميم)؛ تُفتح كمسار مستقل.
+      GoRoute(
+        path: '/tests',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<QuizBloc>()..add(const QuizzesStarted()),
+          child: const TestsPage(),
+        ),
+      ),
       GoRoute(
         path: '/categories',
         builder: (_, _) => BlocProvider(
@@ -174,18 +208,51 @@ GoRouter createRouter() {
           return QuizResultPage(score: extra['score'] ?? 0, total: extra['total'] ?? 0);
         },
       ),
-      GoRoute(path: '/subscription', builder: (_, _) => const SubscriptionPage()),
+      GoRoute(
+        path: '/subscription',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<PlansCubit>()..load(),
+          child: const SubscriptionPage(),
+        ),
+      ),
       GoRoute(
         path: '/checkout',
-        builder: (context, state) => CheckoutPage(planId: state.uri.queryParameters['plan']),
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<PlansCubit>()..load(preferredId: state.uri.queryParameters['plan']),
+          child: const CheckoutPage(),
+        ),
       ),
-      GoRoute(path: '/notifications', builder: (_, _) => const NotificationsPage()),
-      GoRoute(path: '/achievements', builder: (_, _) => const AchievementsPage()),
-      GoRoute(path: '/edit-profile', builder: (_, _) => const EditProfilePage()),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<NotificationsCubit>()..load(),
+          child: const NotificationsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/achievements',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<AchievementsCubit>()..load(),
+          child: const AchievementsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/edit-profile',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<ProfileCubit>()..load(),
+          child: const EditProfilePage(),
+        ),
+      ),
       GoRoute(path: '/about', builder: (_, _) => const AboutPage()),
       GoRoute(path: '/contact', builder: (_, _) => const ContactPage()),
       GoRoute(path: '/faq', builder: (_, _) => const FaqPage()),
-      GoRoute(path: '/my-courses', builder: (_, _) => const MyCoursesPage()),
+      GoRoute(
+        path: '/my-courses',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<MyCoursesCubit>()..load(),
+          child: const MyCoursesPage(),
+        ),
+      ),
     ],
   );
 }

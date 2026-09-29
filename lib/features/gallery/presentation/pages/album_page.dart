@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../cubit/gallery_cubit.dart';
 import '../widgets/gallery_header.dart';
 
 /// شاشة ألبوم واحد: شبكة صوره. الضغط على صورة يفتح عارض الصور.
@@ -15,13 +17,6 @@ class AlbumPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final albums = MockCatalog.galleryAlbums;
-    final album = albums.firstWhere(
-      (a) => a.id == albumId,
-      orElse: () => albums.first,
-    );
-    final photos = album.photos;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
       child: Scaffold(
@@ -33,27 +28,38 @@ class AlbumPage extends StatelessWidget {
               onBack: () => context.pop(),
             ),
             Expanded(
-              child: photos.isEmpty
-                  ? const Center(
-                      child: Text(
-                        AppStrings.galleryEmpty,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              child: BlocBuilder<GalleryCubit, GalleryState>(
+                builder: (context, state) {
+                  final photos = state.album?.photos ?? const <String>[];
+                  return switch (state.status) {
+                    GalleryStatus.initial || GalleryStatus.loading => const LoadingView(),
+                    GalleryStatus.failure => ErrorView(
+                        message: state.error,
+                        onRetry: () => context.read<GalleryCubit>().loadAlbum(albumId),
                       ),
-                    )
-                  : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.1,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
+                    GalleryStatus.success when photos.isEmpty => const Center(
+                        child: Text(
+                          AppStrings.galleryEmpty,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        ),
                       ),
-                      itemCount: photos.length,
-                      itemBuilder: (context, i) => _PhotoTile(
-                        path: photos[i],
-                        onTap: () => context.push('/gallery/$albumId/photo/$i'),
+                    GalleryStatus.success => GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.1,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                        ),
+                        itemCount: photos.length,
+                        itemBuilder: (context, i) => _PhotoTile(
+                          path: photos[i],
+                          onTap: () => context.push('/gallery/$albumId/photo/$i'),
+                        ),
                       ),
-                    ),
+                  };
+                },
+              ),
             ),
           ],
         ),

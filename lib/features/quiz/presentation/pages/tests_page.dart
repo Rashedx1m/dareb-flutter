@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/theme/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/quiz.dart';
+import '../bloc/quiz_bloc.dart';
 
 /// شاشة «إختباراتي»: ترويسة فيروزية بحقل بحث، تبويبان (إختبارات / نشاطات يومية)،
 /// وقائمة بطاقات. الضغط على بطاقة يفتح تدفّق حلّ الأسئلة.
@@ -23,9 +25,10 @@ class _TestsPageState extends State<TestsPage> {
   QuizKind _tab = QuizKind.test;
   String _query = '';
 
-  List<Quiz> get _items {
+  /// التبويب والبحث حالة عرض محلية تُطبَّق على القائمة المحمّلة في [QuizBloc].
+  List<Quiz> _filter(List<Quiz> quizzes) {
     final q = _query.trim();
-    return MockCatalog.quizzes.where((quiz) {
+    return quizzes.where((quiz) {
       if (quiz.kind != _tab) return false;
       if (q.isEmpty) return true;
       return quiz.title.contains(q) || quiz.instructor.contains(q);
@@ -34,7 +37,6 @@ class _TestsPageState extends State<TestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final items = _items;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
       child: Scaffold(
@@ -57,22 +59,33 @@ class _TestsPageState extends State<TestsPage> {
             ),
             const SizedBox(height: 18),
             Expanded(
-              child: items.isEmpty
-                  ? const Center(
-                      child: Text(
-                        AppStrings.noTestsFound,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              child: BlocBuilder<QuizBloc, QuizState>(
+                builder: (context, state) {
+                  final items = _filter(state.quizzes);
+                  return switch (state.status) {
+                    QuizStatus.initial || QuizStatus.loading => const LoadingView(),
+                    QuizStatus.failure => ErrorView(
+                        message: state.error,
+                        onRetry: () => context.read<QuizBloc>().add(const QuizzesStarted()),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      itemCount: items.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 16),
-                      itemBuilder: (context, i) => _QuizCard(
-                        quiz: items[i],
-                        onTap: () => context.push('/quiz/${items[i].id}'),
+                    _ when items.isEmpty => const Center(
+                        child: Text(
+                          AppStrings.noTestsFound,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        ),
                       ),
-                    ),
+                    _ => ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                        itemCount: items.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 16),
+                        itemBuilder: (context, i) => _QuizCard(
+                          quiz: items[i],
+                          onTap: () => context.push('/quiz/${items[i].id}'),
+                        ),
+                      ),
+                  };
+                },
+              ),
             ),
           ],
         ),

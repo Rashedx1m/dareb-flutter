@@ -7,10 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/theme/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../courses/domain/entities/course.dart';
 import '../../domain/entities/news_item.dart';
 import '../cubit/home_cubit.dart';
@@ -34,9 +34,9 @@ class HomePage extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: [
                   _HomeHeader(
-                    name: MockCatalog.user.name,
-                    points: MockCatalog.user.points,
-                    coursesCount: MockCatalog.user.enrolledCoursesCount,
+                    name: state.user?.name ?? '',
+                    points: state.points,
+                    coursesCount: state.user?.enrolledCoursesCount ?? 0,
                     onSearch: () => context.push('/search'),
                     onNotify: () => context.push('/notifications'),
                     onAchievements: () => context.push('/achievements'),
@@ -66,8 +66,8 @@ class _HomeBody extends StatelessWidget {
       );
     }
     if (state.status == HomeStatus.failure && state.courses.isEmpty) {
-      return _ErrorBody(
-        message: state.error ?? AppStrings.homeLoadError,
+      return ErrorView(
+        message: state.error,
         onRetry: () => context.read<HomeCubit>().load(),
       );
     }
@@ -105,37 +105,6 @@ class _HomeBody extends StatelessWidget {
               onCourseTap: (c) => context.push('/courses/${c.id}'),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 70, 24, 24),
-      child: Column(
-        children: [
-          const Icon(Icons.wifi_off_rounded, color: AppColors.textMuted, size: 48),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text(AppStrings.retry),
-          ),
         ],
       ),
     );
