@@ -14,5 +14,7 @@ Future<Either<Failure, T>> guard<T>(Future<T> Function() action) async {
     return Left(CacheFailure(e.message));
   } on AuthException catch (e) {
     return Left(AuthFailure(e.message));
+  } on ValidationException catch (e) {
+    return Left(ValidationFailure(e.message));
   }
 }

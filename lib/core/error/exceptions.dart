@@ -14,3 +14,8 @@ class AuthException implements Exception {
   const AuthException([this.message = 'فشل تسجيل الدخول']);
   final String message;
 }
+/// رد 422: حقول ناقصة أو غير صالحة. الرسالة أول خطأ أعاده الخادم.
+class ValidationException implements Exception {
+  const ValidationException([this.message = 'البيانات غير صحيحة']);
+  final String message;
+}
