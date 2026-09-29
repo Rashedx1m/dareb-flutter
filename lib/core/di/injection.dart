@@ -6,6 +6,8 @@ import '../../features/achievements/data/repositories/achievements_repository_im
 import '../../features/achievements/domain/repositories/achievements_repository.dart';
 import '../../features/achievements/domain/usecases/get_achievements.dart';
 import '../../features/achievements/presentation/cubit/achievements_cubit.dart';
+import '../../features/auth/data/datasources/auth_local_data_source.dart';
+import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -47,7 +49,7 @@ import '../../features/subscription/data/repositories/subscription_repository_im
 import '../../features/subscription/domain/repositories/subscription_repository.dart';
 import '../../features/subscription/domain/usecases/get_plans.dart';
 import '../../features/subscription/presentation/cubit/plans_cubit.dart';
-import '../storage/session_storage.dart';
+import '../network/api_client.dart';
 
 final sl = GetIt.instance;
 
@@ -57,9 +59,8 @@ Future<void> initDependencies() async {
   final prefs = await SharedPreferences.getInstance();
   sl
     ..registerSingleton<SharedPreferences>(prefs)
-    ..registerLazySingleton<SessionStorage>(
-      () => SharedPreferencesSessionStorage(sl()),
-    );
+    // كل طلب يقرأ توكن الجلسة المحفوظ لحظة إرساله.
+    ..registerLazySingleton(() => ApiClient(readToken: () => sl<AuthLocalDataSource>().token));
 
   _initAuth();
   _initCourses();
@@ -74,7 +75,9 @@ Future<void> initDependencies() async {
 
 void _initAuth() {
   sl
-    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()))
+    ..registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()))
+    ..registerLazySingleton<AuthLocalDataSource>(() => SharedPrefsAuthLocalDataSource(sl()))
+    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remote: sl(), local: sl()))
     ..registerLazySingleton(() => RequestOtpUseCase(sl()))
     ..registerLazySingleton(() => RegisterUseCase(sl()))
     ..registerLazySingleton(() => VerifyOtpUseCase(sl()))

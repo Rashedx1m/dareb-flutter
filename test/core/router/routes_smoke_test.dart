@@ -14,7 +14,7 @@ void main() {
 
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({
-      'auth.session': jsonEncode({'id': 'u1', 'name': 'أحمد', 'phone': '0501234567'}),
+      'auth.user': jsonEncode({'id': 30, 'f_name': 'أحمد', 'l_name': 'علي', 'phone': '0930000000'}),
     });
     await initDependencies();
   });

@@ -1,32 +1,30 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../../../core/storage/session_storage.dart';
+import '../../../../core/error/guard.dart';
 import '../../domain/auth_validators.dart';
 import '../../domain/entities/registration_details.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_local_data_source.dart';
+import '../datasources/auth_remote_data_source.dart';
 
-/// تنفيذ مؤقت يحاكي الخادم بتأخير بسيط، إلى أن تُربط واجهات الـ API الحقيقية.
-/// الجلسة والحسابات المكتملة تُحفظ محلياً حتى لا تُعاد عملية التسجيل.
+/// المصادقة عبر الخادم. الجلسة تُعدّ مفتوحة لحساب مكتمل فقط؛ الحساب الجديد
+/// يُحفظ توكنه ويبقى في تدفق الدخول إلى أن يُكمل بياناته.
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._storage) : _session = _storage.cachedSession;
+  const AuthRepositoryImpl({required this._remote, required this._local});
 
-  static const _networkDelay = Duration(milliseconds: 500);
-
-  final SessionStorage _storage;
-  User? _session;
+  final AuthRemoteDataSource _remote;
+  final AuthLocalDataSource _local;
 
   @override
-  User? get cachedUser => _session;
+  User? get cachedUser => _local.cachedUser;
 
   @override
   Future<Either<Failure, void>> requestOtp({required String phone}) async {
     final error = AuthValidators.phone(phone);
     if (error != null) return Left(ValidationFailure(error));
-
-    await Future<void>.delayed(_networkDelay);
-    return const Right(null);
+    return guard(() => _remote.login(AuthValidators.normalizedPhone(phone)));
   }
 
   @override
@@ -34,64 +32,36 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phone,
     required String otp,
   }) async {
-    final phoneError = AuthValidators.phone(phone);
-    if (phoneError != null) return Left(ValidationFailure(phoneError));
-    final otpError = AuthValidators.otp(otp);
-    if (otpError != null) return Left(ValidationFailure(otpError));
+    final error = AuthValidators.phone(phone) ?? AuthValidators.otp(otp);
+    if (error != null) return Left(ValidationFailure(error));
 
-    await Future<void>.delayed(_networkDelay);
-    try {
-      final existing = await _storage.findUserByPhone(phone);
-      if (existing != null) {
-        _session = existing;
-        await _storage.writeSession(existing);
-      }
-      return Right(existing);
-    } catch (_) {
-      return const Left(CacheFailure());
-    }
+    return guard<User?>(() async {
+      final session = await _remote.activate(
+        phone: AuthValidators.normalizedPhone(phone),
+        code: otp.trim(),
+        deviceId: _local.deviceId,
+      );
+      // التوكن يُحفظ دائماً لأن إكمال الحساب (users/edit) يحتاجه.
+      await _local.saveToken(session.token);
+      if (!session.user.isProfileComplete) return null;
+      await _local.saveUser(session.user);
+      return session.user;
+    });
   }
 
   @override
   Future<Either<Failure, User>> register(RegistrationDetails details) async {
-    final error = AuthValidators.name(details.firstName) ??
-        AuthValidators.name(details.lastName) ??
-        AuthValidators.email(details.email) ??
-        AuthValidators.phone(details.phone);
-    if (error != null) return Left(ValidationFailure(error));
-
-    await Future<void>.delayed(_networkDelay);
-    final user = User(
-      id: 'u-${DateTime.now().millisecondsSinceEpoch}',
-      name: details.fullName,
-      phone: AuthValidators.normalizedPhone(details.phone),
-      email: details.email.trim(),
-    );
-    try {
-      await _persist(user);
-      return Right(user);
-    } catch (_) {
-      return const Left(CacheFailure());
-    }
+    // مؤقت: يُربط بـ users/edit في الجزء التالي مع قوائم المدارس والفروع.
+    return const Left(ServerFailure('إكمال الحساب لم يُربط بالخادم بعد'));
   }
 
   @override
-  Future<Either<Failure, User?>> currentUser() async => Right(_session);
+  Future<Either<Failure, User?>> currentUser() async => Right(_local.cachedUser);
 
   @override
   Future<Either<Failure, void>> logout() async {
-    try {
-      _session = null;
-      await _storage.clearSession();
-      return const Right(null);
-    } catch (_) {
-      return const Left(CacheFailure());
-    }
-  }
-
-  Future<void> _persist(User user) async {
-    _session = user;
-    await _storage.saveUser(user);
-    await _storage.writeSession(user);
+    // فشل إبلاغ الخادم (انقطاع أو توكن منتهٍ) لا يمنع الخروج من الجهاز.
+    await guard(_remote.logout);
+    return guard(_local.clear);
   }
 }
