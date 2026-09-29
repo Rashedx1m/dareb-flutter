@@ -45,9 +45,9 @@ abstract final class AppStrings {
   static const schoolKindSchoolDesc = 'المدارس الحكومية والخاصة بمراحلها المختلفة';
   static const schoolKindInstitute = 'معهد';
   static const schoolKindInstituteDesc = 'المعاهد الأكاديمية ومراكز التدريب والمؤسسات التعليمية المتخصصة';
-  static const bacScience = 'بكالوريا علمي';
-  static const bacLiterature = 'بكالوريا أدبي';
-  static const bacCommercial = 'بكالوريا تجاري';
+  static const governorateHint = 'المحافظة';
+  static const pickGovernorateFirst = 'اختر محافظتك لعرض الجهات الدراسية فيها';
+  static const noSchoolsFound = 'لا توجد جهات دراسية من هذا النوع في المحافظة المختارة';
   static const male = 'ذكر';
   static const female = 'أنثى';
   static const ageLabel = 'العمر';

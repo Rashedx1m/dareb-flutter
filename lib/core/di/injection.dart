@@ -8,14 +8,19 @@ import '../../features/achievements/domain/usecases/get_achievements.dart';
 import '../../features/achievements/presentation/cubit/achievements_cubit.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/datasources/registration_options_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/registration_options_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/repositories/registration_options_repository.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/get_registration_options.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/request_otp_usecase.dart';
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/courses/data/datasources/courses_remote_data_source.dart';
 import '../../features/courses/data/repositories/courses_repository_impl.dart';
 import '../../features/courses/domain/repositories/courses_repository.dart';
@@ -83,12 +88,24 @@ void _initAuth() {
     ..registerLazySingleton(() => VerifyOtpUseCase(sl()))
     ..registerLazySingleton(() => GetCurrentUserUseCase(sl()))
     ..registerLazySingleton(() => LogoutUseCase(sl()))
+    ..registerLazySingleton<RegistrationOptionsRemoteDataSource>(
+      () => RegistrationOptionsRemoteDataSourceImpl(sl()),
+    )
+    ..registerLazySingleton<RegistrationOptionsRepository>(
+      () => RegistrationOptionsRepositoryImpl(sl()),
+    )
+    ..registerLazySingleton(() => GetGovernorates(sl()))
+    ..registerLazySingleton(() => GetSchools(sl()))
+    ..registerLazySingleton(() => GetBranches(sl()))
     ..registerFactory(
       () => AuthCubit(
         requestOtpUseCase: sl(),
         registerUseCase: sl(),
         verifyOtpUseCase: sl(),
       ),
+    )
+    ..registerFactory(
+      () => RegistrationOptionsCubit(getGovernorates: sl(), getSchools: sl(), getBranches: sl()),
     );
 }
 

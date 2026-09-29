@@ -15,13 +15,11 @@ const _details = RegistrationDetails(
   firstName: 'أحمد',
   lastName: 'المصري',
   email: 'ahmed@darb.app',
-  phone: '0501234567',
-  school: 'مدرسة حكومية',
-  source: 'المدرسة',
-  schoolKind: 'مدرسة',
-  gender: 'ذكر',
+  source: AppSource.school,
+  schoolId: '7',
+  gender: Gender.male,
   age: 17,
-  track: 'بكالوريا علمي',
+  branchId: '1',
 );
 
 /// مستودع مزيّف يسمح بضبط النتيجة والتحكم بزمن وصولها.

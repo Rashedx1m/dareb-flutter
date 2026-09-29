@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:educational_app/core/error/exceptions.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_http_adapter.dart';
@@ -93,6 +94,42 @@ void main() {
 
     expect(user.name, 'Rashed Eybo');
     expect(adapter.requests.single.headers['Authorization'], 'Bearer 30|abc');
+  });
+
+  test('completeProfile يرسل حقول users/edit بقيم الخادم', () async {
+    token = '30|abc';
+    adapter.on('/users/edit', body: {
+      'message': 'تم تعديل البيانات بنجاح',
+      'data': {..._newUserJson, 'f_name': 'Rashed', 'l_name': 'Eybo'},
+    });
+
+    final user = await remote.completeProfile(
+      const RegistrationDetails(
+        firstName: 'Rashed',
+        lastName: 'Eybo',
+        email: 'test@example.com',
+        source: AppSource.youtube,
+        schoolId: '7',
+        gender: Gender.male,
+        age: 37,
+        branchId: '1',
+      ),
+    );
+
+    expect(user.isProfileComplete, isTrue);
+    final request = adapter.requests.single;
+    expect(request.headers['Authorization'], 'Bearer 30|abc');
+    expect(formFields(request), {
+      'f_name': 'Rashed',
+      'l_name': 'Eybo',
+      'email': 'test@example.com',
+      'school_id': '7',
+      'branch_id': '1',
+      'gender': '1',
+      'age': '37',
+      // لا يوجد «يوتيوب» على الخادم، فيُرسل كـ «غير ذلك».
+      'know_about_app': '5',
+    });
   });
 
   test('401 يصل AuthException برسالة عربية', () async {

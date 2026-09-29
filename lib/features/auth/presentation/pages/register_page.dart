@@ -6,11 +6,15 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/auth_widgets.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../domain/auth_validators.dart';
+import '../../domain/entities/lookup_option.dart';
 import '../../domain/entities/registration_details.dart';
+import '../../domain/usecases/get_registration_options.dart';
 import '../cubit/auth_cubit.dart';
+import '../cubit/registration_options_cubit.dart';
 
-enum _RegisterStep { info, source, schoolType, gender, age, track, success }
+enum _RegisterStep { info, source, schoolType, school, gender, age, branch, success }
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key, this.phone});
@@ -30,12 +34,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastName = TextEditingController();
   final _email = TextEditingController();
   final _phone = TextEditingController();
-  final _school = TextEditingController();
+  final _governorateName = TextEditingController();
   bool _acceptedTerms = false;
-  String? _source;
-  String? _schoolKind;
-  String? _gender;
-  String? _track;
+  AppSource? _source;
+  SchoolKind? _schoolKind;
+  LookupOption? _governorate;
+  String? _schoolId;
+  Gender? _gender;
+  String? _branchId;
   int _age = 26;
 
   @override
@@ -51,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _lastName.dispose();
     _email.dispose();
     _phone.dispose();
-    _school.dispose();
+    _governorateName.dispose();
     super.dispose();
   }
 
@@ -61,9 +67,10 @@ class _RegisterPageState extends State<RegisterPage> {
     _goTo(switch (_step) {
       _RegisterStep.source => _RegisterStep.info,
       _RegisterStep.schoolType => _RegisterStep.source,
-      _RegisterStep.gender => _RegisterStep.schoolType,
+      _RegisterStep.school => _RegisterStep.schoolType,
+      _RegisterStep.gender => _RegisterStep.school,
       _RegisterStep.age => _RegisterStep.gender,
-      _RegisterStep.track => _RegisterStep.age,
+      _RegisterStep.branch => _RegisterStep.age,
       _ => _step,
     });
   }
@@ -91,9 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _submitInfo() {
     final error = AuthValidators.name(_firstName.text) ??
         AuthValidators.name(_lastName.text) ??
-        AuthValidators.email(_email.text) ??
-        AuthValidators.phone(_phone.text) ??
-        (_school.text.trim().isEmpty ? AppStrings.errorFieldsRequired : null);
+        AuthValidators.email(_email.text);
     if (error != null) {
       _showError(error);
       return;
@@ -111,54 +116,79 @@ class _RegisterPageState extends State<RegisterPage> {
             firstName: _firstName.text.trim(),
             lastName: _lastName.text.trim(),
             email: _email.text.trim(),
-            phone: _phone.text.trim(),
-            school: _school.text.trim(),
             source: _source!,
-            schoolKind: _schoolKind!,
+            schoolId: _schoolId!,
             gender: _gender!,
             age: _age,
-            track: _track!,
+            branchId: _branchId!,
           ),
         );
   }
 
-  Future<void> _pickSchool() async {
-    const options = [
-      AppStrings.schoolGovernment,
-      AppStrings.schoolPrivate,
-      AppStrings.schoolInstitute,
-      AppStrings.schoolOther,
-    ];
-    final selected = await showModalBottomSheet<String>(
+  void _selectSchoolKind(SchoolKind kind) {
+    if (kind == _schoolKind) return;
+    setState(() {
+      _schoolKind = kind;
+      // مدرسة من النوع السابق لم تعد ضمن القائمة.
+      _schoolId = null;
+    });
+  }
+
+  /// يطلب مدارس النوع والمحافظة المختارين.
+  void _loadSchools() {
+    context.read<RegistrationOptionsCubit>().loadSchools(
+          SchoolsQuery(kind: _schoolKind, governorateId: _governorate?.id),
+        );
+  }
+
+  Future<void> _pickGovernorate(List<LookupOption> governorates) async {
+    final selected = await showModalBottomSheet<LookupOption>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetContext) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              const Text(
-                AppStrings.schoolHint,
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              for (final item in options)
-                ListTile(
-                  title: Text(item, textAlign: TextAlign.center),
-                  onTap: () => Navigator.pop(sheetContext, item),
+          child: ConstrainedBox(
+            // 14 محافظة لا تتسع لكل الشاشات، فتُمرَّر القائمة ضمن 70% من الارتفاع.
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.7),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                const Text(
+                  AppStrings.governorateHint,
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                 ),
-              const SizedBox(height: 8),
-            ],
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final item in governorates)
+                        ListTile(
+                          title: Text(item.name, textAlign: TextAlign.center),
+                          onTap: () => Navigator.pop(sheetContext, item),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       },
     );
-    if (selected == null || !mounted) return;
-    setState(() => _school.text = selected);
+    if (selected == null || selected == _governorate || !mounted) return;
+    setState(() {
+      _governorate = selected;
+      _governorateName.text = selected.name;
+      _schoolId = null;
+    });
+    _loadSchools();
   }
 
   @override
@@ -185,7 +215,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 onBack: _step == _RegisterStep.info ? () => context.go('/login') : _goBack,
                 height: 200,
               ),
-              Expanded(child: _body(state)),
+              Expanded(
+                child: BlocBuilder<RegistrationOptionsCubit, RegistrationOptionsState>(
+                  builder: (context, options) => _body(state, options),
+                ),
+              ),
             ],
           );
         },
@@ -193,14 +227,15 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _body(AuthState state) {
+  Widget _body(AuthState state, RegistrationOptionsState options) {
     return switch (_step) {
       _RegisterStep.info => _infoStep(),
       _RegisterStep.source => _sourceStep(),
       _RegisterStep.schoolType => _schoolTypeStep(),
+      _RegisterStep.school => _schoolStep(options),
       _RegisterStep.gender => _genderStep(),
       _RegisterStep.age => _ageStep(),
-      _RegisterStep.track => _trackStep(state),
+      _RegisterStep.branch => _branchStep(state, options),
       // تُعالَج في `build` قبل الوصول إلى هنا.
       _RegisterStep.success => const SizedBox.shrink(),
     };
@@ -262,20 +297,12 @@ class _RegisterPageState extends State<RegisterPage> {
           leading: const Icon(PhosphorIconsRegular.envelopeSimple, color: AppColors.iconBlue, size: 20),
         ),
         const SizedBox(height: 12),
+        // الرقم تحقّق منه الخادم عند إدخال الرمز، فيُعرض للقراءة فقط.
         AuthField(
           hint: AppStrings.numberHint,
           controller: _phone,
-          keyboardType: TextInputType.phone,
-          leading: const Icon(PhosphorIconsRegular.phone, color: AppColors.iconBlue, size: 20),
-        ),
-        const SizedBox(height: 12),
-        AuthField(
-          hint: AppStrings.schoolHint,
-          controller: _school,
           readOnly: true,
-          leading: const Icon(PhosphorIconsRegular.graduationCap, color: AppColors.iconBlue, size: 20),
-          trailing: const Icon(PhosphorIconsRegular.caretDown, color: AppColors.iconBlue, size: 18),
-          onTap: _pickSchool,
+          leading: const Icon(PhosphorIconsRegular.phone, color: AppColors.iconBlue, size: 20),
         ),
         const SizedBox(height: 16),
         Row(
@@ -327,13 +354,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _sourceStep() {
     // شبكة من 3 أعمدة كما في التصميم (المدرسة/صديق/فيسبوك ثم انستا/يوتيوب/غير ذلك).
-    const options = <(IconData, String)>[
-      (PhosphorIconsRegular.graduationCap, AppStrings.sourceSchool),
-      (PhosphorIconsRegular.users, AppStrings.sourceFriend),
-      (PhosphorIconsRegular.facebookLogo, AppStrings.sourceFacebook),
-      (PhosphorIconsRegular.instagramLogo, AppStrings.sourceInstagram),
-      (PhosphorIconsRegular.youtubeLogo, AppStrings.sourceYoutube),
-      (PhosphorIconsRegular.dotsThreeCircle, AppStrings.sourceOther),
+    const options = <(IconData, String, AppSource)>[
+      (PhosphorIconsRegular.graduationCap, AppStrings.sourceSchool, AppSource.school),
+      (PhosphorIconsRegular.users, AppStrings.sourceFriend, AppSource.friend),
+      (PhosphorIconsRegular.facebookLogo, AppStrings.sourceFacebook, AppSource.facebook),
+      (PhosphorIconsRegular.instagramLogo, AppStrings.sourceInstagram, AppSource.instagram),
+      (PhosphorIconsRegular.youtubeLogo, AppStrings.sourceYoutube, AppSource.youtube),
+      (PhosphorIconsRegular.dotsThreeCircle, AppStrings.sourceOther, AppSource.other),
     ];
     return ListView(
       padding: const EdgeInsets.fromLTRB(28, 16, 28, 24),
@@ -357,12 +384,12 @@ class _RegisterPageState extends State<RegisterPage> {
           crossAxisSpacing: 12,
           childAspectRatio: 1.15,
           children: [
-            for (final (icon, label) in options)
+            for (final (icon, label, source) in options)
               SourceChoice(
                 label: label,
                 icon: icon,
-                selected: _source == label,
-                onTap: () => setState(() => _source = label),
+                selected: _source == source,
+                onTap: () => setState(() => _source = source),
               ),
           ],
         ),
@@ -384,23 +411,95 @@ class _RegisterPageState extends State<RegisterPage> {
         title: AppStrings.schoolKindSchool,
         subtitle: AppStrings.schoolKindSchoolDesc,
         icon: PhosphorIconsRegular.graduationCap,
-        selected: _schoolKind == AppStrings.schoolKindSchool,
-        onTap: () => setState(() => _schoolKind = AppStrings.schoolKindSchool),
+        selected: _schoolKind == SchoolKind.school,
+        onTap: () => _selectSchoolKind(SchoolKind.school),
       ),
       const SizedBox(height: 12),
       ChoiceCard(
         title: AppStrings.schoolKindInstitute,
         subtitle: AppStrings.schoolKindInstituteDesc,
         icon: PhosphorIconsRegular.bank,
-        selected: _schoolKind == AppStrings.schoolKindInstitute,
-        onTap: () => setState(() => _schoolKind = AppStrings.schoolKindInstitute),
+        selected: _schoolKind == SchoolKind.institute,
+        onTap: () => _selectSchoolKind(SchoolKind.institute),
       ),
       const Spacer(),
       AuthPrimaryButton(
         label: AppStrings.next,
-        onPressed: _schoolKind == null ? null : () => _goTo(_RegisterStep.gender),
+        onPressed: _schoolKind == null
+            ? null
+            : () {
+                _goTo(_RegisterStep.school);
+                // إن اختيرت المحافظة سابقاً، تُحدَّث مدارسها بحسب النوع الحالي.
+                if (_governorate != null) _loadSchools();
+              },
       ),
     ]);
+  }
+
+  /// المحافظة ثم مدارسها من النوع المختار في الخطوة السابقة.
+  Widget _schoolStep(RegistrationOptionsState options) {
+    final kindIcon =
+        _schoolKind == SchoolKind.institute ? PhosphorIconsRegular.bank : PhosphorIconsRegular.graduationCap;
+    return StepLayout(children: [
+      const RegisterProgress(current: 1),
+      _registerTitle(),
+      const SizedBox(height: 22),
+      ...switch (options.status) {
+        OptionsStatus.failure => [
+            ErrorView(message: options.error, onRetry: context.read<RegistrationOptionsCubit>().load),
+          ],
+        OptionsStatus.success => [
+            AuthField(
+              hint: AppStrings.governorateHint,
+              controller: _governorateName,
+              readOnly: true,
+              leading: const Icon(Icons.location_on_outlined, color: AppColors.iconBlue, size: 20),
+              trailing: const Icon(PhosphorIconsRegular.caretDown, color: AppColors.iconBlue, size: 18),
+              onTap: () => _pickGovernorate(options.governorates),
+            ),
+            const SizedBox(height: 16),
+            ..._schoolChoices(options, kindIcon),
+          ],
+        _ => [const SizedBox(height: 120, child: LoadingView())],
+      },
+      const Spacer(),
+      AuthPrimaryButton(
+        label: AppStrings.next,
+        onPressed: _schoolId == null ? null : () => _goTo(_RegisterStep.gender),
+      ),
+    ]);
+  }
+
+  List<Widget> _schoolChoices(RegistrationOptionsState options, IconData icon) {
+    if (_governorate == null) return [_hint(AppStrings.pickGovernorateFirst)];
+    return switch (options.schoolsStatus) {
+      OptionsStatus.failure => [ErrorView(message: options.schoolsError, onRetry: _loadSchools)],
+      OptionsStatus.success when options.schools.isEmpty => [_hint(AppStrings.noSchoolsFound)],
+      OptionsStatus.success => [
+          for (final school in options.schools)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ChoiceCard(
+                title: school.name,
+                icon: icon,
+                selected: _schoolId == school.id,
+                onTap: () => setState(() => _schoolId = school.id),
+              ),
+            ),
+        ],
+      _ => [const SizedBox(height: 120, child: LoadingView())],
+    };
+  }
+
+  Widget _hint(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+      ),
+    );
   }
 
   Widget _genderStep() {
@@ -411,15 +510,15 @@ class _RegisterPageState extends State<RegisterPage> {
       SelectOption(
         title: AppStrings.male,
         icon: PhosphorIconsRegular.genderMale,
-        selected: _gender == AppStrings.male,
-        onTap: () => setState(() => _gender = AppStrings.male),
+        selected: _gender == Gender.male,
+        onTap: () => setState(() => _gender = Gender.male),
       ),
       const SizedBox(height: 12),
       SelectOption(
         title: AppStrings.female,
         icon: PhosphorIconsRegular.genderFemale,
-        selected: _gender == AppStrings.female,
-        onTap: () => setState(() => _gender = AppStrings.female),
+        selected: _gender == Gender.female,
+        onTap: () => setState(() => _gender = Gender.female),
       ),
       const Spacer(),
       AuthPrimaryButton(
@@ -464,7 +563,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Expanded(
             child: AuthPrimaryButton(
               label: AppStrings.next,
-              onPressed: () => _goTo(_RegisterStep.track),
+              onPressed: () => _goTo(_RegisterStep.branch),
             ),
           ),
           const SizedBox(width: 12),
@@ -476,31 +575,35 @@ class _RegisterPageState extends State<RegisterPage> {
     ]);
   }
 
-  Widget _trackStep(AuthState state) {
-    const options = <(IconData, String)>[
-      (PhosphorIconsRegular.flask, AppStrings.bacScience),
-      (PhosphorIconsRegular.bookOpen, AppStrings.bacLiterature),
-      (PhosphorIconsRegular.bank, AppStrings.bacCommercial),
-    ];
+  /// الفرع الدراسي من قائمة الخادم (حُمّلت مع المحافظات عند فتح الصفحة).
+  Widget _branchStep(AuthState state, RegistrationOptionsState options) {
     return StepLayout(children: [
       const RegisterProgress(current: 2),
       _registerTitle(),
       const SizedBox(height: 22),
-      for (final (icon, label) in options)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: ChoiceCard(
-            title: label,
-            icon: icon,
-            selected: _track == label,
-            onTap: () => setState(() => _track = label),
-          ),
-        ),
+      ...switch (options.status) {
+        OptionsStatus.failure => [
+            ErrorView(message: options.error, onRetry: context.read<RegistrationOptionsCubit>().load),
+          ],
+        OptionsStatus.success => [
+            for (final branch in options.branches)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ChoiceCard(
+                  title: branch.name,
+                  icon: PhosphorIconsRegular.bookOpen,
+                  selected: _branchId == branch.id,
+                  onTap: () => setState(() => _branchId = branch.id),
+                ),
+              ),
+          ],
+        _ => [const SizedBox(height: 120, child: LoadingView())],
+      },
       const Spacer(),
       AuthPrimaryButton(
         label: AppStrings.confirm,
         loading: state.isLoading,
-        onPressed: _track == null ? null : _submit,
+        onPressed: _branchId == null ? null : _submit,
       ),
     ]);
   }

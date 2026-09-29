@@ -6,6 +6,7 @@ import '../../features/achievements/presentation/cubit/achievements_cubit.dart';
 import '../../features/achievements/presentation/pages/achievements_page.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -67,8 +68,12 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: '/register',
-        builder: (context, state) => BlocProvider(
-          create: (_) => sl<AuthCubit>(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => sl<AuthCubit>()),
+            // القوائم تُطلب بتوكن الحساب الجديد المحفوظ عند التحقق من الرمز.
+            BlocProvider(create: (_) => sl<RegistrationOptionsCubit>()..load()),
+          ],
           child: RegisterPage(phone: state.extra as String?),
         ),
       ),

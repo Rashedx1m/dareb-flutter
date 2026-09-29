@@ -6,11 +6,23 @@ import 'package:educational_app/features/auth/data/datasources/auth_remote_data_
 import 'package:educational_app/features/auth/data/models/auth_session_model.dart';
 import 'package:educational_app/features/auth/data/models/user_model.dart';
 import 'package:educational_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _complete = UserModel(id: '30', phone: '0930000000', firstName: 'Rashed', lastName: 'Eybo');
 final _incomplete = UserModel(id: '30', phone: '0930000000');
+
+const _details = RegistrationDetails(
+  firstName: 'Rashed',
+  lastName: 'Eybo',
+  email: 'test@example.com',
+  source: AppSource.facebook,
+  schoolId: '7',
+  gender: Gender.male,
+  age: 37,
+  branchId: '1',
+);
 
 /// خادم مزيّف: يسجّل الاستدعاءات، ويرمي [error] إن ضُبط.
 class _FakeRemote implements AuthRemoteDataSource {
@@ -37,6 +49,13 @@ class _FakeRemote implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getProfile() async => session!.user;
+
+  @override
+  Future<UserModel> completeProfile(RegistrationDetails details) async {
+    calls.add('completeProfile ${details.firstName}');
+    if (error != null) throw error!;
+    return _complete;
+  }
 
   @override
   Future<void> logout() async {
@@ -141,6 +160,41 @@ void main() {
 
       expect(result, const Left<Failure, User?>(ServerFailure('الكود المدخل غير صحيح')));
       expect(local.token, isNull);
+    });
+  });
+
+  group('register', () {
+    test('يرفض اسماً فارغاً أو بريداً خاطئاً دون الاتصال بالخادم', () async {
+      const noName = RegistrationDetails(
+        firstName: ' ',
+        lastName: 'Eybo',
+        email: 'test@example.com',
+        source: AppSource.other,
+        schoolId: '7',
+        gender: Gender.male,
+        age: 37,
+        branchId: '1',
+      );
+
+      expect((await repository.register(noName)).isLeft(), isTrue);
+      expect(remote.calls, isEmpty);
+    });
+
+    test('يُكمل الحساب ويفتح الجلسة', () async {
+      final result = await repository.register(_details);
+
+      expect(result, Right<Failure, User>(_complete));
+      expect(remote.calls, ['completeProfile Rashed']);
+      expect(repository.cachedUser, _complete);
+    });
+
+    test('رفض الخادم (422) يصل برسالته ولا يفتح جلسة', () async {
+      remote.error = const ValidationException('الحقل الجهات الدراسية مطلوب.');
+
+      final result = await repository.register(_details);
+
+      expect(result, const Left<Failure, User>(ValidationFailure('الحقل الجهات الدراسية مطلوب.')));
+      expect(repository.cachedUser, isNull);
     });
   });
 

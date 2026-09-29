@@ -51,8 +51,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> register(RegistrationDetails details) async {
-    // مؤقت: يُربط بـ users/edit في الجزء التالي مع قوائم المدارس والفروع.
-    return const Left(ServerFailure('إكمال الحساب لم يُربط بالخادم بعد'));
+    final error = AuthValidators.name(details.firstName) ??
+        AuthValidators.name(details.lastName) ??
+        AuthValidators.email(details.email);
+    if (error != null) return Left(ValidationFailure(error));
+
+    return guard<User>(() async {
+      // الطلب يُرسل بالتوكن المحفوظ في verifyOtp؛ بعد نجاحه تُفتح الجلسة.
+      final user = await _remote.completeProfile(details);
+      await _local.saveUser(user);
+      return user;
+    });
   }
 
   @override

@@ -1,52 +1,46 @@
 import 'package:equatable/equatable.dart';
 
-/// بيانات نموذج إنشاء الحساب كما تُجمع عبر خطوات صفحة التسجيل.
+/// كيف تعرّف المستخدم على التطبيق.
+enum AppSource { school, friend, facebook, instagram, youtube, other }
+
+enum Gender { female, male }
+
+/// بيانات إكمال الحساب كما تُجمع عبر خطوات صفحة التسجيل. رقم الهاتف لا يُرسل
+/// هنا لأن الخادم عرفه عند التحقق من الرمز.
 class RegistrationDetails extends Equatable {
   const RegistrationDetails({
     required this.firstName,
     required this.lastName,
     required this.email,
-    required this.phone,
-    required this.school,
     required this.source,
-    required this.schoolKind,
+    required this.schoolId,
     required this.gender,
     required this.age,
-    required this.track,
+    required this.branchId,
   });
 
   final String firstName;
   final String lastName;
   final String email;
-  final String phone;
+  final AppSource source;
 
-  /// اسم المدرسة أو المؤسسة التعليمية.
-  final String school;
-
-  /// كيف تعرّف المستخدم على التطبيق.
-  final String source;
-
-  /// نوع المؤسسة: مدرسة أو معهد.
-  final String schoolKind;
-  final String gender;
+  /// معرّف المدرسة أو المعهد من قائمة الخادم.
+  final String schoolId;
+  final Gender gender;
   final int age;
 
-  /// الفرع الدراسي (علمي/أدبي/تجاري).
-  final String track;
-
-  String get fullName => '$firstName $lastName'.trim();
+  /// معرّف الفرع الدراسي من قائمة الخادم.
+  final String branchId;
 
   @override
   List<Object?> get props => [
         firstName,
         lastName,
         email,
-        phone,
-        school,
         source,
-        schoolKind,
+        schoolId,
         gender,
         age,
-        track,
+        branchId,
       ];
 }
