@@ -16,32 +16,37 @@ class RegistrationOptionsRemoteDataSourceImpl implements RegistrationOptionsRemo
   static const _schoolTypes = {SchoolKind.school: 1, SchoolKind.institute: 2};
 
   @override
-  Future<List<LookupOption>> getGovernorates() async {
+  Future<List<LookupOption>> getGovernorates() {
     // المحافظات تصل كخريطة {"damascus": "دمشق", ...} لا كقائمة.
-    final data = await _client.get('/governorates/all') as Map<String, dynamic>;
-    return [
-      for (final entry in data.entries) LookupOption(id: entry.key, name: '${entry.value}'),
-    ];
+    return _client.get(
+      '/governorates/all',
+      parse: (data) => [
+        for (final entry in (data as Map<String, dynamic>).entries)
+          LookupOption(id: entry.key, name: '${entry.value}'),
+      ],
+    );
   }
 
   @override
-  Future<List<LookupOption>> getSchools({SchoolKind? kind, String? governorateId}) async {
-    final data = await _client.get(
+  Future<List<LookupOption>> getSchools({SchoolKind? kind, String? governorateId}) {
+    return _client.get(
       '/schools/all',
       query: {
         if (kind != null) 'type': _schoolTypes[kind],
         'governorate': ?governorateId,
       },
+      parse: _options,
     );
-    return _options(data);
   }
 
   @override
-  Future<List<LookupOption>> getBranches() async => _options(await _client.get('/branches/all'));
+  Future<List<LookupOption>> getBranches() => _client.get('/branches/all', parse: _options);
 
   /// القوائم بالشكل [{"id": 7, "name": "..."}]؛ بقية الحقول لا تلزم التسجيل.
+  /// كل عنصر يُحوَّل إلى Map أولاً: الوصول إلى `item['id']` على عنصر dynamic من
+  /// نوع آخر يرمي NoSuchMethodError، وهذا لا يحوّله [ApiClient].
   static List<LookupOption> _options(dynamic data) => [
-        for (final item in data as List)
+        for (final item in (data as List).cast<Map<String, dynamic>>())
           LookupOption(id: '${item['id']}', name: '${item['name']}'),
       ];
 }

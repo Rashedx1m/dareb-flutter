@@ -1,5 +1,8 @@
 import 'package:educational_app/core/di/injection.dart';
+import 'package:educational_app/core/network/session_expiry.dart';
 import 'package:educational_app/core/router/app_router.dart';
+import 'package:educational_app/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:educational_app/features/auth/data/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -37,5 +40,22 @@ void main() {
     router.go('/login');
     await tester.pump();
     expect(location(router), '/login');
+  });
+
+  testWidgets('انتهاء الجلسة من الخادم يعيد المستخدم إلى الدخول', (tester) async {
+    final local = sl<AuthLocalDataSource>();
+    addTearDown(local.clear);
+    await local.saveToken('30|abc');
+    await local.saveUser(UserModel(id: '30', phone: '0930000000', firstName: 'أحمد'));
+    final router = await pumpRouter(tester);
+    router.go('/about');
+    await tester.pump();
+    expect(location(router), '/about');
+
+    await sl<SessionExpiry>().expire();
+    await tester.pump();
+
+    expect(location(router), '/login');
+    expect(local.token, isNull);
   });
 }

@@ -39,19 +39,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String phone,
     required String code,
     required String deviceId,
-  }) async {
-    final data = await _client.post(
+  }) {
+    return _client.post(
       '/auth/active',
       fields: {'phone': phone, 'verification_code': code, 'device_id': deviceId},
+      parse: (data) => AuthSessionModel.fromJson(data as Map<String, dynamic>),
     );
-    return AuthSessionModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
-  Future<UserModel> getProfile() async {
-    final data = await _client.get('/profile/get');
-    return UserModel.fromJson(data as Map<String, dynamic>);
-  }
+  Future<UserModel> getProfile() => _client.get('/profile/get', parse: _user);
 
   /// قيم `gender` في الخادم.
   static const _genders = {Gender.female: 0, Gender.male: 1};
@@ -67,8 +64,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   };
 
   @override
-  Future<UserModel> completeProfile(RegistrationDetails details) async {
-    final data = await _client.post(
+  Future<UserModel> completeProfile(RegistrationDetails details) {
+    return _client.post(
       '/users/edit',
       fields: {
         'f_name': details.firstName,
@@ -80,12 +77,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'age': details.age,
         'know_about_app': _sources[details.source],
       },
+      parse: _user,
     );
-    return UserModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<void> logout() async {
     await _client.get('/auth/logout');
   }
+
+  static UserModel _user(dynamic data) => UserModel.fromJson(data as Map<String, dynamic>);
 }

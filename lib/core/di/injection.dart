@@ -55,6 +55,7 @@ import '../../features/subscription/domain/repositories/subscription_repository.
 import '../../features/subscription/domain/usecases/get_plans.dart';
 import '../../features/subscription/presentation/cubit/plans_cubit.dart';
 import '../network/api_client.dart';
+import '../network/session_expiry.dart';
 
 final sl = GetIt.instance;
 
@@ -64,8 +65,15 @@ Future<void> initDependencies() async {
   final prefs = await SharedPreferences.getInstance();
   sl
     ..registerSingleton<SharedPreferences>(prefs)
+    // المسح محلي فقط: إبلاغ الخادم بالخروج سيُرفض بالتوكن نفسه (401) من جديد.
+    ..registerLazySingleton(() => SessionExpiry(() => sl<AuthLocalDataSource>().clear()))
     // كل طلب يقرأ توكن الجلسة المحفوظ لحظة إرساله.
-    ..registerLazySingleton(() => ApiClient(readToken: () => sl<AuthLocalDataSource>().token));
+    ..registerLazySingleton(
+      () => ApiClient(
+        readToken: () => sl<AuthLocalDataSource>().token,
+        onUnauthorized: () => sl<SessionExpiry>().expire(),
+      ),
+    );
 
   _initAuth();
   _initCourses();

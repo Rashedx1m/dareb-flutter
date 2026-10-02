@@ -10,7 +10,9 @@ typedef TokenReader = String? Function();
 /// الرد `{message, data}` فيعيد `data` مباشرة، ويحوّل أخطاء الخادم إلى
 /// استثناءات طبقة البيانات برسائله العربية.
 class ApiClient {
-  ApiClient({required TokenReader readToken, Dio? dio})
+  /// [onUnauthorized] يُستدعى حين يرفض الخادم (401) طلباً أُرسل بتوكن، أي أن
+  /// الجلسة انتهت أو أُبطلت.
+  ApiClient({required TokenReader readToken, this._onUnauthorized, Dio? dio})
       : _dio = dio ??
       Dio(
         BaseOptions(
@@ -33,24 +35,55 @@ class ApiClient {
   }
 
   final Dio _dio;
+  final void Function()? _onUnauthorized;
 
-  Future<dynamic> get(String path, {Map<String, dynamic>? query}) {
-    return _send(() => _dio.get<Object?>(path, queryParameters: query));
+  static const _unexpectedResponse = ServerException('رد غير متوقع من الخادم');
+
+  /// [parse] يحوّل `data` إلى النوع المطلوب. مرّره لكل رد تقرأه، ليصبح الرد
+  /// بشكل غير متوقع [ServerException] بدل خطأ برمجي يعلّق الواجهة.
+  Future<T> get<T>(
+    String path, {
+    Map<String, dynamic>? query,
+    T Function(dynamic data)? parse,
+  }) {
+    return _send(() => _dio.get<Object?>(path, queryParameters: query), parse);
   }
 
   /// الخادم يقرأ الحقول كـ form-data، تماماً كما في ملف Postman.
-  Future<dynamic> post(String path, {Map<String, dynamic>? fields}) {
+  Future<T> post<T>(
+    String path, {
+    Map<String, dynamic>? fields,
+    T Function(dynamic data)? parse,
+  }) {
     return _send(
-          () => _dio.post<Object?>(path, data: fields == null ? null : FormData.fromMap(fields)),
+      () => _dio.post<Object?>(path, data: fields == null ? null : FormData.fromMap(fields)),
+      parse,
     );
   }
 
-  Future<dynamic> _send(Future<Response<Object?>> Function() request) async {
+  Future<T> _send<T>(
+    Future<Response<Object?>> Function() request,
+    T Function(dynamic data)? parse,
+  ) async {
+    final dynamic data;
     try {
       final body = (await request()).data;
-      return body is Map ? body['data'] : body;
+      data = body is Map ? body['data'] : body;
     } on DioException catch (e) {
+      // 401 بلا توكن ليس انتهاء جلسة، فلا جلسة أصلاً.
+      if (e.response?.statusCode == 401 && e.requestOptions.headers.containsKey('Authorization')) {
+        _onUnauthorized?.call();
+      }
       throw _mapError(e);
+    }
+    if (parse == null) return data as T;
+    try {
+      return parse(data);
+    } on TypeError {
+      // حقل ناقص أو بنوع مختلف عمّا تتوقعه الـ Models.
+      throw _unexpectedResponse;
+    } on FormatException {
+      throw _unexpectedResponse;
     }
   }
 

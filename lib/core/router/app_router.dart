@@ -39,6 +39,7 @@ import '../../features/subscription/presentation/cubit/plans_cubit.dart';
 import '../../features/subscription/presentation/pages/checkout_page.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../di/injection.dart';
+import '../network/session_expiry.dart';
 import '../widgets/app_shell.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
@@ -50,6 +51,8 @@ GoRouter createRouter() {
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: '/',
+    // انتهاء الجلسة يحدث خارج الواجهة (رد 401)، فيُعاد تقييم redirect عنده.
+    refreshListenable: sl<SessionExpiry>(),
     redirect: (context, state) {
       final location = state.matchedLocation;
       // شاشة البداية تقرر وجهتها بنفسها بعد عرض الشعار.
