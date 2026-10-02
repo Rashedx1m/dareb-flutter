@@ -27,8 +27,12 @@ const _details = RegistrationDetails(
 /// خادم مزيّف: يسجّل الاستدعاءات، ويرمي [error] إن ضُبط.
 class _FakeRemote implements AuthRemoteDataSource {
   AuthSessionModel? session;
+  UserModel? profile;
   Exception? error;
   final calls = <String>[];
+
+  /// يُنفَّذ أثناء طلب `profile/get`، لمحاكاة ما يحدث قبل وصول الرد.
+  Future<void> Function()? whileFetchingProfile;
 
   @override
   Future<void> login(String phone) async {
@@ -48,7 +52,12 @@ class _FakeRemote implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> getProfile() async => session!.user;
+  Future<UserModel> getProfile() async {
+    calls.add('getProfile');
+    await whileFetchingProfile?.call();
+    if (error != null) throw error!;
+    return profile!;
+  }
 
   @override
   Future<UserModel> completeProfile(RegistrationDetails details) async {
@@ -194,6 +203,49 @@ void main() {
       final result = await repository.register(_details);
 
       expect(result, const Left<Failure, User>(ValidationFailure('الحقل الجهات الدراسية مطلوب.')));
+      expect(repository.cachedUser, isNull);
+    });
+  });
+
+  group('refreshProfile', () {
+    final updated = UserModel(
+      id: '30',
+      phone: '0930000000',
+      firstName: 'Rashed',
+      lastName: 'Eybo',
+      points: 120,
+      enrolledCoursesCount: 3,
+    );
+
+    setUp(() {
+      local
+        ..token = '30|abc'
+        ..cachedUser = _complete;
+      remote.profile = updated;
+    });
+
+    test('يجلب المستخدم من الخادم ويحدّث النسخة المحفوظة', () async {
+      final result = await repository.refreshProfile();
+
+      expect(result, Right<Failure, User>(updated));
+      expect(remote.calls, ['getProfile']);
+      expect(repository.cachedUser, updated);
+    });
+
+    test('فشل الخادم يصل Failure ويُبقي النسخة المحفوظة', () async {
+      remote.error = const ServerException('تعذّر الاتصال بالخادم');
+
+      final result = await repository.refreshProfile();
+
+      expect(result, const Left<Failure, User>(ServerFailure('تعذّر الاتصال بالخادم')));
+      expect(repository.cachedUser, _complete);
+    });
+
+    test('خروج قبل وصول الرد: لا يُعاد حفظ المستخدم', () async {
+      remote.whileFetchingProfile = local.clear;
+
+      await repository.refreshProfile();
+
       expect(repository.cachedUser, isNull);
     });
   });

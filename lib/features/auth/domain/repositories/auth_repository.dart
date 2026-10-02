@@ -21,6 +21,10 @@ abstract class AuthRepository {
   /// المستخدم الحالي، أو `null` إذا لم تُفتح جلسة بعد.
   Future<Either<Failure, User?>> currentUser();
 
+  /// يجلب المستخدم من الخادم ويحدّث نسخته المحفوظة، لأن النقاط وعدد المواد
+  /// تتغير على الخادم بعد الدخول.
+  Future<Either<Failure, User>> refreshProfile();
+
   /// الجلسة المحمّلة محلياً دون انتظار. تُحدَّث مع كل حفظ أو خروج.
   User? get cachedUser;
 

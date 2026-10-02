@@ -68,6 +68,17 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User?>> currentUser() async => Right(_local.cachedUser);
 
   @override
+  Future<Either<Failure, User>> refreshProfile() {
+    return guard<User>(() async {
+      final token = _local.token;
+      final user = await _remote.getProfile();
+      // خرج المستخدم أو انتهت جلسته قبل وصول الرد: لا يُعاد حفظ مستخدم جلسة أُغلقت.
+      if (_local.token == token) await _local.saveUser(user);
+      return user;
+    });
+  }
+
+  @override
   Future<Either<Failure, void>> logout() async {
     // فشل إبلاغ الخادم (انقطاع أو توكن منتهٍ) لا يمنع الخروج من الجهاز.
     await guard(_remote.logout);

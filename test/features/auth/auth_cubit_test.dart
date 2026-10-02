@@ -44,6 +44,9 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Either<Failure, User?>> currentUser() async => Right(_user);
 
   @override
+  Future<Either<Failure, User>> refreshProfile() => _result(_user);
+
+  @override
   User? get cachedUser => existingUser ?? _user;
 
   @override

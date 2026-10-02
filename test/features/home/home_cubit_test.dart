@@ -3,6 +3,7 @@ import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/refresh_profile_usecase.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
@@ -74,26 +75,35 @@ class _FakeNewsRepository implements NewsRepository {
       failure != null ? Left(failure!) : const Right(_news);
 }
 
-/// الصفحة الرئيسية تحتاج `currentUser` فقط من مستودع المصادقة.
+/// الصفحة الرئيسية تحتاج من مستودع المصادقة المستخدم المحفوظ ونسخته من الخادم.
+/// بلا [fresh] يفشل التحديث، فتُعرض النسخة المحفوظة.
 class _FakeAuthRepository extends Fake implements AuthRepository {
-  _FakeAuthRepository(this.user);
+  _FakeAuthRepository(this.user, {this.fresh});
 
   final User? user;
+  final User? fresh;
 
   @override
   Future<Either<Failure, User?>> currentUser() async => Right(user);
+
+  @override
+  Future<Either<Failure, User>> refreshProfile() async =>
+      fresh == null ? const Left(ServerFailure()) : Right(fresh!);
 }
 
 HomeCubit _cubit(
   _FakeCoursesRepository repository, {
   _FakeNewsRepository? news,
   User? user = _user,
+  User? fresh,
 }) {
+  final auth = _FakeAuthRepository(user, fresh: fresh);
   return HomeCubit(
     getCourses: GetCourses(repository),
     getCategories: GetCategories(repository),
     getNews: GetNews(news ?? _FakeNewsRepository()),
-    getCurrentUser: GetCurrentUserUseCase(_FakeAuthRepository(user)),
+    getCurrentUser: GetCurrentUserUseCase(auth),
+    refreshProfile: RefreshProfileUseCase(auth),
   );
 }
 
@@ -108,7 +118,16 @@ void main() {
     expect(cubit.state.news, _news);
   });
 
-  test('load يأخذ الاسم والنقاط والإنجاز من مستخدم الجلسة', () async {
+  test('load يعرض المستخدم المحدّث من الخادم', () async {
+    const fresh = User(id: 'u1', name: 'أحمد', phone: '0501234567', points: 120);
+    final cubit = _cubit(_FakeCoursesRepository(), fresh: fresh);
+    await cubit.load();
+
+    expect(cubit.state.user, fresh);
+    expect(cubit.state.points, 120);
+  });
+
+  test('تعذّر التحديث: الاسم والنقاط والإنجاز من النسخة المحفوظة', () async {
     final cubit = _cubit(_FakeCoursesRepository());
     await cubit.load();
 
