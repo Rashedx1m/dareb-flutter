@@ -19,6 +19,7 @@ import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/refresh_profile_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/request_otp_usecase.dart';
+import '../../features/auth/domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
@@ -97,6 +98,7 @@ void _initAuth() {
     ..registerLazySingleton(() => VerifyOtpUseCase(sl()))
     ..registerLazySingleton(() => GetCurrentUserUseCase(sl()))
     ..registerLazySingleton(() => RefreshProfileUseCase(sl()))
+    ..registerLazySingleton(() => UpdateProfileUseCase(sl()))
     ..registerLazySingleton(() => LogoutUseCase(sl()))
     ..registerLazySingleton<RegistrationOptionsRemoteDataSource>(
       () => RegistrationOptionsRemoteDataSourceImpl(sl()),
@@ -200,6 +202,11 @@ void _initSubscription() {
 
 void _initProfile() {
   sl.registerFactory(
-    () => ProfileCubit(getCurrentUser: sl(), refreshProfile: sl(), logout: sl()),
+    () => ProfileCubit(
+      getCurrentUser: sl(),
+      refreshProfile: sl(),
+      updateProfile: sl(),
+      logout: sl(),
+    ),
   );
 }

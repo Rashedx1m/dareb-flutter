@@ -54,7 +54,15 @@ void main() {
     expect(user.isProfileComplete, isTrue);
   });
 
-  test('toJson ثم fromJson يعيد المستخدم نفسه', () {
+  test('يقرأ المدرسة من profile/get، ورد auth/active بلا مدرسة', () {
+    expect(
+      UserModel.fromJson(_completeUserJson).school,
+      const School(id: '7', name: 'مدرسة يامن', governorateId: 'damascus'),
+    );
+    expect(UserModel.fromJson(_newUserJson).school, isNull);
+  });
+
+  test('toJson ثم fromJson يعيد المستخدم نفسه، بمدرسته', () {
     final user = UserModel.fromJson(_completeUserJson);
 
     expect(UserModel.fromJson(user.toJson()), user);

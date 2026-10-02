@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
 import '../../domain/auth_validators.dart';
+import '../../domain/entities/profile_update.dart';
 import '../../domain/entities/registration_details.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -74,6 +75,18 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _remote.getProfile();
       // خرج المستخدم أو انتهت جلسته قبل وصول الرد: لا يُعاد حفظ مستخدم جلسة أُغلقت.
       if (_local.token == token) await _local.saveUser(user);
+      return user;
+    });
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile(ProfileUpdate update) async {
+    final error = AuthValidators.name(update.firstName) ?? AuthValidators.name(update.lastName);
+    if (error != null) return Left(ValidationFailure(error));
+
+    return guard<User>(() async {
+      final user = await _remote.updateProfile(update);
+      await _local.saveUser(user);
       return user;
     });
   }

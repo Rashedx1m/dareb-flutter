@@ -29,7 +29,11 @@ class ProfilePage extends StatelessWidget {
               else
                 _ProfileHeader(user: user),
               const SizedBox(height: 20),
-              _Item(Icons.edit_outlined, AppStrings.editProfile, () => context.push('/edit-profile')),
+              _Item(Icons.edit_outlined, AppStrings.editProfile, () async {
+                await context.push('/edit-profile');
+                // الحفظ حدّث المستخدم المحفوظ، فتُقرأ نسخته الجديدة.
+                if (context.mounted) context.read<ProfileCubit>().load();
+              }),
               _Item(Icons.menu_book_outlined, AppStrings.myCourses, () => context.push('/my-courses')),
               _Item(Icons.emoji_events_outlined, AppStrings.achievements, () => context.push('/achievements')),
               _Item(Icons.workspace_premium_outlined, AppStrings.subscription, () => context.push('/subscription')),

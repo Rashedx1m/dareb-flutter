@@ -6,6 +6,7 @@ import 'package:educational_app/features/auth/data/datasources/auth_remote_data_
 import 'package:educational_app/features/auth/data/models/auth_session_model.dart';
 import 'package:educational_app/features/auth/data/models/user_model.dart';
 import 'package:educational_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,13 @@ class _FakeRemote implements AuthRemoteDataSource {
     calls.add('completeProfile ${details.firstName}');
     if (error != null) throw error!;
     return _complete;
+  }
+
+  @override
+  Future<UserModel> updateProfile(ProfileUpdate update) async {
+    calls.add('updateProfile ${update.firstName} ${update.lastName} ${update.schoolId}');
+    if (error != null) throw error!;
+    return profile!;
   }
 
   @override
@@ -247,6 +255,50 @@ void main() {
       await repository.refreshProfile();
 
       expect(repository.cachedUser, isNull);
+    });
+  });
+
+  group('updateProfile', () {
+    const update = ProfileUpdate(firstName: 'Rashid', lastName: 'Eybo', schoolId: '9');
+    final renamed = UserModel(
+      id: '30',
+      phone: '0930000000',
+      firstName: 'Rashid',
+      lastName: 'Eybo',
+      school: const School(id: '9', name: 'مدرسة الأمل', governorateId: 'aleppo'),
+    );
+
+    setUp(() {
+      local
+        ..token = '30|abc'
+        ..cachedUser = _complete;
+      remote.profile = renamed;
+    });
+
+    test('يرسل التعديل ويحفظ المستخدم الذي يعيده الخادم', () async {
+      final result = await repository.updateProfile(update);
+
+      expect(result, Right<Failure, User>(renamed));
+      expect(remote.calls, ['updateProfile Rashid Eybo 9']);
+      expect(repository.cachedUser, renamed);
+    });
+
+    test('يرفض اسماً فارغاً دون الاتصال بالخادم', () async {
+      final result = await repository.updateProfile(
+        const ProfileUpdate(firstName: 'Rashed', lastName: '  ', schoolId: '7'),
+      );
+
+      expect(result.isLeft(), isTrue);
+      expect(remote.calls, isEmpty);
+    });
+
+    test('رفض الخادم (422) يصل برسالته ويُبقي النسخة المحفوظة', () async {
+      remote.error = const ValidationException('الحقل الجهات الدراسية لاغٍ');
+
+      final result = await repository.updateProfile(update);
+
+      expect(result, const Left<Failure, User>(ValidationFailure('الحقل الجهات الدراسية لاغٍ')));
+      expect(repository.cachedUser, _complete);
     });
   });
 

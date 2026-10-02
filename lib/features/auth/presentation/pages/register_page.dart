@@ -13,6 +13,7 @@ import '../../domain/entities/registration_details.dart';
 import '../../domain/usecases/get_registration_options.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/registration_options_cubit.dart';
+import '../widgets/lookup_sheet.dart';
 
 enum _RegisterStep { info, source, schoolType, school, gender, age, branch, success }
 
@@ -141,46 +142,16 @@ class _RegisterPageState extends State<RegisterPage> {
         );
   }
 
+  /// حقل المحافظة لا يظهر إلا بعد وصول القائمة، فتُعرض جاهزة.
   Future<void> _pickGovernorate(List<LookupOption> governorates) async {
-    final selected = await showModalBottomSheet<LookupOption>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    final selected = await LookupSheet.show(
+      context,
+      LookupSheet(
+        title: AppStrings.governorateHint,
+        status: OptionsStatus.success,
+        items: governorates,
+        onRetry: context.read<RegistrationOptionsCubit>().load,
       ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: ConstrainedBox(
-            // 14 محافظة لا تتسع لكل الشاشات، فتُمرَّر القائمة ضمن 70% من الارتفاع.
-            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.7),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 12),
-                const Text(
-                  AppStrings.governorateHint,
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      for (final item in governorates)
-                        ListTile(
-                          title: Text(item.name, textAlign: TextAlign.center),
-                          onTap: () => Navigator.pop(sheetContext, item),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
     );
     if (selected == null || selected == _governorate || !mounted) return;
     setState(() {

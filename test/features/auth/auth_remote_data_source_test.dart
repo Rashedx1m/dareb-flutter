@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:educational_app/core/error/exceptions.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
+import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_http_adapter.dart';
@@ -130,6 +132,30 @@ void main() {
       // لا يوجد «يوتيوب» على الخادم، فيُرسل كـ «غير ذلك».
       'know_about_app': '5',
     });
+  });
+
+  test('updateProfile يرسل الاسم والمدرسة فقط إلى users/update', () async {
+    token = '30|abc';
+    adapter.on('/users/update', body: {
+      'message': 'تم تعديل البيانات بنجاح',
+      'data': {
+        ..._newUserJson,
+        'f_name': 'Rashid',
+        'l_name': 'Eybo',
+        'school': {'id': 9, 'name': 'مدرسة الأمل', 'governorate': 'aleppo'},
+      },
+    });
+
+    final user = await remote.updateProfile(
+      const ProfileUpdate(firstName: 'Rashid', lastName: 'Eybo', schoolId: '9'),
+    );
+
+    expect(user.name, 'Rashid Eybo');
+    expect(user.school, const School(id: '9', name: 'مدرسة الأمل', governorateId: 'aleppo'));
+    final request = adapter.requests.single;
+    expect(request.method, 'POST');
+    expect(request.headers['Authorization'], 'Bearer 30|abc');
+    expect(formFields(request), {'f_name': 'Rashid', 'l_name': 'Eybo', 'school_id': '9'});
   });
 
   test('401 يصل AuthException برسالة عربية', () async {

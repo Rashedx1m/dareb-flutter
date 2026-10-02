@@ -123,6 +123,10 @@ abstract final class AppStrings {
   static const contact = 'تواصل معنا';
   static const logout = 'تسجيل الخروج';
   static const editProfile = 'تعديل الملف';
+  static const studyPlace = 'الجهة الدراسية';
+  static const pickStudyPlace = 'اختر الجهة الدراسية';
+  static const noSchoolsInGovernorate = 'لا توجد جهات دراسية في المحافظة المختارة';
+  static const saveChanges = 'حفظ التغييرات';
   static const faq = 'الأسئلة الشائعة';
   static const startLesson = 'ابدأ الدرس';
   static const subscribe = 'اشترك الآن';

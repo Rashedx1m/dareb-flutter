@@ -1,4 +1,5 @@
 import '../../../../core/network/api_client.dart';
+import '../../domain/entities/profile_update.dart';
 import '../../domain/entities/registration_details.dart';
 import '../models/auth_session_model.dart';
 import '../models/user_model.dart';
@@ -19,6 +20,9 @@ abstract class AuthRemoteDataSource {
 
   /// يُكمل بيانات حساب جديد (`users/edit`) بتوكنه، ويعيد المستخدم مكتملاً.
   Future<UserModel> completeProfile(RegistrationDetails details);
+
+  /// يعدّل الاسم والمدرسة لحساب مكتمل (`users/update`).
+  Future<UserModel> updateProfile(ProfileUpdate update);
 
   Future<void> logout();
 }
@@ -76,6 +80,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'gender': _genders[details.gender],
         'age': details.age,
         'know_about_app': _sources[details.source],
+      },
+      parse: _user,
+    );
+  }
+
+  @override
+  Future<UserModel> updateProfile(ProfileUpdate update) {
+    return _client.post(
+      '/users/update',
+      fields: {
+        'f_name': update.firstName,
+        'l_name': update.lastName,
+        'school_id': update.schoolId,
       },
       parse: _user,
     );

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
@@ -45,6 +46,9 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> refreshProfile() => _result(_user);
+
+  @override
+  Future<Either<Failure, User>> updateProfile(ProfileUpdate update) => _result(_user);
 
   @override
   User? get cachedUser => existingUser ?? _user;

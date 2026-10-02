@@ -26,6 +26,7 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/simple_pages.dart';
 import '../../features/quiz/presentation/bloc/quiz_bloc.dart';
@@ -246,8 +247,13 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: '/edit-profile',
-        builder: (_, _) => BlocProvider(
-          create: (_) => sl<ProfileCubit>()..load(),
+        builder: (_, _) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => sl<ProfileCubit>()..load()),
+            // المحافظات ومدارسها لتغيير الجهة الدراسية. تُطلب مع فتح الصفحة لا عند
+            // بناء النموذج، فتصل بالتوازي مع المستخدم.
+            BlocProvider(lazy: false, create: (_) => sl<RegistrationOptionsCubit>()..load()),
+          ],
           child: const EditProfilePage(),
         ),
       ),
