@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
 import '../../../auth/domain/auth_validators.dart';
+import '../../domain/entities/contact_links.dart';
 import '../../domain/entities/contact_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import '../datasources/support_remote_data_source.dart';
@@ -30,4 +31,7 @@ class SupportRepositoryImpl implements SupportRepository {
       ),
     );
   }
+
+  @override
+  Future<Either<Failure, ContactLinks>> getContactLinks() => guard(_remote.getContactLinks);
 }

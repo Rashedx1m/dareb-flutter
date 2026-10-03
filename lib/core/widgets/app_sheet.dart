@@ -212,7 +212,7 @@ Future<bool> showConfirmDialog(BuildContext context, {required String title}) as
             SheetHeader(title: title, onClose: () => Navigator.of(dialogContext).pop(false)),
             const SizedBox(height: 20),
             SheetActions(
-              primaryLabel: AppStrings.confirmAction,
+              primaryLabel: AppStrings.confirm,
               onPrimary: () => Navigator.of(dialogContext).pop(true),
               secondaryLabel: AppStrings.back,
               onSecondary: () => Navigator.of(dialogContext).pop(false),

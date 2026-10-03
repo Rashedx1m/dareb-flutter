@@ -65,7 +65,9 @@ import '../../features/subscription/presentation/cubit/plans_cubit.dart';
 import '../../features/support/data/datasources/support_remote_data_source.dart';
 import '../../features/support/data/repositories/support_repository_impl.dart';
 import '../../features/support/domain/repositories/support_repository.dart';
+import '../../features/support/domain/usecases/get_contact_links.dart';
 import '../../features/support/domain/usecases/send_contact_message.dart';
+import '../../features/support/presentation/cubit/about_cubit.dart';
 import '../../features/support/presentation/cubit/contact_cubit.dart';
 import '../network/api_client.dart';
 import '../network/session_expiry.dart';
@@ -231,7 +233,9 @@ void _initSupport() {
     ..registerLazySingleton<SupportRemoteDataSource>(() => SupportRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<SupportRepository>(() => SupportRepositoryImpl(sl()))
     ..registerLazySingleton(() => SendContactMessage(sl()))
-    ..registerFactory(() => ContactCubit(sl()));
+    ..registerLazySingleton(() => GetContactLinks(sl()))
+    ..registerFactory(() => ContactCubit(sl()))
+    ..registerFactory(() => AboutCubit(sl()));
 }
 
 void _initDownloads() {

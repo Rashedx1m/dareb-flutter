@@ -6,6 +6,7 @@ import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/support/data/datasources/support_remote_data_source.dart';
 import 'package:educational_app/features/support/data/repositories/support_repository_impl.dart';
+import 'package:educational_app/features/support/domain/entities/contact_links.dart';
 import 'package:educational_app/features/support/domain/entities/contact_message.dart';
 import 'package:educational_app/features/support/domain/usecases/send_contact_message.dart';
 import 'package:educational_app/features/support/presentation/cubit/contact_cubit.dart';
@@ -75,6 +76,28 @@ void main() {
     });
     await cubit.send(_message);
     expect(cubit.state, const ContactState(status: ContactStatus.failure, error: 'الحقل النص مطلوب.'));
+  });
+
+  test('روابط التواصل من infos/all، والرابط الفارغ يصير null', () async {
+    adapter.on('/infos/all', body: {
+      'message': 'المعلومات الموجودة',
+      'data': {
+        'email': 'a@b.c',
+        'facebook': 'https://www.facebook.com/dareb',
+        'instagram': ' ',
+        'telegram': 'https://t.me/dareb',
+        'whatsapp': null,
+      },
+    });
+
+    final result = await repository.getContactLinks();
+
+    expect(
+      result,
+      const Right<Failure, ContactLinks>(
+        ContactLinks(facebook: 'https://www.facebook.com/dareb', telegram: 'https://t.me/dareb'),
+      ),
+    );
   });
 
   test('رد 422 يصل ValidationException من مصدر البيانات', () async {

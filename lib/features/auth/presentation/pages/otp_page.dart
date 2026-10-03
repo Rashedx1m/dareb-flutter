@@ -131,7 +131,7 @@ class _OtpPageState extends State<OtpPage> {
                               style: const TextStyle(fontSize: 12),
                               children: [
                                 const TextSpan(
-                                  text: '${AppStrings.codeExpired} , ',
+                                  text: '${AppStrings.codeExpired} ',
                                   style: TextStyle(color: AppColors.textSecondary),
                                 ),
                                 TextSpan(

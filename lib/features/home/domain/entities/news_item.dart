@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// خبر يظهر في قسم «اخر الاخبار» على الصفحة الرئيسية.
+/// خبر يظهر في قسم «آخر الأخبار» على الصفحة الرئيسية.
 class NewsItem extends Equatable {
   const NewsItem({
     required this.id,

@@ -16,10 +16,12 @@ import 'package:educational_app/features/auth/domain/usecases/update_profile_use
 import 'package:educational_app/features/auth/presentation/cubit/registration_options_cubit.dart';
 import 'package:educational_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:educational_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:educational_app/features/support/domain/entities/contact_links.dart';
 import 'package:educational_app/features/support/domain/entities/contact_message.dart';
 import 'package:educational_app/features/support/domain/repositories/support_repository.dart';
 import 'package:educational_app/features/support/domain/usecases/send_contact_message.dart';
 import 'package:educational_app/features/support/presentation/cubit/contact_cubit.dart';
+import 'package:educational_app/features/support/presentation/widgets/contact_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,6 +93,9 @@ class _FakeSupportRepository implements SupportRepository {
     sent = message;
     return const Right(null);
   }
+
+  @override
+  Future<Either<Failure, ContactLinks>> getContactLinks() async => const Right(ContactLinks());
 }
 
 void main() {
@@ -169,7 +174,7 @@ void main() {
     for (final item in [
       AppStrings.faq,
       AppStrings.contact,
-      AppStrings.subscriptionItem,
+      AppStrings.subscription,
       AppStrings.achievements,
       AppStrings.about,
       AppStrings.privacyPolicy,
@@ -200,7 +205,7 @@ void main() {
     expect(auth.loggedOut, isFalse);
 
     await tap(tester, find.text(AppStrings.logout));
-    await tap(tester, find.text(AppStrings.confirmAction));
+    await tap(tester, find.text(AppStrings.confirm));
     expect(auth.loggedOut, isTrue);
     expect(find.text('page login'), findsOneWidget);
   });
@@ -229,17 +234,17 @@ void main() {
     await pumpPage(tester);
 
     await tap(tester, find.text(AppStrings.contact));
-    expect(find.text(AppStrings.contactSheetTitle), findsOneWidget);
+    expect(find.byType(ContactSheet), findsOneWidget);
     expect(find.text('0937857596'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, AppStrings.descriptionHint), 'سؤال عن الاشتراك');
-    await tap(tester, find.text(AppStrings.confirmAction));
+    await tap(tester, find.text(AppStrings.confirm));
 
     expect(
       support.sent,
       const ContactMessage(firstName: 'Rashed', lastName: 'Eybo', phone: '0937857596', text: 'سؤال عن الاشتراك'),
     );
-    expect(find.text(AppStrings.contactSheetTitle), findsNothing);
+    expect(find.byType(ContactSheet), findsNothing);
     expect(find.text(AppStrings.messageSent), findsOneWidget);
   });
 }

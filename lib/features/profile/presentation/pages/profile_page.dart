@@ -94,7 +94,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     _MenuItem(
                       PhosphorIconsRegular.envelopeSimpleOpen,
-                      AppStrings.subscriptionItem,
+                      AppStrings.subscription,
                       () => context.push('/subscription'),
                     ),
                     _MenuItem(PhosphorIconsRegular.medal, AppStrings.achievements, () => context.push('/achievements')),

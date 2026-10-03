@@ -3,14 +3,14 @@ abstract final class AppStrings {
   static const loginTitle = 'أدخل إلى ';
   static const txtAccount = ' حسابك';
   static const loginSubtitle = 'أهلاً بك من جديد! سجّل دخولك للمتابعة';
-  static const phoneHint = 'أكتب رقمك';
+  static const phoneHint = 'اكتب رقمك';
   static const login = 'سجل دخول';
-  static const registerTitle = 'إستكمل ';
+  static const registerTitle = 'استكمل ';
   static const registerTitleHighlight = 'معلوماتك';
-  static const registerSubtitle = 'عبأ معلوماتك لإنشاء الحساب!';
+  static const registerSubtitle = 'عبّئ معلوماتك لإنشاء الحساب!';
   static const firstNameHint = 'الاسم';
   static const lastNameHint = 'الكنية';
-  static const emailHint = 'أكتب الايميل';
+  static const emailHint = 'اكتب الإيميل';
   static const numberHint = 'الرقم';
   static const schoolHint = 'المدرسة';
   static const schoolGovernment = 'مدرسة حكومية';
@@ -23,12 +23,12 @@ abstract final class AppStrings {
   static const otpSubtitle = 'أدخل الرمز الذي أرسل إلى الرقم';
   static const confirm = 'التأكيد';
   static const resendCode = 'أعد إرسال الكود';
-  static const codeExpired = 'لم تستلم الرمز ؟';
-  static const timeEnded = 'الوقت أنتهى';
+  static const codeExpired = 'لم تستلم الرمز؟';
+  static const timeEnded = 'انتهى الوقت';
   static const next = 'التالي';
   static const back = 'الرجوع';
-  static const acceptTerms = 'أنا أوافق على الشروط و الأحكام';
-  static const termsTitle = 'الشروط و الأحكام';
+  static const acceptTerms = 'أنا أوافق على الشروط والأحكام';
+  static const termsTitle = 'الشروط والأحكام';
   static const termsAccept = 'موافق على الشروط';
   static const howDidYouKnow = 'كيفية معرفتك ';
   static const howDidYouKnowHighlight = 'بالتطبيق؟';
@@ -53,7 +53,7 @@ abstract final class AppStrings {
   static const ageLabel = 'العمر';
   static const congrats = 'مبروك!';
   static const congratsSubtitle = 'تم تسجيل حسابك بنجاح. نحن سعداء بانضمامك إلينا!';
-  static const goHome = 'الصفحة الرئيسة';
+  static const goHome = 'الصفحة الرئيسية';
 
   // رسائل التحقق من صحة حقول المصادقة.
   static const errorPhoneRequired = 'أدخل رقم هاتفك';
@@ -67,11 +67,11 @@ abstract final class AppStrings {
   static const courses = 'الدورات';
   static const tests = 'اختباراتي';
   static const profile = 'حسابي';
-  // شاشة «إختباراتي» (My Tests).
-  static const myTests = 'إختباراتي';
-  static const tabTests = 'إختبارات';
+  // شاشة «اختباراتي» (My Tests).
+  static const myTests = 'اختباراتي';
+  static const tabTests = 'اختبارات';
   static const tabDailyActivities = 'نشاطات يومية';
-  static const searchHere = 'أبحث هنا...';
+  static const searchHere = 'ابحث هنا...';
   static const questionUnit = 'سؤال';
   static const noTestsFound = 'لا توجد نتائج مطابقة';
   static const myTestsEntrySubtitle = 'اختباراتك ونشاطاتك اليومية';
@@ -79,8 +79,8 @@ abstract final class AppStrings {
   static const gallery = 'المعرض';
   static const galleryEmpty = 'لا توجد صور في هذا الألبوم بعد';
   static const photoCounter = 'من'; // «3 من 12»
-  static const searchHint = 'أبحث هنا...';
-  static const welcomeBack = 'أهلا بعودك ، ';
+  static const searchHint = 'ابحث هنا...';
+  static const welcomeBack = 'أهلاً بعودتك، ';
   static const pointsLabel = 'نقطة';
   static const coursesCountLabel = 'دورات';
   static const curriculumProgress = 'تقدم المنهاج ';
@@ -88,20 +88,20 @@ abstract final class AppStrings {
   static const progressSubtitle = 'أنت على الطريق الصحيح لإتمام دوراتك.';
   static const coursesCount = 'كورس';
   static const bannerTitle = 'طريقتك الجديدة للتفوق تبدأ من هنا.';
-  static const checkAccount = 'تفقد حسابك الان';
+  static const checkAccount = 'تفقّد حسابك الآن';
   static const subjects = 'المواد';
   static const showAll = 'أظهر الكل';
   static const science = 'العلوم';
   static const math = 'الرياضيات';
   static const socialStudies = 'الاجتماعيات';
-  static const latestNews = 'اخر الاخبار';
+  static const latestNews = 'آخر الأخبار';
   static const featuredCourses = 'أبرز الدورات';
   static const chaptersLabel = 'فصول';
   static const lessonsLabel = 'درس';
   static const loadError = 'تعذّر تحميل الصفحة، حاول مرة أخرى';
   static const retry = 'إعادة المحاولة';
   // نافذة/بطاقة «أكمل حسابك».
-  static const completeAccountNow = 'أكمل حسابك الان';
+  static const completeAccountNow = 'أكمل حسابك الآن';
   static const completeAccountTitle = 'أكمل حسابك';
   static const continueWord = 'أكمل';
   static const exitWord = 'الخروج';
@@ -125,35 +125,35 @@ abstract final class AppStrings {
   static const editProfile = 'تعديل الملف';
   static const noSchoolsInGovernorate = 'لا توجد جهات دراسية في المحافظة المختارة';
   static const faq = 'الأسئلة الشائعة';
-  // صفحات الملف الشخصي والدعم، بنصوص التصميم كما هي.
+  // صفحات الملف الشخصي والدعم.
   static const profileTitle = 'الملف الشخصي';
   static const supportSection = 'الدعم والمعلومات';
   static const settingsSection = 'الإعدادات';
-  static const subscriptionItem = 'الإشتراك';
   static const privacyPolicy = 'سياسة الخصوصية';
   static const downloadedCourses = 'الكورسات المحملة';
   static const usagePolicy = 'سياسة الاستخدام';
-  static const usagePolicyTitle = 'سياسة الأستخدام';
-  static const faqTitle = 'الاسئلة الشائعة';
   static const editProfileItem = 'تعديل على الملف الشخصي';
   static const statSemesters = 'الفصول';
   static const statPoints = 'النقاط';
   static const statCourses = 'الدورات';
   static const statLessons = 'الدروس';
   static const statMedals = 'الأوسمة';
-  static const confirmAction = 'التأكد';
   static const logoutConfirm = 'تأكيد تسجيل الخروج';
   static const editSheetTitle = 'عدل معلوماتك الشخصية';
   static const editAction = 'عدل';
-  static const contactSheetTitle = 'توصل معنا';
   static const descriptionHint = 'الوصف...';
   static const messageSent = 'تم إرسال رسالتك، سنتواصل معك قريباً';
   static const aboutDescription =
-      'تطبيق تعليمي شامل يقدم دروسا مبسطة واختبارات تفاعلية باللغة العربية، يساعد الطلاب على الفهم والمراجعة بسهولة وفي أي وقت.';
+      'تطبيق تعليمي شامل يقدم دروسًا مبسطة واختبارات تفاعلية باللغة العربية، يساعد الطلاب على الفهم والمراجعة بسهولة وفي أي وقت.';
   static const minutesUnit = 'دقيقة';
   static const pagesUnit = 'صفحة';
   static const noDownloads = 'لا توجد كورسات محملة بعد';
   static const avatarUpdated = 'تم تحديث صورتك';
+  static const facebook = 'فيسبوك';
+  static const instagram = 'إنستغرام';
+  static const telegram = 'تيليغرام';
+  static const whatsapp = 'واتساب';
+  static const linkOpenError = 'تعذّر فتح الرابط';
   static const errorImageType = 'الصورة يجب أن تكون بصيغة JPG أو PNG';
   static const startLesson = 'ابدأ الدرس';
   static const subscribe = 'اشترك الآن';

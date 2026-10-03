@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// نوع البطاقة في شاشة «إختباراتي»: اختبار أو نشاط يومي (تبويبان بنفس الشكل).
+/// نوع البطاقة في شاشة «اختباراتي»: اختبار أو نشاط يومي (تبويبان بنفس الشكل).
 enum QuizKind { test, activity }
 
 class Quiz extends Equatable {

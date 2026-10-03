@@ -6,7 +6,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
-/// نافذة التأكيد «أكمل حسابك الان» التي تظهر عند الضغط على «تفقد حسابك الان».
+/// نافذة التأكيد «أكمل حسابك الآن» التي تظهر عند الضغط على «تفقّد حسابك الآن».
 /// عند الضغط على «أكمل» تُفتح ورقة إكمال البيانات.
 Future<void> showCompleteAccountDialog(BuildContext context) {
   return showDialog<void>(

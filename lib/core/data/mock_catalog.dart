@@ -160,7 +160,7 @@ abstract final class MockCatalog {
     ),
   ];
 
-  // أسئلة رياضيات مشتركة تُستخدم في اختبارات ونشاطات شاشة «إختباراتي».
+  // أسئلة رياضيات مشتركة تُستخدم في اختبارات ونشاطات شاشة «اختباراتي».
   static const _mathQuestions = [
     QuizQuestion(
       id: 'm1',
@@ -194,14 +194,14 @@ abstract final class MockCatalog {
     ),
   ];
 
-  // بطاقات شاشة «إختباراتي»: تبويب «إختبارات» (kind=test) و«نشاطات يومية»
+  // بطاقات شاشة «اختباراتي»: تبويب «اختبارات» (kind=test) و«نشاطات يومية»
   // (kind=activity). كلاهما يفتح تدفق حل الأسئلة نفسه عند الضغط.
   static const quizzes = [
-    // ── إختبارات ──
-    Quiz(id: 'qt1', title: 'إختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt2', title: 'إختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt3', title: 'إختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.أحمد الحفار', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt4', title: 'إختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
+    // ── اختبارات ──
+    Quiz(id: 'qt1', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
+    Quiz(id: 'qt2', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
+    Quiz(id: 'qt3', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.أحمد الحفار', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
+    Quiz(id: 'qt4', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
     // ── نشاطات يومية ──
     Quiz(id: 'qa1', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
     Quiz(id: 'qa2', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),

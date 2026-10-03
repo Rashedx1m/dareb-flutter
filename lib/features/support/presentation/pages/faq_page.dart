@@ -27,7 +27,7 @@ class _FaqPageState extends State<FaqPage> {
       body: Column(
         children: [
           PageHeader(
-            title: AppStrings.faqTitle,
+            title: AppStrings.faq,
             onBack: () => context.pop(),
             onNotifications: () => context.push('/notifications'),
           ),

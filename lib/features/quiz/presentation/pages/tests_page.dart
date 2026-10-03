@@ -12,7 +12,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/quiz.dart';
 import '../bloc/quiz_bloc.dart';
 
-/// شاشة «إختباراتي»: ترويسة فيروزية بحقل بحث، تبويبان (إختبارات / نشاطات يومية)،
+/// شاشة «اختباراتي»: ترويسة فيروزية بحقل بحث، تبويبان (اختبارات / نشاطات يومية)،
 /// وقائمة بطاقات. الضغط على بطاقة يفتح تدفّق حلّ الأسئلة.
 class TestsPage extends StatefulWidget {
   const TestsPage({super.key});

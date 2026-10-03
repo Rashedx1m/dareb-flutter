@@ -10,7 +10,7 @@ import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/contact_message.dart';
 import '../cubit/contact_cubit.dart';
 
-/// ورقة «توصل معنا». الحقول تبدأ بالاسم والرقم من [user] إن وُجد.
+/// ورقة «تواصل معنا». الحقول تبدأ بالاسم والرقم من [user] إن وُجد.
 Future<void> showContactSheet(BuildContext context, {User? user}) async {
   final sent = await showAppSheet<bool>(
     context,
@@ -71,7 +71,7 @@ class _ContactSheetState extends State<ContactSheet> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SheetHeader(title: AppStrings.contactSheetTitle, icon: PhosphorIconsRegular.headset),
+            const SheetHeader(title: AppStrings.contact, icon: PhosphorIconsRegular.headset),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -112,7 +112,7 @@ class _ContactSheetState extends State<ContactSheet> {
             ],
             const SizedBox(height: 24),
             SheetActions(
-              primaryLabel: AppStrings.confirmAction,
+              primaryLabel: AppStrings.confirm,
               onPrimary: _send,
               loading: state.status == ContactStatus.sending,
             ),

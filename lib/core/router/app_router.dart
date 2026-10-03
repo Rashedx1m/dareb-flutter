@@ -181,7 +181,7 @@ GoRouter createRouter() {
           );
         },
       ),
-      // شاشة «إختباراتي» ليست تبويباً في الشريط السفلي (استبدلها المعرض حسب
+      // شاشة «اختباراتي» ليست تبويباً في الشريط السفلي (استبدلها المعرض حسب
       // التصميم)؛ تُفتح كمسار مستقل.
       GoRoute(
         path: '/tests',
@@ -260,7 +260,7 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: '/usage-policy',
-        builder: (_, _) => const PolicyPage(title: AppStrings.usagePolicyTitle, sections: usageSections),
+        builder: (_, _) => const PolicyPage(title: AppStrings.usagePolicy, sections: usageSections),
       ),
       GoRoute(
         path: '/downloads',
