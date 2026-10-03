@@ -31,6 +31,8 @@ const _completeUserJson = {
   'points': 12,
   'image': 'https://training.tamkeen-dev.com/dareb/public/assets/img/avatars/1.png',
   'subject_count': 3,
+  'semester_count': 2,
+  'medals': 5,
 };
 
 void main() {
@@ -51,6 +53,8 @@ void main() {
     expect(user.email, 'test@example.com');
     expect(user.points, 12);
     expect(user.enrolledCoursesCount, 3);
+    expect(user.semestersCount, 2);
+    expect(user.medalsCount, 5);
     expect(user.isProfileComplete, isTrue);
   });
 

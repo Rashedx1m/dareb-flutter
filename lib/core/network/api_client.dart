@@ -61,6 +61,31 @@ class ApiClient {
     );
   }
 
+  /// يرفع ملفاً في الحقل [field] (multipart). البايتات بدل مسار الملف حتى يعمل
+  /// على كل المنصات، والويب منها.
+  Future<T> upload<T>(
+    String path, {
+    required String field,
+    required List<int> bytes,
+    required String fileName,
+    required String contentType,
+    T Function(dynamic data)? parse,
+  }) {
+    return _send(
+      () => _dio.post<Object?>(
+        path,
+        data: FormData.fromMap({
+          field: MultipartFile.fromBytes(
+            bytes,
+            filename: fileName,
+            contentType: DioMediaType.parse(contentType),
+          ),
+        }),
+      ),
+      parse,
+    );
+  }
+
   Future<T> _send<T>(
     Future<Response<Object?>> Function() request,
     T Function(dynamic data)? parse,

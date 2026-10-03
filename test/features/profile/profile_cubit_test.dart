@@ -1,11 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_image.dart';
 import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:educational_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:educational_app/features/auth/domain/usecases/refresh_profile_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/update_profile_image_usecase.dart';
 import 'package:educational_app/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:educational_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 const _user = User(id: 'u1', name: 'أحمد', phone: '0501234567');
 const _fresh = User(id: 'u1', name: 'أحمد', phone: '0501234567', points: 120);
 const _renamed = User(id: 'u1', name: 'أحمد علي', phone: '0501234567');
+const _withAvatar = User(id: 'u1', name: 'أحمد', phone: '0501234567', avatarUrl: 'https://x/storage/14/avatar.jpg');
 const _update = ProfileUpdate(firstName: 'أحمد', lastName: 'علي', schoolId: '7');
 
 class _FakeAuthRepository extends Fake implements AuthRepository {
@@ -20,6 +25,7 @@ class _FakeAuthRepository extends Fake implements AuthRepository {
     this.user, {
     this.refreshed = const Right(_fresh),
     this.updated = const Right(_renamed),
+    this.imageUploaded = const Right(_withAvatar),
   });
 
   User? user;
@@ -30,6 +36,9 @@ class _FakeAuthRepository extends Fake implements AuthRepository {
   /// رد `users/update`.
   final Either<Failure, User> updated;
   ProfileUpdate? submitted;
+
+  /// رد `users/update-image`.
+  final Either<Failure, User> imageUploaded;
 
   @override
   Future<Either<Failure, User?>> currentUser() async => Right(user);
@@ -44,6 +53,9 @@ class _FakeAuthRepository extends Fake implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, User>> updateProfileImage(ProfileImage image) async => imageUploaded;
+
+  @override
   Future<Either<Failure, void>> logout() async {
     user = null;
     return const Right(null);
@@ -54,6 +66,7 @@ ProfileCubit _cubit(_FakeAuthRepository repository) => ProfileCubit(
       getCurrentUser: GetCurrentUserUseCase(repository),
       refreshProfile: RefreshProfileUseCase(repository),
       updateProfile: UpdateProfileUseCase(repository),
+      updateProfileImage: UpdateProfileImageUseCase(repository),
       logout: LogoutUseCase(repository),
     );
 
@@ -100,6 +113,31 @@ void main() {
 
       expect(cubit.state.saveStatus, SaveStatus.failure);
       expect(cubit.state.saveError, 'الحقل الجهات الدراسية لاغٍ');
+    });
+  });
+
+  group('changeAvatar', () {
+    final image = ProfileImage(bytes: Uint8List(3), fileName: 'me.jpg');
+
+    test('يمر بالرفع ثم saved ويعرض الصورة الجديدة', () async {
+      final cubit = _cubit(_FakeAuthRepository(_user));
+
+      final statuses = cubit.stream.map((state) => state.avatarStatus).take(2).toList();
+      await cubit.changeAvatar(image);
+
+      expect(await statuses, [SaveStatus.saving, SaveStatus.saved]);
+      expect(cubit.state.user?.avatarUrl, _withAvatar.avatarUrl);
+    });
+
+    test('الفشل يضبط failure برسالة الخادم', () async {
+      final cubit = _cubit(
+        _FakeAuthRepository(_user, imageUploaded: const Left(ValidationFailure('يجب أن يكون الحقل الصورة صورةً'))),
+      );
+
+      await cubit.changeAvatar(image);
+
+      expect(cubit.state.avatarStatus, SaveStatus.failure);
+      expect(cubit.state.avatarError, 'يجب أن يكون الحقل الصورة صورةً');
     });
   });
 

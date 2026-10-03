@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
+import 'package:educational_app/core/constants/app_strings.dart';
 import 'package:educational_app/core/error/exceptions.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/auth/data/datasources/auth_local_data_source.dart';
@@ -6,6 +9,7 @@ import 'package:educational_app/features/auth/data/datasources/auth_remote_data_
 import 'package:educational_app/features/auth/data/models/auth_session_model.dart';
 import 'package:educational_app/features/auth/data/models/user_model.dart';
 import 'package:educational_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_image.dart';
 import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
@@ -70,6 +74,13 @@ class _FakeRemote implements AuthRemoteDataSource {
   @override
   Future<UserModel> updateProfile(ProfileUpdate update) async {
     calls.add('updateProfile ${update.firstName} ${update.lastName} ${update.schoolId}');
+    if (error != null) throw error!;
+    return profile!;
+  }
+
+  @override
+  Future<UserModel> updateProfileImage(ProfileImage image, String contentType) async {
+    calls.add('updateProfileImage ${image.fileName} $contentType');
     if (error != null) throw error!;
     return profile!;
   }
@@ -298,6 +309,31 @@ void main() {
       final result = await repository.updateProfile(update);
 
       expect(result, const Left<Failure, User>(ValidationFailure('الحقل الجهات الدراسية لاغٍ')));
+      expect(repository.cachedUser, _complete);
+    });
+  });
+
+  group('updateProfileImage', () {
+    final withImage = UserModel(id: '30', phone: '0930000000', firstName: 'Rashed', avatarUrl: 'https://x/storage/14/avatar.jpg');
+
+    setUp(() {
+      local.cachedUser = _complete;
+      remote.profile = withImage;
+    });
+
+    test('يرفع الصورة بنوعها ويحفظ المستخدم بصورته الجديدة', () async {
+      final result = await repository.updateProfileImage(ProfileImage(bytes: Uint8List(3), fileName: 'me.JPG'));
+
+      expect(result, Right<Failure, User>(withImage));
+      expect(remote.calls, ['updateProfileImage me.JPG image/jpeg']);
+      expect(repository.cachedUser, withImage);
+    });
+
+    test('يرفض صيغة لا يقبلها الخادم دون الاتصال به', () async {
+      final result = await repository.updateProfileImage(ProfileImage(bytes: Uint8List(3), fileName: 'me.heic'));
+
+      expect(result, const Left<Failure, User>(ValidationFailure(AppStrings.errorImageType)));
+      expect(remote.calls, isEmpty);
       expect(repository.cachedUser, _complete);
     });
   });

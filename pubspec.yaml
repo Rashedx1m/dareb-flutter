@@ -23,6 +23,7 @@ dependencies:
   percent_indicator: ^4.2.5
   shared_preferences: ^2.5.5
   dio: ^5.11.1
+  image_picker: ^1.2.3
 
 dev_dependencies:
   flutter_test:

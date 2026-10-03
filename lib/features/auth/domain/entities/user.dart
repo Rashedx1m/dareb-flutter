@@ -13,6 +13,8 @@ class User extends Equatable {
     this.progress = 0,
     this.points = 0,
     this.enrolledCoursesCount = 0,
+    this.semestersCount = 0,
+    this.medalsCount = 0,
     this.isProfileComplete = true,
   });
 
@@ -42,6 +44,12 @@ class User extends Equatable {
   /// عدد الدورات المسجّل بها المستخدم.
   final int enrolledCoursesCount;
 
+  /// عدد الفصول الدراسية المشترك بها.
+  final int semestersCount;
+
+  /// عدد الأوسمة المكتسبة.
+  final int medalsCount;
+
   @override
   List<Object?> get props => [
         id,
@@ -55,6 +63,8 @@ class User extends Equatable {
         progress,
         points,
         enrolledCoursesCount,
+        semestersCount,
+        medalsCount,
         isProfileComplete,
       ];
 }

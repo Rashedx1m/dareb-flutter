@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
 import '../../domain/auth_validators.dart';
+import '../../domain/entities/profile_image.dart';
 import '../../domain/entities/profile_update.dart';
 import '../../domain/entities/registration_details.dart';
 import '../../domain/entities/user.dart';
@@ -86,6 +88,18 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return guard<User>(() async {
       final user = await _remote.updateProfile(update);
+      await _local.saveUser(user);
+      return user;
+    });
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfileImage(ProfileImage image) async {
+    final contentType = image.contentType;
+    if (contentType == null) return const Left(ValidationFailure(AppStrings.errorImageType));
+
+    return guard<User>(() async {
+      final user = await _remote.updateProfileImage(image, contentType);
       await _local.saveUser(user);
       return user;
     });

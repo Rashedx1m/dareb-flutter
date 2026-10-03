@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:educational_app/core/error/exceptions.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:educational_app/features/auth/domain/entities/profile_image.dart';
 import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
@@ -156,6 +159,26 @@ void main() {
     expect(request.method, 'POST');
     expect(request.headers['Authorization'], 'Bearer 30|abc');
     expect(formFields(request), {'f_name': 'Rashid', 'l_name': 'Eybo', 'school_id': '9'});
+  });
+
+  test('updateProfileImage يرفع الصورة في الحقل image بنوعها', () async {
+    token = '30|abc';
+    adapter.on('/users/update-image', body: {
+      'message': 'تم تعديل البيانات بنجاح',
+      'data': {..._newUserJson, 'f_name': 'Rashed', 'image': 'https://x/storage/14/me.jpg'},
+    });
+
+    final user = await remote.updateProfileImage(
+      ProfileImage(bytes: Uint8List.fromList([1, 2, 3]), fileName: 'me.jpg'),
+      'image/jpeg',
+    );
+
+    expect(user.avatarUrl, 'https://x/storage/14/me.jpg');
+    final file = (adapter.requests.single.data as FormData).files.single;
+    expect(file.key, 'image');
+    expect(file.value.filename, 'me.jpg');
+    expect(file.value.contentType.toString(), 'image/jpeg');
+    expect(file.value.length, 3);
   });
 
   test('401 يصل AuthException برسالة عربية', () async {

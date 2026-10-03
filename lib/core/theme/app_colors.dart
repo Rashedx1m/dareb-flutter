@@ -30,4 +30,18 @@ abstract final class AppColors {
   static const stepTrack = Color(0xFFF1F5F9); // مسار شريط الخطوات (الجزء غير المكتمل)
   static const stepKnob = Color(0xFF61D8D9); // مؤشر (المقبض) الدائري على الشريط
   static const stepLabel = Color(0xFF3E4948); // نص الخطوات غير النشطة
+  // صفحات الملف الشخصي والدعم (مأخوذة من لقطات التصميم).
+  static const blueStrong = Color(0xFF5380D9); // أزرار التشغيل وعناوين السياسات وإطار الحقل النشط
+  static const statTeal = Color(0xFF39CED0); // أرقام إحصاءات الملف الشخصي
+  static const statLabel = Color(0xFF565F5E);
+  static const nameDark = Color(0xFF0D1C2F);
+  static const avatarBg = Color(0xFFE1E7FD);
+  static const listText = Color(0xFF5A5A5A); // عناصر القوائم وعناوين أقسامها
+  static const questionText = Color(0xFF414141);
+  static const sheetTitle = Color(0xFF242424);
+  static const closeIcon = Color(0xFF767676);
+  static const hint = Color(0xFFA1A1A1);
+  static const divider = Color(0xFFEBEBEB);
+  static const cardBorder = Color(0xFFEDEDED);
+  static const statDivider = Color(0xFFDDDDDD);
 }

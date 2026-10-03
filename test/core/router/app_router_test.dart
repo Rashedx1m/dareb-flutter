@@ -48,9 +48,9 @@ void main() {
     await local.saveToken('30|abc');
     await local.saveUser(UserModel(id: '30', phone: '0930000000', firstName: 'أحمد'));
     final router = await pumpRouter(tester);
-    router.go('/about');
+    router.go('/faq');
     await tester.pump();
-    expect(location(router), '/about');
+    expect(location(router), '/faq');
 
     await sl<SessionExpiry>().expire();
     await tester.pump();

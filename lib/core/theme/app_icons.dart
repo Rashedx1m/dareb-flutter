@@ -35,6 +35,26 @@ abstract final class PhosphorIconsRegular {
   static const user = IconData(0xe4c2, fontFamily: _family);
   static const handWaving = IconData(0xe580, fontFamily: _family);
   static const trophy = IconData(0xe67e, fontFamily: _family);
+  // صفحات الملف الشخصي والدعم.
+  static const student = IconData(0xe73e, fontFamily: _family);
+  static const question = IconData(0xe3e8, fontFamily: _family);
+  static const headset = IconData(0xe584, fontFamily: _family);
+  static const envelopeSimpleOpen = IconData(0xe21a, fontFamily: _family);
+  static const info = IconData(0xe2ce, fontFamily: _family);
+  static const fileText = IconData(0xe23a, fontFamily: _family);
+  static const bookOpenUser = IconData(0xede0, fontFamily: _family);
+  static const scroll = IconData(0xeb7a, fontFamily: _family);
+  static const exam = IconData(0xe742, fontFamily: _family);
+  static const notePencil = IconData(0xe34c, fontFamily: _family);
+  static const signOut = IconData(0xe42a, fontFamily: _family);
+  static const caretLeft = IconData(0xe138, fontFamily: _family);
+  static const caretUp = IconData(0xe13c, fontFamily: _family);
+  static const xCircle = IconData(0xe4f8, fontFamily: _family);
+  static const listBullets = IconData(0xe2f2, fontFamily: _family);
+  static const brain = IconData(0xe74e, fontFamily: _family);
+  static const chalkboardTeacher = IconData(0xe600, fontFamily: _family);
+  static const wrench = IconData(0xe5d4, fontFamily: _family);
+  static const camera = IconData(0xe10e, fontFamily: _family);
 }
 
 abstract final class PhosphorIconsFill {
@@ -43,4 +63,15 @@ abstract final class PhosphorIconsFill {
   static const image = IconData(0xe2ca, fontFamily: 'PhosphorFill');
   static const books = IconData(0xe758, fontFamily: 'PhosphorFill');
   static const user = IconData(0xe4c2, fontFamily: 'PhosphorFill');
+  static const bell = IconData(0xe0ce, fontFamily: 'PhosphorFill');
+  static const playCircle = IconData(0xe3d2, fontFamily: 'PhosphorFill');
+  static const bookOpen = IconData(0xe0e6, fontFamily: 'PhosphorFill');
+  static const videoCamera = IconData(0xe4da, fontFamily: 'PhosphorFill');
+  static const filePdf = IconData(0xe702, fontFamily: 'PhosphorFill');
+  static const facebookLogo = IconData(0xe226, fontFamily: 'PhosphorFill');
+  static const instagramLogo = IconData(0xe2d0, fontFamily: 'PhosphorFill');
+  static const telegramLogo = IconData(0xe5bc, fontFamily: 'PhosphorFill');
+  static const whatsappLogo = IconData(0xe5d0, fontFamily: 'PhosphorFill');
+  static const camera = IconData(0xe10e, fontFamily: 'PhosphorFill');
+  static const graduationCap = IconData(0xe62c, fontFamily: 'PhosphorFill');
 }

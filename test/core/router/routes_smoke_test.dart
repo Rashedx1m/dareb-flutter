@@ -50,7 +50,10 @@ void main() {
     '/gallery/gal_math/photo/1',
     '/tests',
     '/profile',
-    '/edit-profile',
+    '/downloads',
+    '/faq',
+    '/privacy',
+    '/usage-policy',
     '/my-courses',
     '/home',
   ];

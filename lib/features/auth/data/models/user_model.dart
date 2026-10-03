@@ -13,6 +13,8 @@ class UserModel extends User {
     super.school,
     super.points,
     super.enrolledCoursesCount,
+    super.semestersCount,
+    super.medalsCount,
   }) : super(
     name: [firstName, lastName].whereType<String>().join(' '),
     // الحساب الجديد يصل بـ f_name فارغ إلى أن يُكمل عبر users/edit.
@@ -30,6 +32,8 @@ class UserModel extends User {
       school: _school(json['school']),
       points: (json['points'] as num?)?.toInt() ?? 0,
       enrolledCoursesCount: (json['subject_count'] as num?)?.toInt() ?? 0,
+      semestersCount: (json['semester_count'] as num?)?.toInt() ?? 0,
+      medalsCount: (json['medals'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -57,6 +61,8 @@ class UserModel extends User {
         'school': {'id': school.id, 'name': school.name, 'governorate': school.governorateId},
       'points': points,
       'subject_count': enrolledCoursesCount,
+      'semester_count': semestersCount,
+      'medals': medalsCount,
     };
   }
 }

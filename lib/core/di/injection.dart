@@ -19,6 +19,7 @@ import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/refresh_profile_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/request_otp_usecase.dart';
+import '../../features/auth/domain/usecases/update_profile_image_usecase.dart';
 import '../../features/auth/domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
@@ -29,6 +30,11 @@ import '../../features/courses/domain/repositories/courses_repository.dart';
 import '../../features/courses/domain/usecases/get_courses.dart';
 import '../../features/courses/presentation/bloc/courses_bloc.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
+import '../../features/downloads/data/datasources/downloads_local_data_source.dart';
+import '../../features/downloads/data/repositories/downloads_repository_impl.dart';
+import '../../features/downloads/domain/repositories/downloads_repository.dart';
+import '../../features/downloads/domain/usecases/get_downloads.dart';
+import '../../features/downloads/presentation/cubit/downloads_cubit.dart';
 import '../../features/gallery/data/datasources/gallery_remote_data_source.dart';
 import '../../features/gallery/data/repositories/gallery_repository_impl.dart';
 import '../../features/gallery/domain/repositories/gallery_repository.dart';
@@ -56,6 +62,11 @@ import '../../features/subscription/data/repositories/subscription_repository_im
 import '../../features/subscription/domain/repositories/subscription_repository.dart';
 import '../../features/subscription/domain/usecases/get_plans.dart';
 import '../../features/subscription/presentation/cubit/plans_cubit.dart';
+import '../../features/support/data/datasources/support_remote_data_source.dart';
+import '../../features/support/data/repositories/support_repository_impl.dart';
+import '../../features/support/domain/repositories/support_repository.dart';
+import '../../features/support/domain/usecases/send_contact_message.dart';
+import '../../features/support/presentation/cubit/contact_cubit.dart';
 import '../network/api_client.dart';
 import '../network/session_expiry.dart';
 
@@ -86,6 +97,8 @@ Future<void> initDependencies() async {
   _initAchievements();
   _initSubscription();
   _initProfile();
+  _initSupport();
+  _initDownloads();
 }
 
 void _initAuth() {
@@ -99,6 +112,7 @@ void _initAuth() {
     ..registerLazySingleton(() => GetCurrentUserUseCase(sl()))
     ..registerLazySingleton(() => RefreshProfileUseCase(sl()))
     ..registerLazySingleton(() => UpdateProfileUseCase(sl()))
+    ..registerLazySingleton(() => UpdateProfileImageUseCase(sl()))
     ..registerLazySingleton(() => LogoutUseCase(sl()))
     ..registerLazySingleton<RegistrationOptionsRemoteDataSource>(
       () => RegistrationOptionsRemoteDataSourceImpl(sl()),
@@ -206,7 +220,24 @@ void _initProfile() {
       getCurrentUser: sl(),
       refreshProfile: sl(),
       updateProfile: sl(),
+      updateProfileImage: sl(),
       logout: sl(),
     ),
   );
+}
+
+void _initSupport() {
+  sl
+    ..registerLazySingleton<SupportRemoteDataSource>(() => SupportRemoteDataSourceImpl(sl()))
+    ..registerLazySingleton<SupportRepository>(() => SupportRepositoryImpl(sl()))
+    ..registerLazySingleton(() => SendContactMessage(sl()))
+    ..registerFactory(() => ContactCubit(sl()));
+}
+
+void _initDownloads() {
+  sl
+    ..registerLazySingleton<DownloadsLocalDataSource>(DownloadsMockDataSource.new)
+    ..registerLazySingleton<DownloadsRepository>(() => DownloadsRepositoryImpl(sl()))
+    ..registerLazySingleton(() => GetDownloads(sl()))
+    ..registerFactory(() => DownloadsCubit(sl()));
 }

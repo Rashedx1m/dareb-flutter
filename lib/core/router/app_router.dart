@@ -17,6 +17,8 @@ import '../../features/courses/presentation/pages/course_detail_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
 import '../../features/courses/presentation/pages/my_courses_page.dart';
 import '../../features/courses/presentation/pages/video_page.dart';
+import '../../features/downloads/presentation/cubit/downloads_cubit.dart';
+import '../../features/downloads/presentation/pages/downloads_page.dart';
 import '../../features/gallery/presentation/cubit/gallery_cubit.dart';
 import '../../features/gallery/presentation/pages/album_page.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
@@ -26,9 +28,7 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
-import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/profile/presentation/pages/simple_pages.dart';
 import '../../features/quiz/presentation/bloc/quiz_bloc.dart';
 import '../../features/quiz/presentation/pages/quiz_page.dart';
 import '../../features/quiz/presentation/pages/quiz_result_page.dart';
@@ -39,6 +39,10 @@ import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/subscription/presentation/cubit/plans_cubit.dart';
 import '../../features/subscription/presentation/pages/checkout_page.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
+import '../../features/support/presentation/pages/faq_page.dart';
+import '../../features/support/presentation/pages/policy_page.dart';
+import '../../features/support/presentation/support_content.dart';
+import '../constants/app_strings.dart';
 import '../di/injection.dart';
 import '../network/session_expiry.dart';
 import '../widgets/app_shell.dart';
@@ -121,8 +125,12 @@ GoRouter createRouter() {
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/profile',
-              builder: (_, _) => BlocProvider(
-                create: (_) => sl<ProfileCubit>()..load(),
+              builder: (_, _) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(create: (_) => sl<ProfileCubit>()..load()),
+                  // المحافظات ومدارسها لورقة التعديل، لا تُطلب إلا عند فتحها أول مرة.
+                  BlocProvider(create: (_) => sl<RegistrationOptionsCubit>()..load()),
+                ],
                 child: const ProfilePage(),
               ),
             ),
@@ -245,21 +253,22 @@ GoRouter createRouter() {
           child: const AchievementsPage(),
         ),
       ),
+      GoRoute(path: '/faq', builder: (_, _) => const FaqPage()),
       GoRoute(
-        path: '/edit-profile',
-        builder: (_, _) => MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => sl<ProfileCubit>()..load()),
-            // المحافظات ومدارسها لتغيير الجهة الدراسية. تُطلب مع فتح الصفحة لا عند
-            // بناء النموذج، فتصل بالتوازي مع المستخدم.
-            BlocProvider(lazy: false, create: (_) => sl<RegistrationOptionsCubit>()..load()),
-          ],
-          child: const EditProfilePage(),
+        path: '/privacy',
+        builder: (_, _) => const PolicyPage(title: AppStrings.privacyPolicy, sections: privacySections),
+      ),
+      GoRoute(
+        path: '/usage-policy',
+        builder: (_, _) => const PolicyPage(title: AppStrings.usagePolicyTitle, sections: usageSections),
+      ),
+      GoRoute(
+        path: '/downloads',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<DownloadsCubit>()..load(),
+          child: const DownloadsPage(),
         ),
       ),
-      GoRoute(path: '/about', builder: (_, _) => const AboutPage()),
-      GoRoute(path: '/contact', builder: (_, _) => const ContactPage()),
-      GoRoute(path: '/faq', builder: (_, _) => const FaqPage()),
       GoRoute(
         path: '/my-courses',
         builder: (_, _) => BlocProvider(

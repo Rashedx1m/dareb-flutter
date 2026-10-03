@@ -1,4 +1,5 @@
 import '../../../../core/network/api_client.dart';
+import '../../domain/entities/profile_image.dart';
 import '../../domain/entities/profile_update.dart';
 import '../../domain/entities/registration_details.dart';
 import '../models/auth_session_model.dart';
@@ -23,6 +24,9 @@ abstract class AuthRemoteDataSource {
 
   /// يعدّل الاسم والمدرسة لحساب مكتمل (`users/update`).
   Future<UserModel> updateProfile(ProfileUpdate update);
+
+  /// يرفع صورة الملف الشخصي (`users/update-image`) بنوعها [contentType].
+  Future<UserModel> updateProfileImage(ProfileImage image, String contentType);
 
   Future<void> logout();
 }
@@ -94,6 +98,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'l_name': update.lastName,
         'school_id': update.schoolId,
       },
+      parse: _user,
+    );
+  }
+
+  @override
+  Future<UserModel> updateProfileImage(ProfileImage image, String contentType) {
+    return _client.upload(
+      '/users/update-image',
+      field: 'image',
+      bytes: image.bytes,
+      fileName: image.fileName,
+      contentType: contentType,
       parse: _user,
     );
   }

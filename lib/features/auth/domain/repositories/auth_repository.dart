@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
+import '../entities/profile_image.dart';
 import '../entities/profile_update.dart';
 import '../entities/registration_details.dart';
 import '../entities/user.dart';
@@ -28,6 +29,9 @@ abstract class AuthRepository {
 
   /// يعدّل بيانات حساب مكتمل ويحدّث نسخته المحفوظة.
   Future<Either<Failure, User>> updateProfile(ProfileUpdate update);
+
+  /// يرفع صورة الملف الشخصي ويحدّث النسخة المحفوظة.
+  Future<Either<Failure, User>> updateProfileImage(ProfileImage image);
 
   /// الجلسة المحمّلة محلياً دون انتظار. تُحدَّث مع كل حفظ أو خروج.
   User? get cachedUser;
