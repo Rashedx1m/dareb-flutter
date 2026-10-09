@@ -33,7 +33,19 @@ void main() {
     final adapter = FakeHttpAdapter()
       ..on('/profile/get', body: {'message': 'ok', 'data': userJson})
       ..on('/governorates/all', body: {'message': 'ok', 'data': {'damascus': 'دمشق'}})
-      ..on('/branches/all', body: {'message': 'ok', 'data': []});
+      ..on('/branches/all', body: {'message': 'ok', 'data': []})
+      ..on('/packages/all', body: {
+        'message': 'ok',
+        'data': [
+          {'id': 1, 'name': 'سنة واحدة', 'price': 55000, 'duration': 365},
+        ],
+      })
+      ..on('/payment-methods/all', body: {
+        'message': 'ok',
+        'data': [
+          {'id': 1, 'name': 'باسل', 'phone': '0993571184', 'governorate': 'دمشق', 'method': 'الهرم', 'image': null},
+        ],
+      });
     final dio = Dio(BaseOptions(baseUrl: 'https://api.test/api'))..httpClientAdapter = adapter;
     sl
       ..unregister<ApiClient>()
@@ -44,7 +56,7 @@ void main() {
     '/notifications',
     '/achievements',
     '/subscription',
-    '/checkout?plan=monthly',
+    '/checkout?package=1',
     '/gallery',
     '/gallery/gal_math',
     '/gallery/gal_math/photo/1',

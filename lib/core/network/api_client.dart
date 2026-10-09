@@ -123,6 +123,8 @@ class ApiClient {
     // رسالة 401 من الخادم إنجليزية ("Unauthenticated.")، فنستبدلها.
       401 => const AuthException('انتهت الجلسة، سجّل الدخول من جديد'),
       422 => ValidationException(_firstError(body) ?? message ?? 'البيانات غير صحيحة'),
+      // رسالة Laravel لغياب العنصر إنجليزية ("No query results for model ...").
+      404 => const ServerException('المحتوى المطلوب غير موجود'),
       _ => message == null ? const ServerException() : ServerException(message),
     };
   }

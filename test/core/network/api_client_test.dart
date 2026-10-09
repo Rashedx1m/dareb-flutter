@@ -61,6 +61,15 @@ void main() {
       expect(unauthorizedCalls, 0);
     });
 
+    test('404 يصل برسالة عربية بدل رسالة Laravel الإنجليزية', () async {
+      adapter.on('/x', status: 404, body: {'message': r'No query results for model [App\Models\Package] 1'});
+
+      await expectLater(
+        client.get('/x'),
+        throwsA(isA<ServerException>().having((e) => e.message, 'message', 'المحتوى المطلوب غير موجود')),
+      );
+    });
+
     test('أخطاء الخادم الأخرى لا تُنهي الجلسة', () async {
       token = '30|abc';
       adapter.on('/x', status: 400, body: {'message': 'المستخدم ليس لديه فرع', 'data': []});

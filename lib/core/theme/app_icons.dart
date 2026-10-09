@@ -55,6 +55,9 @@ abstract final class PhosphorIconsRegular {
   static const chalkboardTeacher = IconData(0xe600, fontFamily: _family);
   static const wrench = IconData(0xe5d4, fontFamily: _family);
   static const camera = IconData(0xe10e, fontFamily: _family);
+  static const handCoins = IconData(0xea8c, fontFamily: _family);
+  static const calculator = IconData(0xe538, fontFamily: _family);
+  static const receipt = IconData(0xe3ec, fontFamily: _family);
 }
 
 abstract final class PhosphorIconsFill {

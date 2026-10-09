@@ -154,6 +154,36 @@ abstract final class AppStrings {
   static const telegram = 'تيليغرام';
   static const whatsapp = 'واتساب';
   static const linkOpenError = 'تعذّر فتح الرابط';
+  // الاشتراكات وإتمام الشراء.
+  static const subscriptionsTitle = 'الاشتراكات';
+  static const packageDetails = 'تفاصيل';
+  static const codeForSubject = 'اكتب كود لمادة أو لمنهاج كامل';
+  static const codeForSubjects = 'اكتب كود لعدد من المواد...';
+  static const availableSubjects = 'المواد المتاحة';
+  static const noPackageSubjects = 'لا توجد مواد في هذه الباقة';
+  static const currency = 'ل.س';
+  static const thousand = 'ألف';
+  static const year = 'سنة';
+  static const month = 'شهر';
+  static const days = 'أيام';
+  static const day = 'يوم';
+  static const trial = 'تجربة';
+  static const choosePaymentMethod = 'اختر وسيلة الدفع';
+  static const cashWithAdmin = 'كاش مباشر مع الأدمن';
+  static const accountSection = 'الحساب';
+  static const finalTotal = 'المجموع النهائي :';
+  static const paymentDetails = 'تفاصيل الدفع';
+  static const enterCode = 'أدخل الكود';
+  static const agentName = 'الاسم';
+  static const agentPhone = 'الهاتف';
+  static const errorCodeRequired = 'أدخل كود الاشتراك';
+  static const subscriptionActivated = 'تم تفعيل اشتراكك بنجاح';
+  static const codeAfterPayment = 'بعد الدفع يصلك كود الاشتراك، أدخله في صفحة الاشتراكات لتفعيل الباقة.';
+  static const packageNotFound = 'الباقة المختارة غير متاحة';
+  static const freePackageInstructions =
+      'الباقة مجانية للتجربة. تواصل مع الإدارة من «تواصل معنا» في الملف الشخصي لاستلام كود تفعيلها.';
+  static const cashInstructions =
+      'تواصل مع الإدارة من «تواصل معنا» في الملف الشخصي لترتيب الدفع نقداً واستلام كود الاشتراك.';
   static const errorImageType = 'الصورة يجب أن تكون بصيغة JPG أو PNG';
   static const startLesson = 'ابدأ الدرس';
   static const subscribe = 'اشترك الآن';

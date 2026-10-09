@@ -36,7 +36,8 @@ import '../../features/quiz/presentation/pages/tests_page.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
-import '../../features/subscription/presentation/cubit/plans_cubit.dart';
+import '../../features/subscription/presentation/cubit/checkout_cubit.dart';
+import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
 import '../../features/subscription/presentation/pages/checkout_page.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../../features/support/presentation/pages/faq_page.dart';
@@ -228,14 +229,14 @@ GoRouter createRouter() {
       GoRoute(
         path: '/subscription',
         builder: (_, _) => BlocProvider(
-          create: (_) => sl<PlansCubit>()..load(),
+          create: (_) => sl<SubscriptionCubit>()..load(),
           child: const SubscriptionPage(),
         ),
       ),
       GoRoute(
         path: '/checkout',
         builder: (context, state) => BlocProvider(
-          create: (_) => sl<PlansCubit>()..load(preferredId: state.uri.queryParameters['plan']),
+          create: (_) => sl<CheckoutCubit>()..load(state.uri.queryParameters['package']),
           child: const CheckoutPage(),
         ),
       ),

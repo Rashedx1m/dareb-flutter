@@ -4,7 +4,6 @@ import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
 import '../../features/notifications/domain/entities/app_notification.dart';
 import '../../features/quiz/domain/entities/quiz.dart';
-import '../../features/subscription/domain/entities/plan.dart';
 import '../theme/app_assets.dart';
 
 /// بيانات تجريبية إلى أن تُربط واجهات الـ API.
@@ -207,24 +206,6 @@ abstract final class MockCatalog {
     Quiz(id: 'qa2', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
     Quiz(id: 'qa3', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.أحمد الحفار', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
     Quiz(id: 'qa4', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
-  ];
-
-  static const plans = [
-    Plan(
-      id: 'monthly',
-      name: 'شهري',
-      price: 49,
-      period: 'شهرياً',
-      features: ['كل الدورات', 'الاختبارات', 'شهادات إتمام'],
-    ),
-    Plan(
-      id: 'yearly',
-      name: 'سنوي',
-      price: 399,
-      period: 'سنوياً',
-      features: ['كل الدورات', 'الاختبارات', 'شهادات إتمام', 'دعم أولوية'],
-      highlighted: true,
-    ),
   ];
 
   static const notifications = [
