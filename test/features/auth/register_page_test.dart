@@ -6,10 +6,12 @@ import 'package:educational_app/features/auth/domain/entities/registration_detai
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:educational_app/features/auth/domain/repositories/registration_options_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_registration_options.dart';
-import 'package:educational_app/features/auth/domain/usecases/register_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/request_otp_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_branches.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_governorates.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_schools.dart';
+import 'package:educational_app/features/auth/domain/usecases/register.dart';
+import 'package:educational_app/features/auth/domain/usecases/request_otp.dart';
+import 'package:educational_app/features/auth/domain/usecases/verify_otp.dart';
 import 'package:educational_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:educational_app/features/auth/presentation/cubit/registration_options_cubit.dart';
 import 'package:educational_app/features/auth/presentation/pages/register_page.dart';
@@ -69,9 +71,9 @@ void main() {
           providers: [
             BlocProvider(
               create: (_) => AuthCubit(
-                requestOtpUseCase: RequestOtpUseCase(auth),
-                registerUseCase: RegisterUseCase(auth),
-                verifyOtpUseCase: VerifyOtpUseCase(auth),
+                requestOtp: RequestOtp(auth),
+                register: Register(auth),
+                verifyOtp: VerifyOtp(auth),
               ),
             ),
             BlocProvider(

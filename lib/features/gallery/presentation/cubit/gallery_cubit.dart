@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/gallery_album.dart';
+import '../../domain/usecases/get_album.dart';
 import '../../domain/usecases/get_albums.dart';
 
 part 'gallery_state.dart';

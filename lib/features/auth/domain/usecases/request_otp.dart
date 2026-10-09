@@ -4,12 +4,12 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
 
-class LogoutUseCase implements UseCase<void, NoParams> {
-  const LogoutUseCase(this.repository);
+class RequestOtp implements UseCase<void, String> {
+  const RequestOtp(this.repository);
   final AuthRepository repository;
 
   @override
-  Future<Either<Failure, void>> call(NoParams params) {
-    return repository.logout();
+  Future<Either<Failure, void>> call(String params) {
+    return repository.requestOtp(phone: params);
   }
 }

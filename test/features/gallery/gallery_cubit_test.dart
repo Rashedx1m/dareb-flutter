@@ -1,5 +1,6 @@
 import 'package:educational_app/features/gallery/data/datasources/gallery_remote_data_source.dart';
 import 'package:educational_app/features/gallery/data/repositories/gallery_repository_impl.dart';
+import 'package:educational_app/features/gallery/domain/usecases/get_album.dart';
 import 'package:educational_app/features/gallery/domain/usecases/get_albums.dart';
 import 'package:educational_app/features/gallery/presentation/cubit/gallery_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';

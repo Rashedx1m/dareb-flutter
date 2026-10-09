@@ -116,7 +116,7 @@ class _Header extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.headerTeal,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-        boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 16, offset: Offset(0, 6))],
+        boxShadow: [BoxShadow(color: AppColors.shadowStrong, blurRadius: 16, offset: Offset(0, 6))],
       ),
       child: Column(
         children: [
@@ -211,7 +211,7 @@ class _Tabs extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: const Color(0xFFB0B8BC),
+        color: AppColors.tabTrack,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -259,7 +259,7 @@ class _Segment extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : const Color(0xFFF2F5F6),
+            color: selected ? Colors.white : AppColors.tabLabel,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -286,8 +286,8 @@ class _QuizCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFBFD3F3), width: 1.3),
-          boxShadow: const [BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 4))],
+          border: Border.all(color: AppColors.quizCardBorder, width: 1.3),
+          boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 10, offset: Offset(0, 4))],
         ),
         child: Row(
           children: [

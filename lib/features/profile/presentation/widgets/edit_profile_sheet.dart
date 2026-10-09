@@ -8,7 +8,7 @@ import '../../../../core/widgets/app_sheet.dart';
 import '../../../auth/domain/entities/lookup_option.dart';
 import '../../../auth/domain/entities/profile_update.dart';
 import '../../../auth/domain/entities/user.dart';
-import '../../../auth/domain/usecases/get_registration_options.dart';
+import '../../../auth/domain/usecases/get_schools.dart';
 import '../../../auth/presentation/cubit/registration_options_cubit.dart';
 import '../../../auth/presentation/widgets/lookup_sheet.dart';
 import '../cubit/profile_cubit.dart';
@@ -125,7 +125,7 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
     return BlocConsumer<ProfileCubit, ProfileState>(
       listenWhen: (previous, current) => previous.saveStatus != current.saveStatus,
       listener: (context, state) {
-        if (state.saveStatus == SaveStatus.saved) Navigator.of(context).pop(true);
+        if (state.saveStatus == SaveStatus.done) Navigator.of(context).pop(true);
       },
       buildWhen: (previous, current) => previous.saveStatus != current.saveStatus,
       builder: (context, state) {
@@ -172,7 +172,7 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
               primaryLabel: AppStrings.editAction,
               // الخادم يشترط المدرسة.
               onPrimary: _schoolId == null ? null : _save,
-              loading: state.saveStatus == SaveStatus.saving,
+              loading: state.saveStatus == SaveStatus.sending,
             ),
           ],
         );

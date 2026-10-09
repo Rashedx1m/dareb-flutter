@@ -6,11 +6,11 @@ import 'package:educational_app/features/auth/domain/entities/profile_image.dart
 import 'package:educational_app/features/auth/domain/entities/profile_update.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/logout_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/refresh_profile_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/update_profile_image_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/update_profile_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
+import 'package:educational_app/features/auth/domain/usecases/logout.dart';
+import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
+import 'package:educational_app/features/auth/domain/usecases/update_profile.dart';
+import 'package:educational_app/features/auth/domain/usecases/update_profile_image.dart';
 import 'package:educational_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -63,11 +63,11 @@ class _FakeAuthRepository extends Fake implements AuthRepository {
 }
 
 ProfileCubit _cubit(_FakeAuthRepository repository) => ProfileCubit(
-      getCurrentUser: GetCurrentUserUseCase(repository),
-      refreshProfile: RefreshProfileUseCase(repository),
-      updateProfile: UpdateProfileUseCase(repository),
-      updateProfileImage: UpdateProfileImageUseCase(repository),
-      logout: LogoutUseCase(repository),
+      getCurrentUser: GetCurrentUser(repository),
+      refreshProfile: RefreshProfile(repository),
+      updateProfile: UpdateProfile(repository),
+      updateProfileImage: UpdateProfileImage(repository),
+      logout: Logout(repository),
     );
 
 void main() {
@@ -99,7 +99,7 @@ void main() {
       final statuses = cubit.stream.map((state) => state.saveStatus).take(2).toList();
       await cubit.save(_update);
 
-      expect(await statuses, [SaveStatus.saving, SaveStatus.saved]);
+      expect(await statuses, [SaveStatus.sending, SaveStatus.done]);
       expect(repository.submitted, _update);
       expect(cubit.state.user, _renamed);
     });
@@ -125,7 +125,7 @@ void main() {
       final statuses = cubit.stream.map((state) => state.avatarStatus).take(2).toList();
       await cubit.changeAvatar(image);
 
-      expect(await statuses, [SaveStatus.saving, SaveStatus.saved]);
+      expect(await statuses, [SaveStatus.sending, SaveStatus.done]);
       expect(cubit.state.user?.avatarUrl, _withAvatar.avatarUrl);
     });
 

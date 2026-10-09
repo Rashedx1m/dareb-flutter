@@ -44,4 +44,43 @@ abstract final class AppColors {
   static const divider = Color(0xFFEBEBEB);
   static const cardBorder = Color(0xFFEDEDED);
   static const statDivider = Color(0xFFDDDDDD);
+  // الظلال والطبقات المعتمة فوق الصور (أسود بنسبة الشفافية المذكورة).
+  static const shadowSoft = Color(0x0A000000);
+  static const shadowLight = Color(0x0F000000);
+  static const shadowStrong = Color(0x1A000000);
+  static const overlay40 = Color(0x66000000);
+  static const overlay60 = Color(0x99000000);
+  static const overlay70 = Color(0xB3000000);
+  static const overlay80 = Color(0xCC000000);
+  static const videoBackground = Color(0xFF111111);
+  static const viewerBackground = Color(0xF20E1114); // خلفية عارض الصور
+  // الصفحة الرئيسية والمعرض والاختبارات والتنزيلات.
+  static const cardBorderSoft = Color(0xFFEEF2F6);
+  static const albumBorder = Color(0xFFE3ECF2);
+  static const progressTrack = Color(0xFFE8EEF2);
+  static const progressText = Color(0xFF8A9AA8);
+  static const iconTileBlue = Color(0xFFEAF1FF);
+  static const dotInactive = Color(0xFFD9DEE5);
+  static const imageCaption = Color(0xFFE0E6EC); // نص فوق صورة الخبر
+  static const tabTrack = Color(0xFFB0B8BC);
+  static const tabLabel = Color(0xFFF2F5F6);
+  static const quizCardBorder = Color(0xFFBFD3F3);
+  static const metaText = Color(0xFF5C5C5C);
+  // الاشتراكات.
+  static const onAccentBlue = Color(0xFFEBFAFA); // نص بطاقة الباقة المختارة
+  static const iconMuted = Color(0xFFAFB6BC);
+  static const controlFill = Color(0xFFD9D9D9); // الراديو المختار ومسار شريط التمرير
+  static const subjectChip = Color(0xFFCCDCFA);
+  static const subjectText = Color(0xFF3F3F3F);
+  // ألوان العلامات التجارية لأيقونات التواصل.
+  static const whatsapp = Color(0xFF25D366);
+  static const telegram = Color(0xFF29A9EB);
+  static const facebook = Color(0xFF1877F2);
+  static const instagramGradient = [
+    Color(0xFFFEDA75),
+    Color(0xFFFA7E1E),
+    Color(0xFFD62976),
+    Color(0xFF962FBF),
+    Color(0xFF4F5BD5),
+  ];
 }

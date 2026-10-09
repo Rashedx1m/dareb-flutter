@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../courses/domain/entities/course.dart';
-import '../../../courses/domain/usecases/get_courses.dart';
+import '../../../courses/domain/usecases/search_courses.dart';
+
+part 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
   SearchCubit(this._searchCourses) : super(const SearchState());
@@ -16,42 +18,10 @@ class SearchCubit extends Cubit<SearchState> {
       return;
     }
     final result = await _searchCourses(query);
+    if (isClosed) return;
     result.fold(
       (f) => emit(state.copyWith(status: SearchStatus.failure, error: f.message)),
       (list) => emit(state.copyWith(status: SearchStatus.success, results: list)),
     );
   }
-}
-
-enum SearchStatus { idle, loading, success, failure }
-
-class SearchState extends Equatable {
-  const SearchState({
-    this.status = SearchStatus.idle,
-    this.query = '',
-    this.results = const [],
-    this.error,
-  });
-
-  final SearchStatus status;
-  final String query;
-  final List<Course> results;
-  final String? error;
-
-  SearchState copyWith({
-    SearchStatus? status,
-    String? query,
-    List<Course>? results,
-    String? error,
-  }) {
-    return SearchState(
-      status: status ?? this.status,
-      query: query ?? this.query,
-      results: results ?? this.results,
-      error: error ?? this.error,
-    );
-  }
-
-  @override
-  List<Object?> get props => [status, query, results, error];
 }

@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
-import '../../../auth/domain/auth_validators.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entities/contact_links.dart';
 import '../../domain/entities/contact_message.dart';
 import '../../domain/repositories/support_repository.dart';
@@ -14,10 +14,10 @@ class SupportRepositoryImpl implements SupportRepository {
 
   @override
   Future<Either<Failure, void>> sendContactMessage(ContactMessage message) async {
-    final error = AuthValidators.name(message.firstName) ??
-        AuthValidators.name(message.lastName) ??
-        AuthValidators.phone(message.phone) ??
-        AuthValidators.name(message.text);
+    final error = Validators.notEmpty(message.firstName) ??
+        Validators.notEmpty(message.lastName) ??
+        Validators.phone(message.phone) ??
+        Validators.notEmpty(message.text);
     if (error != null) return Left(ValidationFailure(error));
 
     return guard(
@@ -25,7 +25,7 @@ class SupportRepositoryImpl implements SupportRepository {
         ContactMessage(
           firstName: message.firstName.trim(),
           lastName: message.lastName.trim(),
-          phone: AuthValidators.normalizedPhone(message.phone),
+          phone: Validators.normalizedPhone(message.phone),
           text: message.text.trim(),
         ),
       ),

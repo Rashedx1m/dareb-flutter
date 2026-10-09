@@ -14,13 +14,3 @@ class GetAlbums implements UseCase<List<GalleryAlbum>, NoParams> {
     return repository.getAlbums();
   }
 }
-
-class GetAlbum implements UseCase<GalleryAlbum, String> {
-  const GetAlbum(this.repository);
-  final GalleryRepository repository;
-
-  @override
-  Future<Either<Failure, GalleryAlbum>> call(String params) {
-    return repository.getAlbum(params);
-  }
-}

@@ -64,7 +64,7 @@ class _ContactSheetState extends State<ContactSheet> {
   Widget build(BuildContext context) {
     return BlocConsumer<ContactCubit, ContactState>(
       listener: (context, state) {
-        if (state.status == ContactStatus.sent) Navigator.of(context).pop(true);
+        if (state.status == ContactStatus.done) Navigator.of(context).pop(true);
       },
       builder: (context, state) {
         final error = state.error;

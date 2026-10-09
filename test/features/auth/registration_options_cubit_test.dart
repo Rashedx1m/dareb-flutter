@@ -4,7 +4,9 @@ import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/auth/domain/entities/lookup_option.dart';
 import 'package:educational_app/features/auth/domain/repositories/registration_options_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_registration_options.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_branches.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_governorates.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_schools.dart';
 import 'package:educational_app/features/auth/presentation/cubit/registration_options_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 

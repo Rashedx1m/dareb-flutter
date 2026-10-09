@@ -1,11 +1,12 @@
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/lookup_option.dart';
+import '../models/lookup_option_model.dart';
 
 /// قوائم التسجيل من الخادم. كلها تتطلب توكن الجلسة المحفوظ بعد التحقق من الرمز.
 abstract class RegistrationOptionsRemoteDataSource {
-  Future<List<LookupOption>> getGovernorates();
-  Future<List<LookupOption>> getSchools({SchoolKind? kind, String? governorateId});
-  Future<List<LookupOption>> getBranches();
+  Future<List<LookupOptionModel>> getGovernorates();
+  Future<List<LookupOptionModel>> getSchools({SchoolKind? kind, String? governorateId});
+  Future<List<LookupOptionModel>> getBranches();
 }
 
 class RegistrationOptionsRemoteDataSourceImpl implements RegistrationOptionsRemoteDataSource {
@@ -16,19 +17,17 @@ class RegistrationOptionsRemoteDataSourceImpl implements RegistrationOptionsRemo
   static const _schoolTypes = {SchoolKind.school: 1, SchoolKind.institute: 2};
 
   @override
-  Future<List<LookupOption>> getGovernorates() {
-    // المحافظات تصل كخريطة {"damascus": "دمشق", ...} لا كقائمة.
+  Future<List<LookupOptionModel>> getGovernorates() {
     return _client.get(
       '/governorates/all',
       parse: (data) => [
-        for (final entry in (data as Map<String, dynamic>).entries)
-          LookupOption(id: entry.key, name: '${entry.value}'),
+        for (final entry in (data as Map<String, dynamic>).entries) LookupOptionModel.fromEntry(entry),
       ],
     );
   }
 
   @override
-  Future<List<LookupOption>> getSchools({SchoolKind? kind, String? governorateId}) {
+  Future<List<LookupOptionModel>> getSchools({SchoolKind? kind, String? governorateId}) {
     return _client.get(
       '/schools/all',
       query: {
@@ -40,13 +39,11 @@ class RegistrationOptionsRemoteDataSourceImpl implements RegistrationOptionsRemo
   }
 
   @override
-  Future<List<LookupOption>> getBranches() => _client.get('/branches/all', parse: _options);
+  Future<List<LookupOptionModel>> getBranches() => _client.get('/branches/all', parse: _options);
 
-  /// القوائم بالشكل [{"id": 7, "name": "..."}]؛ بقية الحقول لا تلزم التسجيل.
   /// كل عنصر يُحوَّل إلى Map أولاً: الوصول إلى `item['id']` على عنصر dynamic من
   /// نوع آخر يرمي NoSuchMethodError، وهذا لا يحوّله [ApiClient].
-  static List<LookupOption> _options(dynamic data) => [
-        for (final item in (data as List).cast<Map<String, dynamic>>())
-          LookupOption(id: '${item['id']}', name: '${item['name']}'),
+  static List<LookupOptionModel> _options(dynamic data) => [
+        for (final item in (data as List).cast<Map<String, dynamic>>()) LookupOptionModel.fromJson(item),
       ];
 }

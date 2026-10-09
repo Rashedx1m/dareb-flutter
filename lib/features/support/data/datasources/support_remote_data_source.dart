@@ -1,11 +1,11 @@
 import '../../../../core/network/api_client.dart';
-import '../../domain/entities/contact_links.dart';
 import '../../domain/entities/contact_message.dart';
+import '../models/contact_links_model.dart';
 
 /// واجهات الدعم على الخادم. ترمي استثناءات [ApiClient] عند الفشل.
 abstract class SupportRemoteDataSource {
   Future<void> sendContactMessage(ContactMessage message);
-  Future<ContactLinks> getContactLinks();
+  Future<ContactLinksModel> getContactLinks();
 }
 
 class SupportRemoteDataSourceImpl implements SupportRemoteDataSource {
@@ -26,25 +26,10 @@ class SupportRemoteDataSourceImpl implements SupportRemoteDataSource {
   }
 
   @override
-  Future<ContactLinks> getContactLinks() {
+  Future<ContactLinksModel> getContactLinks() {
     return _client.get(
       '/infos/all',
-      parse: (data) {
-        final json = data as Map<String, dynamic>;
-        return ContactLinks(
-          facebook: _link(json['facebook']),
-          instagram: _link(json['instagram']),
-          telegram: _link(json['telegram']),
-          whatsapp: _link(json['whatsapp']),
-        );
-      },
+      parse: (data) => ContactLinksModel.fromJson(data as Map<String, dynamic>),
     );
-  }
-
-  /// الرابط الفارغ أو غير النصي يعني أن الحساب غير موجود.
-  static String? _link(Object? value) {
-    if (value is! String) return null;
-    final link = value.trim();
-    return link.isEmpty ? null : link;
   }
 }

@@ -1,8 +1,8 @@
-import '../../../core/constants/app_strings.dart';
+import '../constants/app_strings.dart';
 
-/// قواعد التحقق من حقول المصادقة، مصدر واحد تستخدمه الصفحات والمستودع معاً
+/// قواعد التحقق من الحقول، مصدر واحد تستخدمه الصفحات والمستودعات في كل الميزات
 /// حتى لا تتكرر الرسائل أو تختلف بين طبقة وأخرى.
-abstract final class AuthValidators {
+abstract final class Validators {
   /// طول رمز التحقق المرسل عبر الرسائل القصيرة.
   static const otpLength = 4;
 
@@ -32,7 +32,8 @@ abstract final class AuthValidators {
     return null;
   }
 
-  static String? name(String value) {
+  /// حقل مطلوب: الاسم أو نص الرسالة مثلاً.
+  static String? notEmpty(String value) {
     if (value.trim().isEmpty) return AppStrings.errorFieldsRequired;
     return null;
   }

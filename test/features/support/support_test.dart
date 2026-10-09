@@ -5,6 +5,7 @@ import 'package:educational_app/core/error/exceptions.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/support/data/datasources/support_remote_data_source.dart';
+import 'package:educational_app/features/support/data/models/contact_links_model.dart';
 import 'package:educational_app/features/support/data/repositories/support_repository_impl.dart';
 import 'package:educational_app/features/support/domain/entities/contact_links.dart';
 import 'package:educational_app/features/support/domain/entities/contact_message.dart';
@@ -66,7 +67,7 @@ void main() {
 
     final statuses = cubit.stream.map((s) => s.status).take(2).toList();
     await cubit.send(_message);
-    expect(await statuses, [ContactStatus.sending, ContactStatus.sent]);
+    expect(await statuses, [ContactStatus.sending, ContactStatus.done]);
 
     adapter.on('/contact-us/add', status: 422, body: {
       'message': 'الحقل النص مطلوب.',
@@ -95,7 +96,7 @@ void main() {
     expect(
       result,
       const Right<Failure, ContactLinks>(
-        ContactLinks(facebook: 'https://www.facebook.com/dareb', telegram: 'https://t.me/dareb'),
+        ContactLinksModel(facebook: 'https://www.facebook.com/dareb', telegram: 'https://t.me/dareb'),
       ),
     );
   });

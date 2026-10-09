@@ -27,7 +27,7 @@ class VideoPage extends StatelessWidget {
           AspectRatio(
             aspectRatio: 16 / 9,
             child: Container(
-              color: const Color(0xFF111111),
+              color: AppColors.videoBackground,
               child: const Center(
                 child: CircleAvatar(
                   radius: 32,

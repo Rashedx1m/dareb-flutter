@@ -14,13 +14,3 @@ class GetQuizzes implements UseCase<List<Quiz>, NoParams> {
     return repository.getQuizzes();
   }
 }
-
-class GetQuiz implements UseCase<Quiz, String> {
-  const GetQuiz(this.repository);
-  final QuizRepository repository;
-
-  @override
-  Future<Either<Failure, Quiz>> call(String params) {
-    return repository.getQuiz(params);
-  }
-}

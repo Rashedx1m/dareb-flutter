@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/auth_widgets.dart';
 import '../../../../core/widgets/error_view.dart';
-import '../../domain/auth_validators.dart';
 import '../../domain/entities/lookup_option.dart';
 import '../../domain/entities/registration_details.dart';
-import '../../domain/usecases/get_registration_options.dart';
+import '../../domain/usecases/get_schools.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/registration_options_cubit.dart';
 import '../widgets/lookup_sheet.dart';
@@ -97,9 +97,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// يتحقق من خطوة البيانات الأساسية قبل الانتقال إلى بقية الأسئلة.
   void _submitInfo() {
-    final error = AuthValidators.name(_firstName.text) ??
-        AuthValidators.name(_lastName.text) ??
-        AuthValidators.email(_email.text);
+    final error = Validators.notEmpty(_firstName.text) ??
+        Validators.notEmpty(_lastName.text) ??
+        Validators.email(_email.text);
     if (error != null) {
       _showError(error);
       return;

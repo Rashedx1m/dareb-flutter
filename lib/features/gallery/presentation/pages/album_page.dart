@@ -92,7 +92,7 @@ class _PhotoTile extends StatelessWidget {
               Icons.crop_free_rounded,
               color: Colors.white,
               size: 20,
-              shadows: [Shadow(color: Color(0x99000000), blurRadius: 4)],
+              shadows: [Shadow(color: AppColors.overlay60, blurRadius: 4)],
             ),
           ),
         ],

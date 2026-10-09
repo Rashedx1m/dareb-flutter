@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/lookup_option.dart';
-import '../../domain/usecases/get_registration_options.dart';
+import '../../domain/usecases/get_branches.dart';
+import '../../domain/usecases/get_governorates.dart';
+import '../../domain/usecases/get_schools.dart';
 
 part 'registration_options_state.dart';
 

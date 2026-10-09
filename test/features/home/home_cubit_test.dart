@@ -2,10 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/refresh_profile_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
+import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_categories.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
 import 'package:educational_app/features/home/domain/entities/news_item.dart';
 import 'package:educational_app/features/home/domain/repositories/news_repository.dart';
@@ -102,8 +103,8 @@ HomeCubit _cubit(
     getCourses: GetCourses(repository),
     getCategories: GetCategories(repository),
     getNews: GetNews(news ?? _FakeNewsRepository()),
-    getCurrentUser: GetCurrentUserUseCase(auth),
-    refreshProfile: RefreshProfileUseCase(auth),
+    getCurrentUser: GetCurrentUser(auth),
+    refreshProfile: RefreshProfile(auth),
   );
 }
 

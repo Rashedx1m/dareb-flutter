@@ -7,12 +7,14 @@ import 'package:educational_app/features/auth/domain/entities/profile_update.dar
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:educational_app/features/auth/domain/repositories/registration_options_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/get_registration_options.dart';
-import 'package:educational_app/features/auth/domain/usecases/logout_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/refresh_profile_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/update_profile_image_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/update_profile_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_branches.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_governorates.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_schools.dart';
+import 'package:educational_app/features/auth/domain/usecases/logout.dart';
+import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
+import 'package:educational_app/features/auth/domain/usecases/update_profile.dart';
+import 'package:educational_app/features/auth/domain/usecases/update_profile_image.dart';
 import 'package:educational_app/features/auth/presentation/cubit/registration_options_cubit.dart';
 import 'package:educational_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:educational_app/features/profile/presentation/pages/profile_page.dart';
@@ -125,11 +127,11 @@ void main() {
             providers: [
               BlocProvider(
                 create: (_) => ProfileCubit(
-                  getCurrentUser: GetCurrentUserUseCase(auth),
-                  refreshProfile: RefreshProfileUseCase(auth),
-                  updateProfile: UpdateProfileUseCase(auth),
-                  updateProfileImage: UpdateProfileImageUseCase(auth),
-                  logout: LogoutUseCase(auth),
+                  getCurrentUser: GetCurrentUser(auth),
+                  refreshProfile: RefreshProfile(auth),
+                  updateProfile: UpdateProfile(auth),
+                  updateProfileImage: UpdateProfileImage(auth),
+                  logout: Logout(auth),
                 )..load(),
               ),
               BlocProvider(

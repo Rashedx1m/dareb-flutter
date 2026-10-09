@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/quiz.dart';
+import '../../domain/usecases/get_quiz.dart';
 import '../../domain/usecases/get_quizzes.dart';
 
 part 'quiz_event.dart';

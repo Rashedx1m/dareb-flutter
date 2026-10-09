@@ -5,9 +5,9 @@ import 'package:educational_app/features/auth/domain/entities/profile_update.dar
 import 'package:educational_app/features/auth/domain/entities/registration_details.dart';
 import 'package:educational_app/features/auth/domain/entities/user.dart';
 import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:educational_app/features/auth/domain/usecases/register_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/request_otp_usecase.dart';
-import 'package:educational_app/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:educational_app/features/auth/domain/usecases/register.dart';
+import 'package:educational_app/features/auth/domain/usecases/request_otp.dart';
+import 'package:educational_app/features/auth/domain/usecases/verify_otp.dart';
 import 'package:educational_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -69,9 +69,9 @@ class _FakeAuthRepository implements AuthRepository {
 
 AuthCubit _cubit(_FakeAuthRepository repository) {
   return AuthCubit(
-    requestOtpUseCase: RequestOtpUseCase(repository),
-    registerUseCase: RegisterUseCase(repository),
-    verifyOtpUseCase: VerifyOtpUseCase(repository),
+    requestOtp: RequestOtp(repository),
+    register: Register(repository),
+    verifyOtp: VerifyOtp(repository),
   );
 }
 

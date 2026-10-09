@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/auth_widgets.dart';
-import '../../domain/auth_validators.dart';
 import '../cubit/auth_cubit.dart';
 
 class OtpPage extends StatefulWidget {
@@ -39,7 +39,7 @@ class _OtpPageState extends State<OtpPage> {
     super.dispose();
   }
 
-  bool get _isComplete => _code.length == AuthValidators.otpLength;
+  bool get _isComplete => _code.length == Validators.otpLength;
 
   void _append(String value) {
     if (_isComplete) return;
@@ -188,7 +188,7 @@ class _CodeBoxes extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(AuthValidators.otpLength, (index) {
+        children: List.generate(Validators.otpLength, (index) {
           final filled = index < code.length;
           final active = index == code.length;
           return Container(

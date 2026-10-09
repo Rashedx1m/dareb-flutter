@@ -304,9 +304,9 @@ class _ProgressCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEEF2F6)),
+        border: Border.all(color: AppColors.cardBorderSoft),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 18, offset: Offset(0, 8)),
+          BoxShadow(color: AppColors.shadowSoft, blurRadius: 18, offset: Offset(0, 8)),
         ],
       ),
       child: Row(
@@ -365,12 +365,12 @@ class _ProgressCard extends StatelessWidget {
             percent: progress.clamp(0, 1),
             animation: true,
             progressColor: AppColors.primary,
-            backgroundColor: const Color(0xFFE8EEF2),
+            backgroundColor: AppColors.progressTrack,
             circularStrokeCap: CircularStrokeCap.round,
             center: Text(
               '$percent%',
               style: const TextStyle(
-                color: Color(0xFF8A9AA8),
+                color: AppColors.progressText,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Lato',
@@ -398,8 +398,8 @@ class _TestsEntryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFEEF2F6)),
-          boxShadow: const [BoxShadow(color: Color(0x0A000000), blurRadius: 16, offset: Offset(0, 8))],
+          border: Border.all(color: AppColors.cardBorderSoft),
+          boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 16, offset: Offset(0, 8))],
         ),
         child: Row(
           children: [
@@ -408,7 +408,7 @@ class _TestsEntryCard extends StatelessWidget {
               height: 52,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFEAF1FF),
+                color: AppColors.iconTileBlue,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: SvgPicture.asset(AppAssets.icQuiz, fit: BoxFit.contain),
@@ -473,7 +473,7 @@ class _PromoBanner extends StatelessWidget {
                   ),
                   const Spacer(),
                   Material(
-                    color: const Color(0xFFE7F7F7),
+                    color: AppColors.primarySoft,
                     borderRadius: BorderRadius.circular(22),
                     child: InkWell(
                       onTap: onCheckAccount,
@@ -501,7 +501,7 @@ class _PromoBanner extends StatelessWidget {
               width: 118,
               height: 118,
               decoration: const BoxDecoration(
-                color: Color(0xFFEAF8F8),
+                color: AppColors.primarySoft,
                 shape: BoxShape.circle,
               ),
               clipBehavior: Clip.antiAlias,
@@ -551,7 +551,7 @@ class _Dot extends StatelessWidget {
       width: active ? 22 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: active ? AppColors.primary : const Color(0xFFD9DEE5),
+        color: active ? AppColors.primary : AppColors.dotInactive,
         borderRadius: BorderRadius.circular(8),
       ),
     );
@@ -735,7 +735,7 @@ class _NewsCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Color(0xCC000000)],
+                  colors: [Colors.transparent, AppColors.overlay80],
                   stops: [0.45, 1],
                 ),
               ),
@@ -762,7 +762,7 @@ class _NewsCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     item.date,
-                    style: const TextStyle(color: Color(0xFFE0E6EC), fontSize: 11),
+                    style: const TextStyle(color: AppColors.imageCaption, fontSize: 11),
                   ),
                 ],
               ),
@@ -848,7 +848,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: const Color(0xB3000000),
+                      color: AppColors.overlay70,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(

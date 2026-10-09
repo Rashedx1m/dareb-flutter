@@ -4,25 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/registration_details.dart';
 import '../../domain/entities/user.dart';
-import '../../domain/usecases/register_usecase.dart';
-import '../../domain/usecases/request_otp_usecase.dart';
-import '../../domain/usecases/verify_otp_usecase.dart';
+import '../../domain/usecases/register.dart';
+import '../../domain/usecases/request_otp.dart';
+import '../../domain/usecases/verify_otp.dart';
 
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit({
-    required RequestOtpUseCase requestOtpUseCase,
-    required RegisterUseCase registerUseCase,
-    required VerifyOtpUseCase verifyOtpUseCase,
-  })  : _requestOtp = requestOtpUseCase,
-        _register = registerUseCase,
-        _verifyOtp = verifyOtpUseCase,
-        super(const AuthState());
+  AuthCubit({required this._requestOtp, required this._register, required this._verifyOtp})
+      : super(const AuthState());
 
-  final RequestOtpUseCase _requestOtp;
-  final RegisterUseCase _register;
-  final VerifyOtpUseCase _verifyOtp;
+  final RequestOtp _requestOtp;
+  final Register _register;
+  final VerifyOtp _verifyOtp;
 
   Future<void> requestOtp(String phone) async {
     _emit(state.copyWith(status: AuthStatus.loading));

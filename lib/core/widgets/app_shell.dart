@@ -17,7 +17,7 @@ class AppShell extends StatelessWidget {
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: [
-            BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, -4)),
+            BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, -4)),
           ],
         ),
         child: SafeArea(

@@ -16,5 +16,9 @@ Future<Either<Failure, T>> guard<T>(Future<T> Function() action) async {
     return Left(AuthFailure(e.message));
   } on ValidationException catch (e) {
     return Left(ValidationFailure(e.message));
+  } on Exception {
+    // استثناء من خارج طبقة البيانات (التخزين المحلي مثلاً). بدونه لا يصل الـ Cubit
+    // رد فتبقى الشاشة على التحميل. الأخطاء البرمجية (Error) تبقى ظاهرة.
+    return const Left(ServerFailure('حدث خطأ غير متوقع'));
   }
 }

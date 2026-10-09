@@ -6,8 +6,8 @@ import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 /// مستخدم الجلسة الحالية، أو `null` إذا لم تُفتح جلسة.
-class GetCurrentUserUseCase implements UseCase<User?, NoParams> {
-  const GetCurrentUserUseCase(this.repository);
+class GetCurrentUser implements UseCase<User?, NoParams> {
+  const GetCurrentUser(this.repository);
   final AuthRepository repository;
 
   @override

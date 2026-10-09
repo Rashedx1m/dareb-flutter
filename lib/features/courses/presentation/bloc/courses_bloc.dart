@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/course.dart';
+import '../../domain/usecases/get_categories.dart';
+import '../../domain/usecases/get_course.dart';
 import '../../domain/usecases/get_courses.dart';
+import '../../domain/usecases/search_courses.dart';
 
 part 'courses_event.dart';
 part 'courses_state.dart';

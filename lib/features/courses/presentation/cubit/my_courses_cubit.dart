@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/usecases/get_courses.dart';
+import '../../domain/usecases/get_my_courses.dart';
 
 part 'my_courses_state.dart';
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../cubit/gallery_cubit.dart';
 
 /// عارض صور الألبوم بملء الشاشة مع خلفية معتمة، تمرير بين الصور، وزر إغلاق.
@@ -17,7 +18,7 @@ class PhotoViewerPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xF20E1114),
+        backgroundColor: AppColors.viewerBackground,
         body: SafeArea(
           child: Stack(
             children: [

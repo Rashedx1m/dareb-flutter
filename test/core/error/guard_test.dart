@@ -24,6 +24,13 @@ void main() {
     );
   });
 
+  test('أي استثناء آخر يصير ServerFailure عاماً بدل أن يُعلّق الشاشة', () async {
+    expect(
+      await guard<int>(() async => throw const FormatException('bad prefs')),
+      const Left<Failure, int>(ServerFailure('حدث خطأ غير متوقع')),
+    );
+  });
+
   test('لا يبتلع الأخطاء البرمجية غير المتوقعة', () {
     expect(guard<int>(() async => throw StateError('bug')), throwsStateError);
   });

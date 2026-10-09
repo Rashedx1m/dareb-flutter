@@ -10,17 +10,22 @@
 
 | الطبقة | المحتوى |
 |---|---|
-| `domain/` | الكيانات، والواجهات المجردة للمستودعات، والـ UseCases |
-| `data/datasources/` | مصدر البيانات: واجهة `*RemoteDataSource` تُرجع البيانات أو ترمي `Exception` |
-| `data/repositories/` | تنفيذ المستودع: يستدعي المصدر ويحوّل الاستثناءات إلى `Failure` عبر `guard` |
-| `presentation/` | الصفحات، والـ Cubit/Bloc. لا تعرف إلا الـ UseCases |
+| `domain/` | الكيانات، والواجهات المجردة للمستودعات، والـ UseCases (ملف لكل واحد) |
+| `data/models/` | تحويل JSON إلى الكيانات (`fromJson`)، ملف لكل Model |
+| `data/datasources/` | مصدر البيانات: واجهة `*RemoteDataSource` تُرجع Models أو ترمي `Exception` |
+| `data/repositories/` | تنفيذ المستودع: يتحقق من المدخلات ثم يستدعي المصدر داخل `guard` فيحوّل الاستثناءات إلى `Failure` |
+| `presentation/` | الصفحات، والـ Cubit/Bloc وحالته في ملف `part`. لا تعرف إلا الـ UseCases |
 
 مسار البيانات دائمًا: **الصفحة ← Cubit ← UseCase ← Repository ← DataSource**.
 الصفحات لا تستدعي المستودعات ولا `MockCatalog` مباشرة، والـ Cubit يُحقن في الصفحة من الموجّه.
 
+**خطوات بناء أي ميزة وقواعدها في [docs/FEATURE_WORKFLOW.md](docs/FEATURE_WORKFLOW.md).**
+
 وفي `lib/core/` الأجزاء المشتركة:
 - `di/injection.dart`: حقن الاعتماديات بـ get_it، مقسّمة دالةً لكل ميزة.
 - `error/`: أنواع `Failure` و`Exception`، و`guard` الذي يحوّل بينهما.
+- `network/`: `ApiClient` (الترويسات والتوكن وفك غلاف الرد وتحويل الأخطاء)، و`SessionExpiry` لانتهاء الجلسة.
+- `utils/validators.dart`: قواعد التحقق من الحقول المشتركة بين الميزات.
 - `router/`: التوجيه بـ go_router، مع حارس يمنع الصفحات الداخلية بلا جلسة.
 - `theme/`: الألوان والخطوط والأيقونات.
 - `widgets/`: عناصر مشتركة، منها `LoadingView` و`ErrorView` لحالات التحميل.
@@ -29,10 +34,11 @@
 
 ## الحالة الحالية
 
-البيانات من `lib/core/data/mock_catalog.dart` عبر مصادر `*MockDataSource`، وهي وحدها التي تستورده.
-الربط مع الـ Backend لكل ميزة: إضافة تنفيذ `*RemoteDataSource` يستدعي الـ API (مع الـ Models)،
-ثم تبديل تسجيله في `injection.dart`، دون تعديل المستودع أو الـ UseCases أو الـ Cubits.
-المصادقة (`auth`) ما زالت تحاكي الخادم داخل المستودع وستُعاد هيكلتها عند ربطها.
+مربوطة بالخادم: المصادقة والتسجيل (`auth`)، والملف الشخصي (`profile`)، والدعم (`support`)، والاشتراكات (`subscription`).
+
+ما زالت تجريبية من `lib/core/data/mock_catalog.dart` عبر مصادر `*MockDataSource`: الدورات، والاختبارات،
+وأخبار الرئيسية، والمعرض، والإشعارات، والإنجازات، والتنزيلات. ربط أي منها: إضافة تنفيذ `*RemoteDataSource`
+يستدعي الـ API (مع الـ Models)، ثم تبديل تسجيله في `injection.dart`، دون تعديل المستودع أو الـ UseCases أو الـ Cubits.
 
 ## التشغيل
 

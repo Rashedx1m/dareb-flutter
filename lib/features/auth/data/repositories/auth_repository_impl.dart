@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
-import '../../domain/auth_validators.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entities/profile_image.dart';
 import '../../domain/entities/profile_update.dart';
 import '../../domain/entities/registration_details.dart';
@@ -25,9 +25,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> requestOtp({required String phone}) async {
-    final error = AuthValidators.phone(phone);
+    final error = Validators.phone(phone);
     if (error != null) return Left(ValidationFailure(error));
-    return guard(() => _remote.login(AuthValidators.normalizedPhone(phone)));
+    return guard(() => _remote.login(Validators.normalizedPhone(phone)));
   }
 
   @override
@@ -35,12 +35,12 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phone,
     required String otp,
   }) async {
-    final error = AuthValidators.phone(phone) ?? AuthValidators.otp(otp);
+    final error = Validators.phone(phone) ?? Validators.otp(otp);
     if (error != null) return Left(ValidationFailure(error));
 
     return guard<User?>(() async {
       final session = await _remote.activate(
-        phone: AuthValidators.normalizedPhone(phone),
+        phone: Validators.normalizedPhone(phone),
         code: otp.trim(),
         deviceId: _local.deviceId,
       );
@@ -54,9 +54,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> register(RegistrationDetails details) async {
-    final error = AuthValidators.name(details.firstName) ??
-        AuthValidators.name(details.lastName) ??
-        AuthValidators.email(details.email);
+    final error = Validators.notEmpty(details.firstName) ??
+        Validators.notEmpty(details.lastName) ??
+        Validators.email(details.email);
     if (error != null) return Left(ValidationFailure(error));
 
     return guard<User>(() async {
@@ -83,7 +83,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> updateProfile(ProfileUpdate update) async {
-    final error = AuthValidators.name(update.firstName) ?? AuthValidators.name(update.lastName);
+    final error = Validators.notEmpty(update.firstName) ?? Validators.notEmpty(update.lastName);
     if (error != null) return Left(ValidationFailure(error));
 
     return guard<User>(() async {

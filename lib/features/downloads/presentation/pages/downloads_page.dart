@@ -97,7 +97,7 @@ class _DownloadTile extends StatelessWidget {
                 children: [
                   Text(
                     isVideo ? '${file.duration} ${AppStrings.minutesUnit}' : '${file.pages} ${AppStrings.pagesUnit}',
-                    style: const TextStyle(color: Color(0xFF5C5C5C), fontSize: 14),
+                    style: const TextStyle(color: AppColors.metaText, fontSize: 14),
                   ),
                   const SizedBox(width: 6),
                   Icon(

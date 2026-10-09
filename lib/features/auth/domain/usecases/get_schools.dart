@@ -6,16 +6,6 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/lookup_option.dart';
 import '../repositories/registration_options_repository.dart';
 
-class GetGovernorates implements UseCase<List<LookupOption>, NoParams> {
-  const GetGovernorates(this.repository);
-  final RegistrationOptionsRepository repository;
-
-  @override
-  Future<Either<Failure, List<LookupOption>>> call(NoParams params) {
-    return repository.getGovernorates();
-  }
-}
-
 class GetSchools implements UseCase<List<LookupOption>, SchoolsQuery> {
   const GetSchools(this.repository);
   final RegistrationOptionsRepository repository;
@@ -23,16 +13,6 @@ class GetSchools implements UseCase<List<LookupOption>, SchoolsQuery> {
   @override
   Future<Either<Failure, List<LookupOption>>> call(SchoolsQuery params) {
     return repository.getSchools(kind: params.kind, governorateId: params.governorateId);
-  }
-}
-
-class GetBranches implements UseCase<List<LookupOption>, NoParams> {
-  const GetBranches(this.repository);
-  final RegistrationOptionsRepository repository;
-
-  @override
-  Future<Either<Failure, List<LookupOption>>> call(NoParams params) {
-    return repository.getBranches();
   }
 }
 

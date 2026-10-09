@@ -16,5 +16,5 @@ class AppNotification extends Equatable {
   final bool isRead;
 
   @override
-  List<Object?> get props => [id, title, isRead];
+  List<Object?> get props => [id, title, body, time, isRead];
 }

@@ -9,7 +9,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/utils/external_link.dart';
 import '../../../../core/widgets/app_sheet.dart';
-import '../../domain/entities/contact_links.dart';
 import '../cubit/about_cubit.dart';
 
 /// الروابط تُجلب مع فتح الورقة (`infos/all`).
@@ -47,7 +46,7 @@ class _AboutSheetState extends State<AboutSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final links = context.watch<AboutCubit>().state ?? const ContactLinks();
+    final links = context.watch<AboutCubit>().state.links;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -80,7 +79,7 @@ class _AboutSheetState extends State<AboutSheet> {
               label: AppStrings.whatsapp,
               url: links.whatsapp,
               onOpen: _open,
-              child: const Icon(PhosphorIconsFill.whatsappLogo, color: Color(0xFF25D366), size: 44),
+              child: const Icon(PhosphorIconsFill.whatsappLogo, color: AppColors.whatsapp, size: 44),
             ),
             const SizedBox(width: 12),
             _LinkButton(
@@ -90,7 +89,7 @@ class _AboutSheetState extends State<AboutSheet> {
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(color: Color(0xFF29A9EB), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.telegram, shape: BoxShape.circle),
                 child: const Icon(PhosphorIconsFill.telegramLogo, color: Colors.white, size: 22),
               ),
             ),
@@ -106,7 +105,7 @@ class _AboutSheetState extends State<AboutSheet> {
               label: AppStrings.facebook,
               url: links.facebook,
               onOpen: _open,
-              child: const Icon(PhosphorIconsFill.facebookLogo, color: Color(0xFF1877F2), size: 44),
+              child: const Icon(PhosphorIconsFill.facebookLogo, color: AppColors.facebook, size: 44),
             ),
           ],
         ),
@@ -158,7 +157,7 @@ class _InstagramIcon extends StatelessWidget {
       shaderCallback: (bounds) => const LinearGradient(
         begin: Alignment.bottomLeft,
         end: Alignment.topRight,
-        colors: [Color(0xFFFEDA75), Color(0xFFFA7E1E), Color(0xFFD62976), Color(0xFF962FBF), Color(0xFF4F5BD5)],
+        colors: AppColors.instagramGradient,
       ).createShader(bounds),
       child: const Icon(PhosphorIconsFill.instagramLogo, size: 44),
     );

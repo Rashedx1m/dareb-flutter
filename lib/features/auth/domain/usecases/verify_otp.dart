@@ -6,8 +6,8 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
-class VerifyOtpUseCase implements UseCase<User?, VerifyOtpParams> {
-  const VerifyOtpUseCase(this.repository);
+class VerifyOtp implements UseCase<User?, VerifyOtpParams> {
+  const VerifyOtp(this.repository);
   final AuthRepository repository;
 
   @override

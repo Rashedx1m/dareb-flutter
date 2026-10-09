@@ -5,9 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../../auth/domain/entities/user.dart';
-import '../../../auth/domain/usecases/get_current_user_usecase.dart';
-import '../../../auth/domain/usecases/refresh_profile_usecase.dart';
+import '../../../auth/domain/usecases/get_current_user.dart';
+import '../../../auth/domain/usecases/refresh_profile.dart';
 import '../../../courses/domain/entities/course.dart';
+import '../../../courses/domain/usecases/get_categories.dart';
 import '../../../courses/domain/usecases/get_courses.dart';
 import '../../domain/entities/news_item.dart';
 import '../../domain/usecases/get_news.dart';
@@ -26,8 +27,8 @@ class HomeCubit extends Cubit<HomeState> {
   final GetCourses _getCourses;
   final GetCategories _getCategories;
   final GetNews _getNews;
-  final GetCurrentUserUseCase _getCurrentUser;
-  final RefreshProfileUseCase _refreshProfile;
+  final GetCurrentUser _getCurrentUser;
+  final RefreshProfile _refreshProfile;
 
   Future<void> load() async {
     emit(state.copyWith(status: HomeStatus.loading));

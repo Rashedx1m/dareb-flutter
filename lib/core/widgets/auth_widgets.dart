@@ -376,7 +376,7 @@ class ChoiceCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F7F7),
+                      color: AppColors.primarySoft,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(icon, color: AppColors.iconBlue, size: 28),

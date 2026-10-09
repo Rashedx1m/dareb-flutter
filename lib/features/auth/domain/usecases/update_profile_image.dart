@@ -6,8 +6,8 @@ import '../entities/profile_image.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
-class UpdateProfileImageUseCase implements UseCase<User, ProfileImage> {
-  const UpdateProfileImageUseCase(this.repository);
+class UpdateProfileImage implements UseCase<User, ProfileImage> {
+  const UpdateProfileImage(this.repository);
   final AuthRepository repository;
 
   @override

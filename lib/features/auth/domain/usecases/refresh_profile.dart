@@ -6,8 +6,8 @@ import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 /// مستخدم الجلسة كما هو الآن على الخادم، مع تحديث نسخته المحفوظة.
-class RefreshProfileUseCase implements UseCase<User, NoParams> {
-  const RefreshProfileUseCase(this.repository);
+class RefreshProfile implements UseCase<User, NoParams> {
+  const RefreshProfile(this.repository);
   final AuthRepository repository;
 
   @override

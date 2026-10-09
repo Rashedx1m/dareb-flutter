@@ -5,7 +5,7 @@ import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/downloaded_file.dart';
 import '../../domain/usecases/get_downloads.dart';
 
-enum DownloadsStatus { initial, loading, success, failure }
+part 'downloads_state.dart';
 
 class DownloadsCubit extends Cubit<DownloadsState> {
   DownloadsCubit(this._getDownloads) : super(const DownloadsState());
@@ -23,15 +23,4 @@ class DownloadsCubit extends Cubit<DownloadsState> {
       ),
     );
   }
-}
-
-class DownloadsState extends Equatable {
-  const DownloadsState({this.status = DownloadsStatus.initial, this.items = const [], this.error});
-
-  final DownloadsStatus status;
-  final List<DownloadedFile> items;
-  final String? error;
-
-  @override
-  List<Object?> get props => [status, items, error];
 }

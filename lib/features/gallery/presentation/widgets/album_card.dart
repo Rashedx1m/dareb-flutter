@@ -21,9 +21,9 @@ class AlbumCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE3ECF2)),
+          border: Border.all(color: AppColors.albumBorder),
           boxShadow: const [
-            BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 6)),
+            BoxShadow(color: AppColors.shadowLight, blurRadius: 14, offset: Offset(0, 6)),
           ],
         ),
         child: Column(

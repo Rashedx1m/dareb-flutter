@@ -56,11 +56,11 @@ class ProfilePage extends StatelessWidget {
           return;
         }
         switch (state.avatarStatus) {
-          case SaveStatus.saved:
+          case SaveStatus.done:
             _showMessage(context, AppStrings.avatarUpdated);
           case SaveStatus.failure:
             _showMessage(context, state.avatarError ?? AppStrings.loadError);
-          case SaveStatus.idle || SaveStatus.saving:
+          case SaveStatus.idle || SaveStatus.sending:
             break;
         }
       },
@@ -81,7 +81,7 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     _ProfileCard(
                       user: user,
-                      uploading: state.avatarStatus == SaveStatus.saving,
+                      uploading: state.avatarStatus == SaveStatus.sending,
                       onAvatarTap: () => _pickAvatar(context),
                     ),
                     const Divider(height: 1, thickness: 1, color: AppColors.divider),
@@ -233,7 +233,7 @@ class _Avatar extends StatelessWidget {
               if (uploading)
                 const Positioned.fill(
                   child: DecoratedBox(
-                    decoration: BoxDecoration(color: Color(0x66000000), shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: AppColors.overlay40, shape: BoxShape.circle),
                     child: Center(child: CircularProgressIndicator(color: Colors.white)),
                   ),
                 ),

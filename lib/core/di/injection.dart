@@ -13,21 +13,27 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/data/repositories/registration_options_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/repositories/registration_options_repository.dart';
-import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
-import '../../features/auth/domain/usecases/get_registration_options.dart';
-import '../../features/auth/domain/usecases/logout_usecase.dart';
-import '../../features/auth/domain/usecases/refresh_profile_usecase.dart';
-import '../../features/auth/domain/usecases/register_usecase.dart';
-import '../../features/auth/domain/usecases/request_otp_usecase.dart';
-import '../../features/auth/domain/usecases/update_profile_image_usecase.dart';
-import '../../features/auth/domain/usecases/update_profile_usecase.dart';
-import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
+import '../../features/auth/domain/usecases/get_branches.dart';
+import '../../features/auth/domain/usecases/get_current_user.dart';
+import '../../features/auth/domain/usecases/get_governorates.dart';
+import '../../features/auth/domain/usecases/get_schools.dart';
+import '../../features/auth/domain/usecases/logout.dart';
+import '../../features/auth/domain/usecases/refresh_profile.dart';
+import '../../features/auth/domain/usecases/register.dart';
+import '../../features/auth/domain/usecases/request_otp.dart';
+import '../../features/auth/domain/usecases/update_profile.dart';
+import '../../features/auth/domain/usecases/update_profile_image.dart';
+import '../../features/auth/domain/usecases/verify_otp.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/courses/data/datasources/courses_remote_data_source.dart';
 import '../../features/courses/data/repositories/courses_repository_impl.dart';
 import '../../features/courses/domain/repositories/courses_repository.dart';
+import '../../features/courses/domain/usecases/get_categories.dart';
+import '../../features/courses/domain/usecases/get_course.dart';
 import '../../features/courses/domain/usecases/get_courses.dart';
+import '../../features/courses/domain/usecases/get_my_courses.dart';
+import '../../features/courses/domain/usecases/search_courses.dart';
 import '../../features/courses/presentation/bloc/courses_bloc.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
 import '../../features/downloads/data/datasources/downloads_local_data_source.dart';
@@ -38,6 +44,7 @@ import '../../features/downloads/presentation/cubit/downloads_cubit.dart';
 import '../../features/gallery/data/datasources/gallery_remote_data_source.dart';
 import '../../features/gallery/data/repositories/gallery_repository_impl.dart';
 import '../../features/gallery/domain/repositories/gallery_repository.dart';
+import '../../features/gallery/domain/usecases/get_album.dart';
 import '../../features/gallery/domain/usecases/get_albums.dart';
 import '../../features/gallery/presentation/cubit/gallery_cubit.dart';
 import '../../features/home/data/datasources/news_remote_data_source.dart';
@@ -54,14 +61,20 @@ import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/quiz/data/datasources/quiz_remote_data_source.dart';
 import '../../features/quiz/data/repositories/quiz_repository_impl.dart';
 import '../../features/quiz/domain/repositories/quiz_repository.dart';
+import '../../features/quiz/domain/usecases/get_quiz.dart';
 import '../../features/quiz/domain/usecases/get_quizzes.dart';
 import '../../features/quiz/presentation/bloc/quiz_bloc.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/subscription/data/datasources/subscription_remote_data_source.dart';
 import '../../features/subscription/data/repositories/subscription_repository_impl.dart';
 import '../../features/subscription/domain/repositories/subscription_repository.dart';
-import '../../features/subscription/domain/usecases/get_plans.dart';
-import '../../features/subscription/presentation/cubit/plans_cubit.dart';
+import '../../features/subscription/domain/usecases/get_package_subjects.dart';
+import '../../features/subscription/domain/usecases/get_packages.dart';
+import '../../features/subscription/domain/usecases/get_payment_methods.dart';
+import '../../features/subscription/domain/usecases/subscribe_with_code.dart';
+import '../../features/subscription/presentation/cubit/checkout_cubit.dart';
+import '../../features/subscription/presentation/cubit/package_subjects_cubit.dart';
+import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
 import '../../features/support/data/datasources/support_remote_data_source.dart';
 import '../../features/support/data/repositories/support_repository_impl.dart';
 import '../../features/support/domain/repositories/support_repository.dart';
@@ -108,14 +121,14 @@ void _initAuth() {
     ..registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<AuthLocalDataSource>(() => SharedPrefsAuthLocalDataSource(sl()))
     ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remote: sl(), local: sl()))
-    ..registerLazySingleton(() => RequestOtpUseCase(sl()))
-    ..registerLazySingleton(() => RegisterUseCase(sl()))
-    ..registerLazySingleton(() => VerifyOtpUseCase(sl()))
-    ..registerLazySingleton(() => GetCurrentUserUseCase(sl()))
-    ..registerLazySingleton(() => RefreshProfileUseCase(sl()))
-    ..registerLazySingleton(() => UpdateProfileUseCase(sl()))
-    ..registerLazySingleton(() => UpdateProfileImageUseCase(sl()))
-    ..registerLazySingleton(() => LogoutUseCase(sl()))
+    ..registerLazySingleton(() => RequestOtp(sl()))
+    ..registerLazySingleton(() => Register(sl()))
+    ..registerLazySingleton(() => VerifyOtp(sl()))
+    ..registerLazySingleton(() => GetCurrentUser(sl()))
+    ..registerLazySingleton(() => RefreshProfile(sl()))
+    ..registerLazySingleton(() => UpdateProfile(sl()))
+    ..registerLazySingleton(() => UpdateProfileImage(sl()))
+    ..registerLazySingleton(() => Logout(sl()))
     ..registerLazySingleton<RegistrationOptionsRemoteDataSource>(
       () => RegistrationOptionsRemoteDataSourceImpl(sl()),
     )
@@ -127,9 +140,9 @@ void _initAuth() {
     ..registerLazySingleton(() => GetBranches(sl()))
     ..registerFactory(
       () => AuthCubit(
-        requestOtpUseCase: sl(),
-        registerUseCase: sl(),
-        verifyOtpUseCase: sl(),
+        requestOtp: sl(),
+        register: sl(),
+        verifyOtp: sl(),
       ),
     )
     ..registerFactory(
@@ -210,10 +223,15 @@ void _initAchievements() {
 
 void _initSubscription() {
   sl
-    ..registerLazySingleton<SubscriptionRemoteDataSource>(SubscriptionMockDataSource.new)
+    ..registerLazySingleton<SubscriptionRemoteDataSource>(() => SubscriptionRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<SubscriptionRepository>(() => SubscriptionRepositoryImpl(sl()))
-    ..registerLazySingleton(() => GetPlans(sl()))
-    ..registerFactory(() => PlansCubit(sl()));
+    ..registerLazySingleton(() => GetPackages(sl()))
+    ..registerLazySingleton(() => GetPackageSubjects(sl()))
+    ..registerLazySingleton(() => GetPaymentMethods(sl()))
+    ..registerLazySingleton(() => SubscribeWithCode(sl()))
+    ..registerFactory(() => SubscriptionCubit(getPackages: sl(), subscribeWithCode: sl()))
+    ..registerFactory(() => CheckoutCubit(getPackages: sl(), getPaymentMethods: sl()))
+    ..registerFactory(() => PackageSubjectsCubit(sl()));
 }
 
 void _initProfile() {
