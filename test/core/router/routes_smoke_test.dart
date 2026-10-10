@@ -81,6 +81,8 @@ void main() {
     '/usage-policy',
     '/my-courses',
     '/home',
+    '/categories',
+    '/categories/1',
   ];
 
   for (final path in paths) {

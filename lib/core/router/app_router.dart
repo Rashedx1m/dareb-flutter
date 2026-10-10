@@ -12,6 +12,7 @@ import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/courses/presentation/bloc/courses_bloc.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
+import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/courses/presentation/pages/categories_page.dart';
 import '../../features/courses/presentation/pages/course_detail_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
@@ -194,14 +195,14 @@ GoRouter createRouter() {
       GoRoute(
         path: '/categories',
         builder: (_, _) => BlocProvider(
-          create: (_) => sl<CoursesBloc>()..add(const CoursesStarted()),
+          create: (_) => sl<SubjectsCubit>()..load(),
           child: const CategoriesPage(),
         ),
       ),
       GoRoute(
         path: '/categories/:id',
         builder: (context, state) => BlocProvider(
-          create: (_) => sl<CoursesBloc>()..add(const CoursesStarted()),
+          create: (_) => sl<SubjectsCubit>()..load(),
           child: CategoriesPage(initialId: state.pathParameters['id']),
         ),
       ),

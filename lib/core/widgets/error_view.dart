@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_strings.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_icons.dart';
 
 /// رسالة فشل التحميل مع زر إعادة المحاولة، تستخدمها الصفحات التي تجلب
 /// بياناتها من مستودع. بلا [message] تُعرض رسالة عامة.
@@ -30,6 +31,33 @@ class ErrorView extends StatelessWidget {
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded, size: 18),
             label: const Text(AppStrings.retry),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// رسالة القائمة الفارغة، بهيئة [ErrorView] نفسها.
+class EmptyView extends StatelessWidget {
+  const EmptyView({super.key, required this.message, this.icon = PhosphorIconsRegular.books});
+
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 70, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.textMuted, size: 48),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),

@@ -114,6 +114,7 @@ abstract final class AppStrings {
   static const popularCourses = 'الدورات الشائعة';
   static const seeAll = 'عرض الكل';
   static const categories = 'التصنيفات';
+  static const noSubjects = 'لا توجد مواد متاحة بعد';
   static const notifications = 'الإشعارات';
   static const noNotifications = 'لا توجد إشعارات بعد';
   static const unreadNotifications = 'إشعارات غير مقروءة';

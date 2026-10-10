@@ -36,6 +36,7 @@ import '../../features/courses/domain/usecases/get_subjects.dart';
 import '../../features/courses/domain/usecases/search_courses.dart';
 import '../../features/courses/presentation/bloc/courses_bloc.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
+import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/downloads/data/datasources/downloads_local_data_source.dart';
 import '../../features/downloads/data/repositories/downloads_repository_impl.dart';
 import '../../features/downloads/domain/repositories/downloads_repository.dart';
@@ -167,6 +168,7 @@ void _initCourses() {
         getSubjects: sl(),
       ),
     )
+    ..registerFactory(() => SubjectsCubit(sl()))
     ..registerFactory(() => MyCoursesCubit(sl()))
     ..registerFactory(() => SearchCubit(sl()));
 }
