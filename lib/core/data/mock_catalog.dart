@@ -208,19 +208,19 @@ abstract final class MockCatalog {
     Quiz(id: 'qa4', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
   ];
 
-  static const notifications = [
+  static final  notifications = [
     AppNotification(
       id: 'n1',
       title: 'درس جديد',
       body: 'تم إضافة درس مصادر الالتزام إلى دورة القانون المدني.',
-      time: 'منذ ساعتين',
+      createdAt: DateTime(2026, 10, 9, 10),
       isRead: false,
     ),
     AppNotification(
       id: 'n2',
       title: 'تذكير بالاختبار',
       body: 'اختبار الوحدة الأولى ينتهي خلال 24 ساعة.',
-      time: 'أمس',
+      createdAt: DateTime(2026, 10, 8, 18),
       isRead: true,
     ),
   ];

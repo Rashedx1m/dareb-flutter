@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -33,7 +34,10 @@ class NotificationsPage extends StatelessWidget {
                     ),
                     title: Text(item.title, style: TextStyle(fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w800)),
                     subtitle: Text(item.body),
-                    trailing: Text(item.time, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    trailing: Text(
+                      DateFormat('yyyy/MM/dd HH:mm').format(item.createdAt),
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    ),
                   );
                 },
               ),
