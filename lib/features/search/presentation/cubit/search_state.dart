@@ -1,5 +1,6 @@
 part of 'search_cubit.dart';
 
+/// `idle` قبل الكتابة أو بعد مسح النص.
 enum SearchStatus { idle, loading, success, failure }
 
 class SearchState extends Equatable {
@@ -13,6 +14,8 @@ class SearchState extends Equatable {
   final SearchStatus status;
   final String query;
   final List<Subject> results;
+
+  /// يُعرض فقط مع `failure`.
   final String? error;
 
   SearchState copyWith({
@@ -25,7 +28,7 @@ class SearchState extends Equatable {
       status: status ?? this.status,
       query: query ?? this.query,
       results: results ?? this.results,
-      error: error ?? this.error,
+      error: error,
     );
   }
 
