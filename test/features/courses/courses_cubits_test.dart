@@ -2,20 +2,72 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/features/courses/domain/entities/course.dart';
+import 'package:educational_app/features/courses/domain/entities/course_details.dart';
+import 'package:educational_app/features/courses/domain/entities/lesson.dart';
+import 'package:educational_app/features/courses/domain/entities/semester.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
+import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _subject = Subject(id: '2', name: 'سارين الطراونة', imageUrl: 'x', isFree: true, isSubscribed: false);
 
+const _course = Course(
+  id: '1',
+  title: 'الدكتور هناء القطيشات',
+  subjectName: 'ناردين الشطناوي',
+  instructor: 'أكرم أبو الرب',
+  description: '',
+  imageUrl: 'x',
+  price: 36,
+  semestersCount: 1,
+  lessonsCount: 1,
+  subscriptionsCount: 3,
+  isFree: false,
+  isSubscribed: false,
+);
+
+const _details = CourseDetails(
+  course: _course,
+  semesters: [
+    Semester(
+      id: '2',
+      name: 'السيدة بتول الترابين',
+      isFree: true,
+      price: 71,
+      lessonsCount: 1,
+      isSubscribed: false,
+      lessons: [
+        Lesson(id: '3', title: 'رسلان الدين عباد', type: LessonType.video, order: 6, isFree: true, isSubscribed: false, isAttended: false),
+      ],
+    ),
+  ],
+);
+
 /// مستودع مزيّف: كل دالة تُرجع ما يعيده الرد المضبوط لها.
 class _FakeRepository extends Fake implements CoursesRepository {
   Future<Either<Failure, List<Subject>>> Function() subjects = () async => const Right([_subject]);
+  Future<Either<Failure, List<Course>>> Function() courses = () async => const Right([_course]);
+  Future<Either<Failure, CourseDetails>> Function(String id) details = (_) async => const Right(_details);
+  final detailsRequests = <String>[];
 
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() => subjects();
+
+  @override
+  Future<Either<Failure, List<Course>>> getCourses() => courses();
+
+  @override
+  Future<Either<Failure, CourseDetails>> getCourseDetails(String subjectId) {
+    detailsRequests.add(subjectId);
+    return details(subjectId);
+  }
 }
 
 void main() {
@@ -59,6 +111,94 @@ void main() {
       final loading = cubit.load();
       await cubit.close();
       response.complete(const Right([_subject]));
+
+      await expectLater(loading, completes);
+    });
+  });
+
+  group('CoursesCubit', () {
+    test('يبدأ initial، ثم loading، ثم success بالدورات', () async {
+      final cubit = CoursesCubit(GetCourses(repository));
+      expect(cubit.state.status, CoursesStatus.initial);
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const CoursesState(status: CoursesStatus.loading),
+          const CoursesState(status: CoursesStatus.success, courses: [_course]),
+        ]),
+      );
+      await cubit.load();
+      await states;
+    });
+
+    test('الفشل يصل برسالته، وإعادة المحاولة تمسحها', () async {
+      final results = <Either<Failure, List<Course>>>[const Left(ServerFailure('x')), const Right([_course])];
+      repository.courses = () async => results.removeAt(0);
+      final cubit = CoursesCubit(GetCourses(repository));
+
+      await cubit.load();
+      expect(cubit.state, const CoursesState(status: CoursesStatus.failure, error: 'x'));
+
+      await cubit.load();
+      expect(cubit.state, const CoursesState(status: CoursesStatus.success, courses: [_course]));
+    });
+
+    test('إغلاق الصفحة قبل وصول الرد لا يرمي خطأ', () async {
+      final response = Completer<Either<Failure, List<Course>>>();
+      repository.courses = () => response.future;
+      final cubit = CoursesCubit(GetCourses(repository));
+
+      final loading = cubit.load();
+      await cubit.close();
+      response.complete(const Right([_course]));
+
+      await expectLater(loading, completes);
+    });
+  });
+
+  group('CourseDetailsCubit', () {
+    test('يحمّل تفاصيل المادة المطلوبة', () async {
+      final cubit = CourseDetailsCubit(GetCourseDetails(repository));
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const CourseDetailsState(status: CourseDetailsStatus.loading),
+          const CourseDetailsState(status: CourseDetailsStatus.success, details: _details),
+        ]),
+      );
+      await cubit.load('1');
+      await states;
+      expect(repository.detailsRequests, ['1']);
+    });
+
+    test('الفشل يصل برسالته، وإعادة المحاولة تمسحها', () async {
+      final results = <Either<Failure, CourseDetails>>[
+        const Left(ValidationFailure('الحقل المواد لاغٍ')),
+        const Right(_details),
+      ];
+      repository.details = (_) async => results.removeAt(0);
+      final cubit = CourseDetailsCubit(GetCourseDetails(repository));
+
+      await cubit.load('1');
+      expect(
+        cubit.state,
+        const CourseDetailsState(status: CourseDetailsStatus.failure, error: 'الحقل المواد لاغٍ'),
+      );
+
+      await cubit.load('1');
+      expect(cubit.state, const CourseDetailsState(status: CourseDetailsStatus.success, details: _details));
+    });
+
+    test('إغلاق الصفحة قبل وصول الرد لا يرمي خطأ', () async {
+      final response = Completer<Either<Failure, CourseDetails>>();
+      repository.details = (_) => response.future;
+      final cubit = CourseDetailsCubit(GetCourseDetails(repository));
+
+      final loading = cubit.load('1');
+      await cubit.close();
+      response.complete(const Right(_details));
 
       await expectLater(loading, completes);
     });
