@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/courses/domain/entities/course.dart';
+import '../constants/app_strings.dart';
 import '../theme/app_colors.dart';
 
 class CourseCard extends StatelessWidget {
@@ -62,7 +63,7 @@ class _VerticalCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course.categoryName,
+                    course.subjectName,
                     style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
@@ -75,10 +76,11 @@ class _VerticalCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
-                      Text(' ${course.rating}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                       const Spacer(),
-                      Text('${course.price.toInt()} ر.س', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 12)),
+                      Text(
+                        '${course.price.toInt()} ${AppStrings.currency}',
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 12),
+                      ),
                     ],
                   ),
                 ],
@@ -115,7 +117,10 @@ class _HorizontalCard extends StatelessWidget {
         ),
       ),
       title: Text(course.title, maxLines: 2, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-      subtitle: Text('${course.instructor} · ${course.lessonsCount} درس', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+      subtitle: Text(
+        '${course.instructor} · ${course.lessonsCount} ${AppStrings.lessonsLabel}',
+        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+      ),
       trailing: const Icon(Icons.chevron_left),
     );
   }

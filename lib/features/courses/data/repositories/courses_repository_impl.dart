@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/guard.dart';
 import '../../domain/entities/course.dart';
+import '../../domain/entities/course_details.dart';
 import '../../domain/entities/subject.dart';
 import '../../domain/repositories/courses_repository.dart';
 import '../datasources/courses_remote_data_source.dart';
@@ -18,7 +19,9 @@ class CoursesRepositoryImpl implements CoursesRepository {
   Future<Either<Failure, List<Course>>> getMyCourses() => guard(_remote.getMyCourses);
 
   @override
-  Future<Either<Failure, Course>> getCourse(String id) => guard(() => _remote.getCourse(id));
+  Future<Either<Failure, CourseDetails>> getCourseDetails(String subjectId) {
+    return guard(() => _remote.getCourseDetails(subjectId));
+  }
 
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() => guard(_remote.getSubjects);

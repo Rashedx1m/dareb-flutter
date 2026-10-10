@@ -17,10 +17,12 @@ class CourseDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CoursesBloc, CoursesState>(
       builder: (context, state) {
-        final course = state.selected;
-        if (course == null || course.id != courseId) {
+        final details = state.selected;
+        if (details == null || details.course.id != courseId) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
+        final course = details.course;
+        final lessons = [for (final semester in details.semesters) ...semester.lessons];
         return Scaffold(
           backgroundColor: AppColors.background,
           body: CustomScrollView(
@@ -42,7 +44,7 @@ class CourseDetailPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(course.categoryName, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                      Text(course.subjectName, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 6),
                       Text(course.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 8),
@@ -50,11 +52,9 @@ class CourseDetailPage extends StatelessWidget {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _Meta(Icons.star_rounded, '${course.rating}', AppColors.warning),
-                          const SizedBox(width: 16),
                           _Meta(Icons.play_circle_outline, '${course.lessonsCount} درس', AppColors.primary),
                           const SizedBox(width: 16),
-                          _Meta(Icons.group_outlined, '${course.studentsCount}', AppColors.navy),
+                          _Meta(Icons.group_outlined, '${course.subscriptionsCount}', AppColors.navy),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -62,7 +62,7 @@ class CourseDetailPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       const Text('الدروس', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 8),
-                      ...course.lessons.map(
+                      ...lessons.map(
                         (lesson) => ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: CircleAvatar(
@@ -73,7 +73,7 @@ class CourseDetailPage extends StatelessWidget {
                             ),
                           ),
                           title: Text(lesson.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          subtitle: Text(lesson.duration),
+                          subtitle: Text(lesson.duration ?? ''),
                           onTap: lesson.isLocked
                               ? null
                               : () => context.push('/courses/${course.id}/video/${lesson.id}'),
@@ -90,10 +90,12 @@ class CourseDetailPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: AppButton(
-                label: course.progress > 0 ? AppStrings.startLesson : '${AppStrings.subscribe} · ${course.price.toInt()} ر.س',
+                label: course.isSubscribed && lessons.isNotEmpty
+                    ? AppStrings.startLesson
+                    : '${AppStrings.subscribe} · ${course.price.toInt()} ${AppStrings.currency}',
                 onPressed: () {
-                  if (course.progress > 0) {
-                    context.push('/courses/${course.id}/video/${course.lessons.first.id}');
+                  if (course.isSubscribed && lessons.isNotEmpty) {
+                    context.push('/courses/${course.id}/video/${lessons.first.id}');
                   } else {
                     context.push('/subscription');
                   }

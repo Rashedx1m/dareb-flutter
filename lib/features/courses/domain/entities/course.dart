@@ -1,59 +1,55 @@
 import 'package:equatable/equatable.dart';
 
+/// بطاقة دورة من `courses/paginate`. الخادم لا يفصل الدورة عن مادتها: [id] هو
+/// معرّف المادة، وبه تُطلب تفاصيل الدورة.
 class Course extends Equatable {
   const Course({
     required this.id,
     required this.title,
+    required this.subjectName,
     required this.instructor,
-    required this.imageUrl,
-    required this.categoryId,
-    required this.categoryName,
-    required this.lessonsCount,
-    this.chaptersCount = 0,
-    required this.studentsCount,
-    required this.rating,
-    required this.price,
-    required this.progress,
     required this.description,
-    required this.lessons,
+    required this.imageUrl,
+    required this.price,
+    required this.semestersCount,
+    required this.lessonsCount,
+    required this.subscriptionsCount,
+    required this.isFree,
+    required this.isSubscribed,
   });
 
   final String id;
   final String title;
+  final String subjectName;
+
+  /// قد يكون فارغاً إن لم يُسجَّل اسم الأستاذ.
   final String instructor;
-  final String imageUrl;
-  final String categoryId;
-  final String categoryName;
-  final int lessonsCount;
-
-  /// عدد الفصول/الوحدات في الدورة (يظهر بجانب عدد الدروس في بطاقة الدورة).
-  final int chaptersCount;
-  final int studentsCount;
-  final double rating;
-  final double price;
-  final double progress;
   final String description;
-  final List<Lesson> lessons;
+  final String imageUrl;
+
+  /// بالليرة السورية، و0 للدورة المجانية.
+  final double price;
+
+  /// عدد الفصول، وهي وحدات الدورة التي تُجمع تحتها الدروس.
+  final int semestersCount;
+  final int lessonsCount;
+  final int subscriptionsCount;
+  final bool isFree;
+  final bool isSubscribed;
 
   @override
-  List<Object?> get props => [id, title, progress];
-}
-
-class Lesson extends Equatable {
-  const Lesson({
-    required this.id,
-    required this.title,
-    required this.duration,
-    required this.isLocked,
-    this.isCompleted = false,
-  });
-
-  final String id;
-  final String title;
-  final String duration;
-  final bool isLocked;
-  final bool isCompleted;
-
-  @override
-  List<Object?> get props => [id, title];
+  List<Object?> get props => [
+        id,
+        title,
+        subjectName,
+        instructor,
+        description,
+        imageUrl,
+        price,
+        semestersCount,
+        lessonsCount,
+        subscriptionsCount,
+        isFree,
+        isSubscribed,
+      ];
 }

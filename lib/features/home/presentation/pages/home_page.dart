@@ -863,7 +863,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                         const Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 13),
                         const SizedBox(width: 4),
                         Text(
-                          '${course.studentsCount}',
+                          '${course.subscriptionsCount}',
                           style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -904,7 +904,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${course.chaptersCount} ${AppStrings.chaptersLabel} , ${course.lessonsCount} ${AppStrings.lessonsLabel}',
+                    '${course.semestersCount} ${AppStrings.chaptersLabel} , ${course.lessonsCount} ${AppStrings.lessonsLabel}',
                     style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 12,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/semester.dart';
 import '../bloc/courses_bloc.dart';
 
 class VideoPage extends StatelessWidget {
@@ -12,8 +13,10 @@ class VideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final course = context.select((CoursesBloc b) => b.state.selected);
-    final lesson = course?.lessons.where((l) => l.id == lessonId).firstOrNull;
+    final details = context.select((CoursesBloc b) => b.state.selected);
+    final course = details?.course;
+    final lessons = [for (final semester in details?.semesters ?? const <Semester>[]) ...semester.lessons];
+    final lesson = lessons.where((l) => l.id == lessonId).firstOrNull;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -50,7 +53,7 @@ class VideoPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   const Text('محتوى الدورة', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                   const SizedBox(height: 8),
-                  ...?course?.lessons.map(
+                  ...lessons.map(
                     (item) => ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(
@@ -58,7 +61,7 @@ class VideoPage extends StatelessWidget {
                         color: AppColors.primary,
                       ),
                       title: Text(item.title),
-                      trailing: Text(item.duration, style: const TextStyle(color: AppColors.textMuted)),
+                      trailing: Text(item.duration ?? '', style: const TextStyle(color: AppColors.textMuted)),
                     ),
                   ),
                 ],

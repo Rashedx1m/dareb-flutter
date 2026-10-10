@@ -29,7 +29,7 @@ import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/courses/data/datasources/courses_remote_data_source.dart';
 import '../../features/courses/data/repositories/courses_repository_impl.dart';
 import '../../features/courses/domain/repositories/courses_repository.dart';
-import '../../features/courses/domain/usecases/get_course.dart';
+import '../../features/courses/domain/usecases/get_course_details.dart';
 import '../../features/courses/domain/usecases/get_courses.dart';
 import '../../features/courses/domain/usecases/get_my_courses.dart';
 import '../../features/courses/domain/usecases/get_subjects.dart';
@@ -157,15 +157,14 @@ void _initCourses() {
     ..registerLazySingleton<CoursesRepository>(() => CoursesRepositoryImpl(sl()))
     ..registerLazySingleton(() => GetCourses(sl()))
     ..registerLazySingleton(() => GetMyCourses(sl()))
-    ..registerLazySingleton(() => GetCourse(sl()))
+    ..registerLazySingleton(() => GetCourseDetails(sl()))
     ..registerLazySingleton(() => GetSubjects(sl()))
     ..registerLazySingleton(() => SearchCourses(sl()))
     ..registerFactory(
       () => CoursesBloc(
         getCourses: sl(),
-        getCourse: sl(),
+        getCourseDetails: sl(),
         searchCourses: sl(),
-        getSubjects: sl(),
       ),
     )
     ..registerFactory(() => SubjectsCubit(sl()))

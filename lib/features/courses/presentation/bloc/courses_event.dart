@@ -26,11 +26,3 @@ class CoursesSearched extends CoursesEvent {
   @override
   List<Object?> get props => [query];
 }
-
-class CoursesCategoryFiltered extends CoursesEvent {
-  const CoursesCategoryFiltered(this.categoryId);
-  final String? categoryId;
-
-  @override
-  List<Object?> get props => [categoryId];
-}
