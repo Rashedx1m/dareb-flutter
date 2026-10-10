@@ -11,13 +11,16 @@ import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_my_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/my_courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:educational_app/features/courses/presentation/pages/categories_page.dart';
 import 'package:educational_app/features/courses/presentation/pages/course_detail_page.dart';
 import 'package:educational_app/features/courses/presentation/pages/courses_page.dart';
+import 'package:educational_app/features/courses/presentation/pages/my_courses_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -81,6 +84,10 @@ class _FakeRepository extends Fake implements CoursesRepository {
   final subjects = <Either<Failure, List<Subject>>>[];
   final courses = <Either<Failure, List<Course>>>[];
   final details = <Either<Failure, CourseDetails>>[];
+  final myCourses = <Either<Failure, List<Course>>>[];
+
+  @override
+  Future<Either<Failure, List<Course>>> getMyCourses() async => myCourses.removeAt(0);
 
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() async => subjects.removeAt(0);
@@ -203,6 +210,34 @@ void main() {
 
       expect(find.byType(ErrorView), findsNothing);
       expect(find.text('الدكتور هناء القطيشات'), findsOneWidget);
+    });
+  });
+
+  group('صفحة دوراتي', () {
+    Future<void> pumpMyCourses(WidgetTester tester) {
+      return _pump(tester, '/my-courses', {
+        '/my-courses': (_) => BlocProvider(
+              create: (_) => MyCoursesCubit(GetMyCourses(repository))..load(),
+              child: const MyCoursesPage(),
+            ),
+      });
+    }
+
+    testWidgets('تعرض دورات الاشتراكات، والضغط يفتح الدورة', (tester) async {
+      repository.myCourses.add(Right([_course(isSubscribed: true)]));
+      await pumpMyCourses(tester);
+
+      await tester.tap(find.text('الدكتور هناء القطيشات'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('course 1'), findsOneWidget);
+    });
+
+    testWidgets('بلا اشتراكات تعرض رسالة', (tester) async {
+      repository.myCourses.add(const Right([]));
+      await pumpMyCourses(tester);
+
+      expect(find.text(AppStrings.noMyCourses), findsOneWidget);
     });
   });
 

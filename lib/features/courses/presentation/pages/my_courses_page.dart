@@ -22,6 +22,7 @@ class MyCoursesPage extends StatelessWidget {
                 message: state.error,
                 onRetry: () => context.read<MyCoursesCubit>().load(),
               ),
+            MyCoursesStatus.success when state.courses.isEmpty => const EmptyView(message: AppStrings.noMyCourses),
             MyCoursesStatus.success => ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: state.courses.length,

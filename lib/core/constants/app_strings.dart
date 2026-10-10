@@ -202,6 +202,7 @@ abstract final class AppStrings {
   static const pay = 'ادفع الآن';
   // الدورات والدروس.
   static const noCourses = 'لا توجد دورات متاحة بعد';
+  static const noMyCourses = 'لم تشترك في أي دورة بعد';
   static const lessonsTitle = 'الدروس';
   static const noLessons = 'لا توجد دروس بعد';
   static const examLesson = 'اختبار';
