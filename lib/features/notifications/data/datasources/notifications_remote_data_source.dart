@@ -1,18 +1,23 @@
-import '../../../../core/data/mock_catalog.dart';
-import '../../domain/entities/app_notification.dart';
+import '../../../../core/network/api_client.dart';
+import '../models/app_notification_model.dart';
 
-/// مصدر الإشعارات. يرمي `ServerException` عند الفشل، والمستودع يحوّله إلى Failure.
+/// إشعارات المستخدم من الخادم. ترمي استثناءات [ApiClient] عند الفشل.
 abstract class NotificationsRemoteDataSource {
-  Future<List<AppNotification>> getNotifications();
+  Future<List<AppNotificationModel>> getNotifications();
 }
 
-/// تنفيذ تجريبي من [MockCatalog]، يُستبدل بتنفيذ الـ API في حقن الاعتماديات فقط.
-class NotificationsMockDataSource implements NotificationsRemoteDataSource {
-  const NotificationsMockDataSource();
+class NotificationsRemoteDataSourceImpl implements NotificationsRemoteDataSource {
+  const NotificationsRemoteDataSourceImpl(this._client);
+  final ApiClient _client;
 
+  /// الخادم يرتّبها من الأحدث إلى الأقدم.
   @override
-  Future<List<AppNotification>> getNotifications() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return MockCatalog.notifications;
+  Future<List<AppNotificationModel>> getNotifications() {
+    return _client.get(
+      '/notifications/get',
+      parse: (data) => [
+        for (final json in (data as List).cast<Map<String, dynamic>>()) AppNotificationModel.fromJson(json),
+      ],
+    );
   }
 }

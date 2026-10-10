@@ -207,7 +207,7 @@ void _initGallery() {
 
 void _initNotifications() {
   sl
-    ..registerLazySingleton<NotificationsRemoteDataSource>(NotificationsMockDataSource.new)
+    ..registerLazySingleton<NotificationsRemoteDataSource>(() => NotificationsRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<NotificationsRepository>(() => NotificationsRepositoryImpl(sl()))
     ..registerLazySingleton(() => GetNotifications(sl()))
     ..registerFactory(() => NotificationsCubit(sl()));

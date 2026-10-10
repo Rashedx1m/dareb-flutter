@@ -34,6 +34,7 @@ void main() {
       ..on('/profile/get', body: {'message': 'ok', 'data': userJson})
       ..on('/governorates/all', body: {'message': 'ok', 'data': {'damascus': 'دمشق'}})
       ..on('/branches/all', body: {'message': 'ok', 'data': []})
+      ..on('/notifications/get', body: {'message': 'ok', 'data': []})
       ..on('/packages/all', body: {
         'message': 'ok',
         'data': [
