@@ -10,7 +10,8 @@ class NotificationsRemoteDataSourceImpl implements NotificationsRemoteDataSource
   const NotificationsRemoteDataSourceImpl(this._client);
   final ApiClient _client;
 
-  /// الخادم يرتّبها من الأحدث إلى الأقدم.
+  /// الخادم يرتّبها من الأحدث إلى الأقدم، ويعلّمها مقروءة بعد هذا الطلب: غير
+  /// المقروء يصل بـ `is_read: 0` في أول جلب فقط.
   @override
   Future<List<AppNotificationModel>> getNotifications() {
     return _client.get(
