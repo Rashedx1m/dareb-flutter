@@ -13,10 +13,12 @@ import 'package:educational_app/features/courses/domain/usecases/attend_lesson.d
 import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_lesson.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_my_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/lesson_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/my_courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -82,6 +84,10 @@ const _lessonDetails = LessonDetails(
 class _FakeRepository extends Fake implements CoursesRepository {
   Future<Either<Failure, List<Subject>>> Function() subjects = () async => const Right([_subject]);
   Future<Either<Failure, List<Course>>> Function() courses = () async => const Right([_course]);
+  Future<Either<Failure, List<Course>>> Function() myCourses = () async => const Right([_course]);
+
+  @override
+  Future<Either<Failure, List<Course>>> getMyCourses() => myCourses();
   Future<Either<Failure, CourseDetails>> Function(String id) details = (_) async => const Right(_details);
   final detailsRequests = <String>[];
   Future<Either<Failure, LessonDetails>> Function(String id) lesson = (_) async => const Right(_lessonDetails);
@@ -239,6 +245,47 @@ void main() {
       final loading = cubit.load('1');
       await cubit.close();
       response.complete(const Right(_details));
+
+      await expectLater(loading, completes);
+    });
+  });
+
+  group('MyCoursesCubit', () {
+    test('يبدأ initial، ثم loading، ثم success بدورات الاشتراكات', () async {
+      final cubit = MyCoursesCubit(GetMyCourses(repository));
+      expect(cubit.state.status, MyCoursesStatus.initial);
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const MyCoursesState(status: MyCoursesStatus.loading),
+          const MyCoursesState(status: MyCoursesStatus.success, courses: [_course]),
+        ]),
+      );
+      await cubit.load();
+      await states;
+    });
+
+    test('الفشل يصل برسالته، وإعادة المحاولة تمسحها', () async {
+      final results = <Either<Failure, List<Course>>>[const Left(ServerFailure('x')), const Right([])];
+      repository.myCourses = () async => results.removeAt(0);
+      final cubit = MyCoursesCubit(GetMyCourses(repository));
+
+      await cubit.load();
+      expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.failure, error: 'x'));
+
+      await cubit.load();
+      expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.success));
+    });
+
+    test('إغلاق الصفحة قبل وصول الرد لا يرمي خطأ', () async {
+      final response = Completer<Either<Failure, List<Course>>>();
+      repository.myCourses = () => response.future;
+      final cubit = MyCoursesCubit(GetMyCourses(repository));
+
+      final loading = cubit.load();
+      await cubit.close();
+      response.complete(const Right([_course]));
 
       await expectLater(loading, completes);
     });
