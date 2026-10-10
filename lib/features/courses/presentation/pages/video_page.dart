@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/semester.dart';
-import '../bloc/courses_bloc.dart';
+import '../cubit/course_details_cubit.dart';
 
 class VideoPage extends StatelessWidget {
   const VideoPage({super.key, required this.courseId, required this.lessonId});
@@ -13,7 +14,7 @@ class VideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final details = context.select((CoursesBloc b) => b.state.selected);
+    final details = context.select((CourseDetailsCubit c) => c.state.details);
     final course = details?.course;
     final lessons = [for (final semester in details?.semesters ?? const <Semester>[]) ...semester.lessons];
     final lesson = lessons.where((l) => l.id == lessonId).firstOrNull;
@@ -23,7 +24,7 @@ class VideoPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text(lesson?.title ?? 'الدرس'),
+        title: Text(lesson?.title ?? AppStrings.lesson),
       ),
       body: Column(
         children: [
@@ -51,7 +52,7 @@ class VideoPage extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(course?.title ?? '', style: const TextStyle(color: AppColors.textSecondary)),
                   const SizedBox(height: 16),
-                  const Text('محتوى الدورة', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                  const Text(AppStrings.courseContent, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                   const SizedBox(height: 8),
                   ...lessons.map(
                     (item) => ListTile(

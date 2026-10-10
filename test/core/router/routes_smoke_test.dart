@@ -121,6 +121,9 @@ void main() {
     '/home',
     '/categories',
     '/categories/1',
+    '/courses',
+    '/courses/1',
+    '/courses/1/video/3',
   ];
 
   for (final path in paths) {

@@ -197,4 +197,11 @@ abstract final class AppStrings {
   static const startLesson = 'ابدأ الدرس';
   static const subscribe = 'اشترك الآن';
   static const pay = 'ادفع الآن';
+  // الدورات والدروس.
+  static const noCourses = 'لا توجد دورات متاحة بعد';
+  static const lessonsTitle = 'الدروس';
+  static const noLessons = 'لا توجد دروس بعد';
+  static const examLesson = 'اختبار';
+  static const lesson = 'الدرس';
+  static const courseContent = 'محتوى الدورة';
 }

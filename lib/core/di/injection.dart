@@ -34,7 +34,8 @@ import '../../features/courses/domain/usecases/get_courses.dart';
 import '../../features/courses/domain/usecases/get_my_courses.dart';
 import '../../features/courses/domain/usecases/get_subjects.dart';
 import '../../features/courses/domain/usecases/search_courses.dart';
-import '../../features/courses/presentation/bloc/courses_bloc.dart';
+import '../../features/courses/presentation/cubit/course_details_cubit.dart';
+import '../../features/courses/presentation/cubit/courses_cubit.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
 import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/downloads/data/datasources/downloads_local_data_source.dart';
@@ -160,13 +161,8 @@ void _initCourses() {
     ..registerLazySingleton(() => GetCourseDetails(sl()))
     ..registerLazySingleton(() => GetSubjects(sl()))
     ..registerLazySingleton(() => SearchCourses(sl()))
-    ..registerFactory(
-      () => CoursesBloc(
-        getCourses: sl(),
-        getCourseDetails: sl(),
-        searchCourses: sl(),
-      ),
-    )
+    ..registerFactory(() => CoursesCubit(sl()))
+    ..registerFactory(() => CourseDetailsCubit(sl()))
     ..registerFactory(() => SubjectsCubit(sl()))
     ..registerFactory(() => MyCoursesCubit(sl()))
     ..registerFactory(() => SearchCubit(sl()));

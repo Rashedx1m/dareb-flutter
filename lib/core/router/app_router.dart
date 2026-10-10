@@ -10,7 +10,8 @@ import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/courses/presentation/bloc/courses_bloc.dart';
+import '../../features/courses/presentation/cubit/course_details_cubit.dart';
+import '../../features/courses/presentation/cubit/courses_cubit.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
 import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/courses/presentation/pages/categories_page.dart';
@@ -119,7 +120,7 @@ GoRouter createRouter() {
             GoRoute(
               path: '/courses',
               builder: (_, _) => BlocProvider(
-                create: (_) => sl<CoursesBloc>()..add(const CoursesStarted()),
+                create: (_) => sl<CoursesCubit>()..load(),
                 child: const CoursesPage(),
               ),
             ),
@@ -144,7 +145,7 @@ GoRouter createRouter() {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return BlocProvider(
-            create: (_) => sl<CoursesBloc>()..add(CourseOpened(id)),
+            create: (_) => sl<CourseDetailsCubit>()..load(id),
             child: CourseDetailPage(courseId: id),
           );
         },
@@ -155,7 +156,7 @@ GoRouter createRouter() {
           final id = state.pathParameters['id']!;
           final lessonId = state.pathParameters['lessonId']!;
           return BlocProvider(
-            create: (_) => sl<CoursesBloc>()..add(CourseOpened(id)),
+            create: (_) => sl<CourseDetailsCubit>()..load(id),
             child: VideoPage(courseId: id, lessonId: lessonId),
           );
         },
