@@ -24,6 +24,32 @@ void main() {
     'school': {'id': 7, 'name': 'مدرسة يامن', 'governorate': 'damascus'},
   };
 
+  const courseJson = {
+    'id': 1,
+    'name': 'ناردين الشطناوي',
+    'is_free': false,
+    'course_name': 'الدكتور هناء القطيشات',
+    'text': 'وصف',
+    'professor': 'أكرم أبو الرب',
+    'price': 36,
+    'image': 'https://x/1.png',
+    'semesters_count': 1,
+    'lessions_count': 1,
+    'subscriptions_count': 3,
+    'is_subscription': false,
+  };
+  const lessonJson = {
+    'id': 3,
+    'name': 'رسلان الدين عباد',
+    'is_free': true,
+    'order': 6,
+    'type': {'id': 2, 'name': 'Video'},
+    'time': '11:50:51',
+    'url': 'https://www.youtube.com/watch?v=q0zaEGbs-cE',
+    'is_subscription': false,
+    'is_attended': false,
+  };
+
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({'auth.user': jsonEncode(userJson)});
     await initDependencies();
@@ -35,16 +61,28 @@ void main() {
       ..on('/governorates/all', body: {'message': 'ok', 'data': {'damascus': 'دمشق'}})
       ..on('/branches/all', body: {'message': 'ok', 'data': []})
       ..on('/notifications/get', body: {'message': 'ok', 'data': []})
-      ..on('/subjects/all', body: {
+      ..on('/courses/paginate', body: {'message': 'ok', 'data': [courseJson]})
+      ..on('/courses/details', body: {
         'message': 'ok',
-        'data': [
-          {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x/1.png', 'is_subscription': false},
-        ],
+        'data': {
+          ...courseJson,
+          'semesters': [
+            {
+              'id': 2,
+              'name': 'الفصل الأول',
+              'is_free': true,
+              'price': 71,
+              'lessions_count': 1,
+              'is_subscription': false,
+              'lessions': [lessonJson],
+            },
+          ],
+        },
       })
       ..on('/subjects/all', body: {
         'message': 'ok',
         'data': [
-          {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x.test/1.png', 'is_subscription': false},
+          {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x/1.png', 'is_subscription': false},
         ],
       })
       ..on('/packages/all', body: {

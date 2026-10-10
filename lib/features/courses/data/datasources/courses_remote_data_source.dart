@@ -1,15 +1,15 @@
 import '../../../../core/data/mock_catalog.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/entities/course_details.dart';
+import '../models/course_details_model.dart';
+import '../models/course_model.dart';
 import '../models/subject_model.dart';
 
 /// مصدر الدورات والمواد. يرمي استثناءات [ApiClient] عند الفشل.
 abstract class CoursesRemoteDataSource {
-  Future<List<Course>> getCourses();
+  Future<List<CourseModel>> getCourses();
   Future<List<Course>> getMyCourses();
-  Future<CourseDetails> getCourseDetails(String subjectId);
+  Future<CourseDetailsModel> getCourseDetails(String subjectId);
   Future<List<SubjectModel>> getSubjects();
   Future<List<Course>> searchCourses(String query);
 }
@@ -17,6 +17,29 @@ abstract class CoursesRemoteDataSource {
 class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
   const CoursesRemoteDataSourceImpl(this._client);
   final ApiClient _client;
+
+  /// `courses/paginate` بلا `page` ولا `perPage` يعيد القائمة كاملة. التقسيم فيه
+  /// ليس بشكل Laravel: `data` مصفوفة عارية بلا `last_page`.
+  @override
+  Future<List<CourseModel>> getCourses() {
+    return _client.get(
+      '/courses/paginate',
+      parse: (data) => [
+        for (final json in (data as List).cast<Map<String, dynamic>>()) CourseModel.fromJson(json),
+      ],
+    );
+  }
+
+  /// بمعرّف المادة لا الدورة. معرّف غير موجود يُرفض بـ 422 («الحقل المواد لاغٍ»)
+  /// لا 404.
+  @override
+  Future<CourseDetailsModel> getCourseDetails(String subjectId) {
+    return _client.get(
+      '/courses/details',
+      query: {'subject_id': subjectId},
+      parse: (data) => CourseDetailsModel.fromJson(data as Map<String, dynamic>),
+    );
+  }
 
   /// قائمة المواد تتبع الجلسة: بتوكن مختلف أو بلا توكن تعود مواد أخرى.
   @override
@@ -35,24 +58,9 @@ abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
   const CoursesMockDataSource();
 
   @override
-  Future<List<Course>> getCourses() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return MockCatalog.courses;
-  }
-
-  @override
   Future<List<Course>> getMyCourses() async {
     await Future<void>.delayed(MockCatalog.latency);
     return MockCatalog.courses.where((c) => c.isSubscribed).toList();
-  }
-
-  @override
-  Future<CourseDetails> getCourseDetails(String subjectId) async {
-    await Future<void>.delayed(MockCatalog.latency);
-    for (final course in MockCatalog.courses) {
-      if (course.id == subjectId) return CourseDetails(course: course, semesters: const []);
-    }
-    throw const ServerException('الدورة غير موجودة');
   }
 
   @override
