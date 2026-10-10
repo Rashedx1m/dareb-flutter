@@ -35,6 +35,18 @@ void main() {
       ..on('/governorates/all', body: {'message': 'ok', 'data': {'damascus': 'دمشق'}})
       ..on('/branches/all', body: {'message': 'ok', 'data': []})
       ..on('/notifications/get', body: {'message': 'ok', 'data': []})
+      ..on('/subjects/all', body: {
+        'message': 'ok',
+        'data': [
+          {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x/1.png', 'is_subscription': false},
+        ],
+      })
+      ..on('/subjects/all', body: {
+        'message': 'ok',
+        'data': [
+          {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x.test/1.png', 'is_subscription': false},
+        ],
+      })
       ..on('/packages/all', body: {
         'message': 'ok',
         'data': [

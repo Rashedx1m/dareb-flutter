@@ -1,19 +1,36 @@
 import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/entities/subject.dart';
+import '../models/subject_model.dart';
 
-/// مصدر الدورات والمواد. يرمي [ServerException] عند الفشل.
+/// مصدر الدورات والمواد. يرمي استثناءات [ApiClient] عند الفشل.
 abstract class CoursesRemoteDataSource {
   Future<List<Course>> getCourses();
   Future<List<Course>> getMyCourses();
   Future<Course> getCourse(String id);
-  Future<List<Subject>> getSubjects();
+  Future<List<SubjectModel>> getSubjects();
   Future<List<Course>> searchCourses(String query);
 }
 
-/// تنفيذ تجريبي من [MockCatalog]، يُستبدل بتنفيذ الـ API في حقن الاعتماديات فقط.
-class CoursesMockDataSource implements CoursesRemoteDataSource {
+class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
+  const CoursesRemoteDataSourceImpl(this._client);
+  final ApiClient _client;
+
+  /// قائمة المواد تتبع الجلسة: بتوكن مختلف أو بلا توكن تعود مواد أخرى.
+  @override
+  Future<List<SubjectModel>> getSubjects() {
+    return _client.get(
+      '/subjects/all',
+      parse: (data) => [
+        for (final json in (data as List).cast<Map<String, dynamic>>()) SubjectModel.fromJson(json),
+      ],
+    );
+  }
+}
+
+/// ما لم يُربط بالخادم بعد، من [MockCatalog]. يرثه [CoursesRemoteDataSourceImpl].
+abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
   const CoursesMockDataSource();
 
   @override
@@ -36,9 +53,6 @@ class CoursesMockDataSource implements CoursesRemoteDataSource {
     }
     throw const ServerException('الدورة غير موجودة');
   }
-
-  @override
-  Future<List<Subject>> getSubjects() async => MockCatalog.subjects;
 
   @override
   Future<List<Course>> searchCourses(String query) async {

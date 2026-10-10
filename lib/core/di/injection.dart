@@ -152,7 +152,7 @@ void _initAuth() {
 
 void _initCourses() {
   sl
-    ..registerLazySingleton<CoursesRemoteDataSource>(CoursesMockDataSource.new)
+    ..registerLazySingleton<CoursesRemoteDataSource>(() => CoursesRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<CoursesRepository>(() => CoursesRepositoryImpl(sl()))
     ..registerLazySingleton(() => GetCourses(sl()))
     ..registerLazySingleton(() => GetMyCourses(sl()))
