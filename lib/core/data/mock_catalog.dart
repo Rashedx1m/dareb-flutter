@@ -1,5 +1,6 @@
 import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/courses/domain/entities/course.dart';
+import '../../features/courses/domain/entities/subject.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
 import '../../features/quiz/domain/entities/quiz.dart';
@@ -13,14 +14,14 @@ abstract final class MockCatalog {
   /// زمن الاستجابة المحاكى لطلبات الشبكة.
   static const latency = Duration(milliseconds: 250);
 
-  // المواد الدراسية (مرحلة التعليم العام). مجموع الدورات = 22 (يظهر في بطاقة التقدم).
-  static const categories = [
-    Category(id: 'science', name: 'العلوم', icon: 'science', coursesCount: 5),
-    Category(id: 'math', name: 'الرياضيات', icon: 'math', coursesCount: 6),
-    Category(id: 'social', name: 'الاجتماعيات', icon: 'social', coursesCount: 4),
-    Category(id: 'arabic', name: 'اللغة العربية', icon: 'arabic', coursesCount: 3),
-    Category(id: 'english', name: 'اللغة الإنجليزية', icon: 'english', coursesCount: 2),
-    Category(id: 'physics', name: 'الفيزياء', icon: 'physics', coursesCount: 2),
+  // المواد الدراسية (مرحلة التعليم العام).
+  static const subjects = [
+    Subject(id: 'science', name: 'العلوم', imageUrl: 'https://picsum.photos/seed/science/200', isFree: false, isSubscribed: false),
+    Subject(id: 'math', name: 'الرياضيات', imageUrl: 'https://picsum.photos/seed/math/200', isFree: false, isSubscribed: false),
+    Subject(id: 'social', name: 'الاجتماعيات', imageUrl: 'https://picsum.photos/seed/social/200', isFree: false, isSubscribed: false),
+    Subject(id: 'arabic', name: 'اللغة العربية', imageUrl: 'https://picsum.photos/seed/arabic/200', isFree: false, isSubscribed: false),
+    Subject(id: 'english', name: 'اللغة الإنجليزية', imageUrl: 'https://picsum.photos/seed/english/200', isFree: false, isSubscribed: false),
+    Subject(id: 'physics', name: 'الفيزياء', imageUrl: 'https://picsum.photos/seed/physics/200', isFree: false, isSubscribed: false),
   ];
 
   static const courses = [

@@ -5,9 +5,10 @@ import 'package:educational_app/features/auth/domain/repositories/auth_repositor
 import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
+import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
-import 'package:educational_app/features/courses/domain/usecases/get_categories.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/home/domain/entities/news_item.dart';
 import 'package:educational_app/features/home/domain/repositories/news_repository.dart';
 import 'package:educational_app/features/home/domain/usecases/get_news.dart';
@@ -37,9 +38,9 @@ const _courses = [
   ),
 ];
 
-const _categories = [
-  Category(id: 'math', name: 'الرياضيات', icon: 'math', coursesCount: 6),
-  Category(id: 'science', name: 'العلوم', icon: 'science', coursesCount: 5),
+const _subjects = [
+  Subject(id: '1', name: 'الرياضيات', imageUrl: 'x', isFree: false, isSubscribed: false),
+  Subject(id: '2', name: 'العلوم', imageUrl: 'y', isFree: true, isSubscribed: false),
 ];
 
 /// مستودع مزيّف يتيح ضبط الفشل لاختبار مسارات النجاح والخطأ.
@@ -53,8 +54,8 @@ class _FakeCoursesRepository implements CoursesRepository {
       failure != null ? Left(failure!) : const Right(_courses);
 
   @override
-  Future<Either<Failure, List<Category>>> getCategories() async =>
-      failure != null ? Left(failure!) : const Right(_categories);
+  Future<Either<Failure, List<Subject>>> getSubjects() async =>
+      failure != null ? Left(failure!) : const Right(_subjects);
 
   @override
   Future<Either<Failure, List<Course>>> getMyCourses() async => const Right(_courses);
@@ -101,7 +102,7 @@ HomeCubit _cubit(
   final auth = _FakeAuthRepository(user, fresh: fresh);
   return HomeCubit(
     getCourses: GetCourses(repository),
-    getCategories: GetCategories(repository),
+    getSubjects: GetSubjects(repository),
     getNews: GetNews(news ?? _FakeNewsRepository()),
     getCurrentUser: GetCurrentUser(auth),
     refreshProfile: RefreshProfile(auth),
@@ -115,7 +116,7 @@ void main() {
 
     expect(cubit.state.status, HomeStatus.success);
     expect(cubit.state.courses, _courses);
-    expect(cubit.state.categories, _categories);
+    expect(cubit.state.subjects, _subjects);
     expect(cubit.state.news, _news);
   });
 
@@ -156,12 +157,11 @@ void main() {
     expect(cubit.state.error, 'تعذر جلب الأخبار');
   });
 
-  test('load يحسب إجمالي دورات المنهاج من مجموع المواد', () async {
+  test('load يعدّ دورات المنهاج من قائمة الدورات', () async {
     final cubit = _cubit(_FakeCoursesRepository());
     await cubit.load();
 
-    // 6 + 5 = 11
-    expect(cubit.state.curriculumCoursesCount, 11);
+    expect(cubit.state.curriculumCoursesCount, _courses.length);
   });
 
   test('load عند الفشل يضبط الحالة failure ويحمل الرسالة', () async {

@@ -37,7 +37,7 @@ class CoursesPage extends StatelessWidget {
                       selected: state.selectedCategoryId == null,
                       onTap: () => context.read<CoursesBloc>().add(const CoursesCategoryFiltered(null)),
                     ),
-                    ...state.categories.map(
+                    ...state.subjects.map(
                       (c) => _Chip(
                         label: c.name,
                         selected: state.selectedCategoryId == c.id,

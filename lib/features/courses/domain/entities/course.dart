@@ -57,20 +57,3 @@ class Lesson extends Equatable {
   @override
   List<Object?> get props => [id, title];
 }
-
-class Category extends Equatable {
-  const Category({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.coursesCount,
-  });
-
-  final String id;
-  final String name;
-  final String icon;
-  final int coursesCount;
-
-  @override
-  List<Object?> get props => [id, name];
-}

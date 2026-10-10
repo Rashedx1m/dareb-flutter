@@ -25,13 +25,13 @@ class CategoriesPage extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
-            itemCount: state.categories.length,
+            itemCount: state.subjects.length,
             itemBuilder: (context, i) {
-              final cat = state.categories[i];
-              final selected = initialId == cat.id;
+              final subject = state.subjects[i];
+              final selected = initialId == subject.id;
               return InkWell(
                 onTap: () {
-                  context.read<CoursesBloc>().add(CoursesCategoryFiltered(cat.id));
+                  context.read<CoursesBloc>().add(CoursesCategoryFiltered(subject.id));
                   context.go('/courses');
                 },
                 child: Container(
@@ -45,8 +45,7 @@ class CategoriesPage extends StatelessWidget {
                     children: [
                       const Icon(Icons.category_outlined, color: AppColors.primary, size: 32),
                       const SizedBox(height: 8),
-                      Text(cat.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-                      Text('${cat.coursesCount} دورة', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      Text(subject.name, style: const TextStyle(fontWeight: FontWeight.w800)),
                     ],
                   ),
                 ),

@@ -6,7 +6,7 @@ class HomeState extends Equatable {
   const HomeState({
     this.status = HomeStatus.initial,
     this.courses = const [],
-    this.categories = const [],
+    this.subjects = const [],
     this.news = const [],
     this.user,
     this.curriculumCoursesCount = 0,
@@ -15,13 +15,13 @@ class HomeState extends Equatable {
 
   final HomeStatus status;
   final List<Course> courses;
-  final List<Category> categories;
+  final List<Subject> subjects;
   final List<NewsItem> news;
 
   /// مستخدم الجلسة، ومنه الاسم والنقاط ونسبة الإنجاز المعروضة في الصفحة.
   final User? user;
 
-  /// إجمالي دورات المنهاج (مجموع دورات كل المواد) المعروض في بطاقة التقدم.
+  /// عدد دورات المنهاج المعروض في بطاقة التقدم، أي عدد الدورات المتاحة.
   final int curriculumCoursesCount;
   final String? error;
 
@@ -33,7 +33,7 @@ class HomeState extends Equatable {
   HomeState copyWith({
     HomeStatus? status,
     List<Course>? courses,
-    List<Category>? categories,
+    List<Subject>? subjects,
     List<NewsItem>? news,
     User? user,
     int? curriculumCoursesCount,
@@ -42,7 +42,7 @@ class HomeState extends Equatable {
     return HomeState(
       status: status ?? this.status,
       courses: courses ?? this.courses,
-      categories: categories ?? this.categories,
+      subjects: subjects ?? this.subjects,
       news: news ?? this.news,
       user: user ?? this.user,
       curriculumCoursesCount: curriculumCoursesCount ?? this.curriculumCoursesCount,
@@ -52,5 +52,5 @@ class HomeState extends Equatable {
 
   @override
   List<Object?> get props =>
-      [status, courses, categories, news, user, curriculumCoursesCount, error];
+      [status, courses, subjects, news, user, curriculumCoursesCount, error];
 }

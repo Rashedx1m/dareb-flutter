@@ -12,6 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../courses/domain/entities/course.dart';
+import '../../../courses/domain/entities/subject.dart';
 import '../../domain/entities/news_item.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/complete_account.dart';
@@ -91,7 +92,7 @@ class _HomeBody extends StatelessWidget {
           const _BannerDots(),
           const SizedBox(height: 18),
           _SubjectsSection(
-            categories: state.categories,
+            subjects: state.subjects,
             onShowAll: () => context.push('/categories'),
           ),
           if (state.news.isNotEmpty) ...[
@@ -609,14 +610,14 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _SubjectsSection extends StatelessWidget {
-  const _SubjectsSection({required this.categories, required this.onShowAll});
+  const _SubjectsSection({required this.subjects, required this.onShowAll});
 
-  final List<Category> categories;
+  final List<Subject> subjects;
   final VoidCallback onShowAll;
 
   @override
   Widget build(BuildContext context) {
-    final shown = categories.take(3).toList();
+    final shown = subjects.take(3).toList();
     return Column(
       children: [
         _SectionTitle(title: AppStrings.subjects, onShowAll: onShowAll),
@@ -653,7 +654,7 @@ class _SubjectsSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             for (final subject in shown)
-              _SubjectImage(imageKey: subject.icon),
+              _SubjectImage(imageUrl: subject.imageUrl),
           ],
         ),
       ],
@@ -662,21 +663,26 @@ class _SubjectsSection extends StatelessWidget {
 }
 
 class _SubjectImage extends StatelessWidget {
-  const _SubjectImage({required this.imageKey});
+  const _SubjectImage({required this.imageUrl});
 
-  final String imageKey;
+  final String imageUrl;
+
+  static const _fallback = SizedBox(
+    height: 78,
+    width: 78,
+    child: Icon(PhosphorIconsRegular.bookOpen, color: AppColors.chipBlue, size: 40),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final path = AppAssets.subjectImage(imageKey);
-    if (path == null) {
-      return const SizedBox(
-        height: 78,
-        width: 78,
-        child: Icon(PhosphorIconsRegular.bookOpen, color: AppColors.chipBlue, size: 40),
-      );
-    }
-    return Image.asset(path, height: 78, fit: BoxFit.contain);
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      height: 78,
+      width: 78,
+      fit: BoxFit.contain,
+      placeholder: (_, _) => _fallback,
+      errorWidget: (_, _, _) => _fallback,
+    );
   }
 }
 

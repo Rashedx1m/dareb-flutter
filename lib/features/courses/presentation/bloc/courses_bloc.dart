@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/usecases/get_categories.dart';
+import '../../domain/entities/subject.dart';
 import '../../domain/usecases/get_course.dart';
 import '../../domain/usecases/get_courses.dart';
+import '../../domain/usecases/get_subjects.dart';
 import '../../domain/usecases/search_courses.dart';
 
 part 'courses_event.dart';
@@ -16,7 +17,7 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
     required this._getCourses,
     required this._getCourse,
     required this._searchCourses,
-    required this._getCategories,
+    required this._getSubjects,
   }) : super(const CoursesState()) {
     on<CoursesStarted>(_onStarted);
     on<CourseOpened>(_onOpened);
@@ -27,23 +28,23 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
   final GetCourses _getCourses;
   final GetCourse _getCourse;
   final SearchCourses _searchCourses;
-  final GetCategories _getCategories;
+  final GetSubjects _getSubjects;
 
   Future<void> _onStarted(CoursesStarted event, Emitter<CoursesState> emit) async {
     emit(state.copyWith(status: CoursesStatus.loading));
     final courses = await _getCourses(const NoParams());
-    final categories = await _getCategories(const NoParams());
+    final subjects = await _getSubjects(const NoParams());
     courses.fold(
       (f) => emit(state.copyWith(status: CoursesStatus.failure, error: f.message)),
       (list) {
-        categories.fold(
+        subjects.fold(
           (f) => emit(state.copyWith(status: CoursesStatus.failure, error: f.message)),
-          (cats) => emit(
+          (items) => emit(
             state.copyWith(
               status: CoursesStatus.success,
               courses: list,
               filtered: list,
-              categories: cats,
+              subjects: items,
             ),
           ),
         );

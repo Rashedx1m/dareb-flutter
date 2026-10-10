@@ -1,13 +1,14 @@
 import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../domain/entities/course.dart';
+import '../../domain/entities/subject.dart';
 
 /// مصدر الدورات والمواد. يرمي [ServerException] عند الفشل.
 abstract class CoursesRemoteDataSource {
   Future<List<Course>> getCourses();
   Future<List<Course>> getMyCourses();
   Future<Course> getCourse(String id);
-  Future<List<Category>> getCategories();
+  Future<List<Subject>> getSubjects();
   Future<List<Course>> searchCourses(String query);
 }
 
@@ -37,7 +38,7 @@ class CoursesMockDataSource implements CoursesRemoteDataSource {
   }
 
   @override
-  Future<List<Category>> getCategories() async => MockCatalog.categories;
+  Future<List<Subject>> getSubjects() async => MockCatalog.subjects;
 
   @override
   Future<List<Course>> searchCourses(String query) async {

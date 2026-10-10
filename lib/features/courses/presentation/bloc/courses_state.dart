@@ -7,7 +7,7 @@ class CoursesState extends Equatable {
     this.status = CoursesStatus.initial,
     this.courses = const [],
     this.filtered = const [],
-    this.categories = const [],
+    this.subjects = const [],
     this.selected,
     this.query = '',
     this.selectedCategoryId,
@@ -17,7 +17,7 @@ class CoursesState extends Equatable {
   final CoursesStatus status;
   final List<Course> courses;
   final List<Course> filtered;
-  final List<Category> categories;
+  final List<Subject> subjects;
   final Course? selected;
   final String query;
   final String? selectedCategoryId;
@@ -27,7 +27,7 @@ class CoursesState extends Equatable {
     CoursesStatus? status,
     List<Course>? courses,
     List<Course>? filtered,
-    List<Category>? categories,
+    List<Subject>? subjects,
     Course? selected,
     String? query,
     String? selectedCategoryId,
@@ -37,7 +37,7 @@ class CoursesState extends Equatable {
       status: status ?? this.status,
       courses: courses ?? this.courses,
       filtered: filtered ?? this.filtered,
-      categories: categories ?? this.categories,
+      subjects: subjects ?? this.subjects,
       selected: selected ?? this.selected,
       query: query ?? this.query,
       selectedCategoryId: selectedCategoryId,
@@ -50,7 +50,7 @@ class CoursesState extends Equatable {
         status,
         courses,
         filtered,
-        categories,
+        subjects,
         selected,
         query,
         selectedCategoryId,
