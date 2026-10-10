@@ -1,7 +1,6 @@
 import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/entities/subject.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
 import '../models/lesson_details_model.dart';
@@ -15,7 +14,7 @@ abstract class CoursesRemoteDataSource {
   Future<LessonDetailsModel> getLesson(String lessonId);
   Future<void> attendLesson(String lessonId);
   Future<List<SubjectModel>> getSubjects();
-  Future<List<Subject>> searchSubjects(String query);
+  Future<List<SubjectModel>> searchSubjects(String query);
 }
 
 class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
@@ -63,6 +62,20 @@ class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
     await _client.post('/lessions/attend-lession', fields: {'lession_id': lessonId});
   }
 
+  /// يرد `{subjects, exams, dailyActivities}` ويُقرأ `subjects` وحده. يطابق اسم
+  /// المادة فقط، لا اسم الأستاذ ولا عنوان الدورة.
+  @override
+  Future<List<SubjectModel>> searchSubjects(String query) {
+    return _client.get(
+      '/home-page/search',
+      query: {'text': query},
+      parse: (data) => [
+        for (final json in ((data as Map<String, dynamic>)['subjects'] as List).cast<Map<String, dynamic>>())
+          SubjectModel.fromJson(json),
+      ],
+    );
+  }
+
   /// قائمة المواد تتبع الجلسة: بتوكن مختلف أو بلا توكن تعود مواد أخرى.
   @override
   Future<List<SubjectModel>> getSubjects() {
@@ -85,12 +98,4 @@ abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
     return MockCatalog.courses.where((c) => c.isSubscribed).toList();
   }
 
-  @override
-  Future<List<Subject>> searchSubjects(String query) async {
-    return [
-      for (final c in MockCatalog.courses)
-        if (c.subjectName.contains(query))
-          Subject(id: c.id, name: c.subjectName, imageUrl: c.imageUrl, isFree: c.isFree, isSubscribed: c.isSubscribed),
-    ];
-  }
 }
