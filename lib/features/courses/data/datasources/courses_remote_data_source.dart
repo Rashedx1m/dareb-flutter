@@ -1,6 +1,7 @@
 import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
+import '../../domain/entities/subject.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
 import '../models/lesson_details_model.dart';
@@ -14,7 +15,7 @@ abstract class CoursesRemoteDataSource {
   Future<LessonDetailsModel> getLesson(String lessonId);
   Future<void> attendLesson(String lessonId);
   Future<List<SubjectModel>> getSubjects();
-  Future<List<Course>> searchCourses(String query);
+  Future<List<Subject>> searchSubjects(String query);
 }
 
 class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
@@ -85,12 +86,11 @@ abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
   }
 
   @override
-  Future<List<Course>> searchCourses(String query) async {
-    final q = query.trim();
-    return MockCatalog.courses.where((c) {
-      return c.title.contains(q) ||
-          c.instructor.contains(q) ||
-          c.subjectName.contains(q);
-    }).toList();
+  Future<List<Subject>> searchSubjects(String query) async {
+    return [
+      for (final c in MockCatalog.courses)
+        if (c.subjectName.contains(query))
+          Subject(id: c.id, name: c.subjectName, imageUrl: c.imageUrl, isFree: c.isFree, isSubscribed: c.isSubscribed),
+    ];
   }
 }

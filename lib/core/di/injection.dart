@@ -35,7 +35,7 @@ import '../../features/courses/domain/usecases/get_courses.dart';
 import '../../features/courses/domain/usecases/get_lesson.dart';
 import '../../features/courses/domain/usecases/get_my_courses.dart';
 import '../../features/courses/domain/usecases/get_subjects.dart';
-import '../../features/courses/domain/usecases/search_courses.dart';
+import '../../features/courses/domain/usecases/search_subjects.dart';
 import '../../features/courses/presentation/cubit/course_details_cubit.dart';
 import '../../features/courses/presentation/cubit/courses_cubit.dart';
 import '../../features/courses/presentation/cubit/lesson_cubit.dart';
@@ -165,7 +165,7 @@ void _initCourses() {
     ..registerLazySingleton(() => GetLesson(sl()))
     ..registerLazySingleton(() => AttendLesson(sl()))
     ..registerLazySingleton(() => GetSubjects(sl()))
-    ..registerLazySingleton(() => SearchCourses(sl()))
+    ..registerLazySingleton(() => SearchSubjects(sl()))
     ..registerFactory(() => CoursesCubit(sl()))
     ..registerFactory(() => CourseDetailsCubit(sl()))
     ..registerFactory(() => LessonCubit(getLesson: sl(), attendLesson: sl()))

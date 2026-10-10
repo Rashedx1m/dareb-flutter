@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/widgets/course_card.dart';
 import '../cubit/search_cubit.dart';
 
 class SearchPage extends StatelessWidget {
@@ -40,11 +39,10 @@ class SearchPage extends StatelessWidget {
                   itemCount: state.results.length,
                   separatorBuilder: (_, _) => const Divider(),
                   itemBuilder: (context, i) {
-                    final course = state.results[i];
-                    return CourseCard(
-                      course: course,
-                      horizontal: true,
-                      onTap: () => context.push('/courses/${course.id}'),
+                    final subject = state.results[i];
+                    return ListTile(
+                      title: Text(subject.name),
+                      onTap: () => context.push('/courses/${subject.id}'),
                     );
                   },
                 );

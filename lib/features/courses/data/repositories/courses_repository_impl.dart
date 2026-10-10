@@ -33,8 +33,11 @@ class CoursesRepositoryImpl implements CoursesRepository {
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() => guard(_remote.getSubjects);
 
+  /// الخادم يعيد كل المواد لنص فارغ، فلا يُرسل.
   @override
-  Future<Either<Failure, List<Course>>> searchCourses(String query) {
-    return guard(() => _remote.searchCourses(query));
+  Future<Either<Failure, List<Subject>>> searchSubjects(String query) async {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return const Right([]);
+    return guard(() => _remote.searchSubjects(trimmed));
   }
 }

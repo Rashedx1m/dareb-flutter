@@ -13,5 +13,5 @@ abstract class CoursesRepository {
   Future<Either<Failure, LessonDetails>> getLesson(String lessonId);
   Future<Either<Failure, void>> attendLesson(String lessonId);
   Future<Either<Failure, List<Subject>>> getSubjects();
-  Future<Either<Failure, List<Course>>> searchCourses(String query);
+  Future<Either<Failure, List<Subject>>> searchSubjects(String query);
 }

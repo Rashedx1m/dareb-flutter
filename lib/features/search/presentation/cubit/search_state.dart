@@ -12,13 +12,13 @@ class SearchState extends Equatable {
 
   final SearchStatus status;
   final String query;
-  final List<Course> results;
+  final List<Subject> results;
   final String? error;
 
   SearchState copyWith({
     SearchStatus? status,
     String? query,
-    List<Course>? results,
+    List<Subject>? results,
     String? error,
   }) {
     return SearchState(
