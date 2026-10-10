@@ -5,14 +5,18 @@ import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/entities/course_details.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson.dart';
+import 'package:educational_app/features/courses/domain/entities/lesson_details.dart';
 import 'package:educational_app/features/courses/domain/entities/semester.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
+import 'package:educational_app/features/courses/domain/usecases/attend_lesson.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_lesson.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/lesson_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,12 +54,48 @@ const _details = CourseDetails(
   ],
 );
 
+const _lesson = Lesson(
+  id: '3',
+  title: 'رسلان الدين عباد',
+  type: LessonType.video,
+  videoUrl: 'https://www.youtube.com/watch?v=q0zaEGbs-cE',
+  order: 6,
+  isFree: true,
+  isSubscribed: false,
+  isAttended: false,
+);
+
+const _lessonDetails = LessonDetails(
+  lesson: _lesson,
+  semester: Semester(
+    id: '2',
+    name: 'السيدة بتول الترابين',
+    isFree: true,
+    price: 71,
+    lessonsCount: 1,
+    isSubscribed: false,
+    lessons: [_lesson],
+  ),
+);
+
 /// مستودع مزيّف: كل دالة تُرجع ما يعيده الرد المضبوط لها.
 class _FakeRepository extends Fake implements CoursesRepository {
   Future<Either<Failure, List<Subject>>> Function() subjects = () async => const Right([_subject]);
   Future<Either<Failure, List<Course>>> Function() courses = () async => const Right([_course]);
   Future<Either<Failure, CourseDetails>> Function(String id) details = (_) async => const Right(_details);
   final detailsRequests = <String>[];
+  Future<Either<Failure, LessonDetails>> Function(String id) lesson = (_) async => const Right(_lessonDetails);
+  Future<Either<Failure, void>> Function(String id) attend = (_) async => const Right(null);
+  final attended = <String>[];
+
+  @override
+  Future<Either<Failure, LessonDetails>> getLesson(String lessonId) => lesson(lessonId);
+
+  @override
+  Future<Either<Failure, void>> attendLesson(String lessonId) {
+    attended.add(lessonId);
+    return attend(lessonId);
+  }
 
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() => subjects();
@@ -201,6 +241,103 @@ void main() {
       response.complete(const Right(_details));
 
       await expectLater(loading, completes);
+    });
+  });
+
+  group('LessonCubit', () {
+    LessonCubit build() => LessonCubit(getLesson: GetLesson(repository), attendLesson: AttendLesson(repository));
+
+    test('يحمّل الدرس وفصله', () async {
+      final cubit = build();
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const LessonState(status: LessonStatus.loading),
+          const LessonState(status: LessonStatus.success, details: _lessonDetails),
+        ]),
+      );
+      await cubit.load('3');
+      await states;
+    });
+
+    test('الفشل يصل برسالته', () async {
+      repository.lesson = (_) async => const Left(ServerFailure('المحتوى المطلوب غير موجود'));
+      final cubit = build();
+
+      await cubit.load('999');
+
+      expect(cubit.state, const LessonState(status: LessonStatus.failure, error: 'المحتوى المطلوب غير موجود'));
+    });
+
+    test('الحضور يُرسل مرة واحدة مهما تكرر الفتح', () async {
+      final cubit = build();
+      await cubit.load('3');
+
+      await Future.wait([cubit.attend(), cubit.attend()]);
+      await cubit.attend();
+
+      expect(repository.attended, ['3']);
+      expect(cubit.state.attendStatus, AttendStatus.done);
+    });
+
+    test('درس محضور من قبل لا يُرسل حضوره', () async {
+      repository.lesson = (_) async => const Right(
+            LessonDetails(
+              lesson: Lesson(
+                id: '3',
+                title: 'رسلان الدين عباد',
+                type: LessonType.video,
+                order: 6,
+                isFree: true,
+                isSubscribed: false,
+                isAttended: true,
+              ),
+              semester: Semester(
+                id: '2',
+                name: 'س',
+                isFree: true,
+                price: 0,
+                lessonsCount: 0,
+                isSubscribed: false,
+                lessons: [],
+              ),
+            ),
+          );
+      final cubit = build();
+      await cubit.load('3');
+
+      await cubit.attend();
+
+      expect(repository.attended, isEmpty);
+    });
+
+    test('فشل الحضور لا يغيّر حالة الصفحة، ويُعاد عند الفتح التالي', () async {
+      final results = <Either<Failure, void>>[const Left(ServerFailure('x')), const Right(null)];
+      repository.attend = (_) async => results.removeAt(0);
+      final cubit = build();
+      await cubit.load('3');
+
+      await cubit.attend();
+      expect(cubit.state.status, LessonStatus.success);
+      expect(cubit.state.attendStatus, AttendStatus.failure);
+
+      await cubit.attend();
+      expect(cubit.state.attendStatus, AttendStatus.done);
+      expect(repository.attended, ['3', '3']);
+    });
+
+    test('إغلاق الصفحة قبل وصول رد الحضور لا يرمي خطأ', () async {
+      final response = Completer<Either<Failure, void>>();
+      repository.attend = (_) => response.future;
+      final cubit = build();
+      await cubit.load('3');
+
+      final attending = cubit.attend();
+      await cubit.close();
+      response.complete(const Right(null));
+
+      await expectLater(attending, completes);
     });
   });
 }
