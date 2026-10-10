@@ -15,6 +15,7 @@ class PageHeader extends StatelessWidget {
     this.titleIcon,
     this.onBack,
     this.onNotifications,
+    this.trailing,
   });
 
   final String title;
@@ -25,6 +26,9 @@ class PageHeader extends StatelessWidget {
   /// عند تمريره يظهر سهم الرجوع بدل الشعار.
   final VoidCallback? onBack;
   final VoidCallback? onNotifications;
+
+  /// يحل محل زر الإشعارات في نهاية الترويسة، كعدد غير المقروء في صفحة الإشعارات.
+  final Widget? trailing;
 
   /// عرض طرفي الترويسة متساوٍ حتى يبقى العنوان في المنتصف تماماً.
   static const _sideWidth = 52.0;
@@ -92,22 +96,23 @@ class PageHeader extends StatelessWidget {
             width: _sideWidth,
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: Tooltip(
-                message: AppStrings.notifications,
-                child: Material(
-                  color: AppColors.accentBlue,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: onNotifications,
-                    borderRadius: BorderRadius.circular(8),
-                    child: const SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: Icon(PhosphorIconsFill.bell, color: Colors.white, size: 20),
+              child: trailing ??
+                  Tooltip(
+                    message: AppStrings.notifications,
+                    child: Material(
+                      color: AppColors.accentBlue,
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        onTap: onNotifications,
+                        borderRadius: BorderRadius.circular(8),
+                        child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(PhosphorIconsFill.bell, color: Colors.white, size: 20),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
             ),
           ),
         ],

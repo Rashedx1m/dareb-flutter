@@ -115,6 +115,14 @@ abstract final class AppStrings {
   static const seeAll = 'عرض الكل';
   static const categories = 'التصنيفات';
   static const notifications = 'الإشعارات';
+  static const noNotifications = 'لا توجد إشعارات بعد';
+  static const unreadNotifications = 'إشعارات غير مقروءة';
+  static const months = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+  ];
+  static const am = 'صباحًا';
+  static const pm = 'مساءً';
   static const achievements = 'إنجازاتي';
   static const myCourses = 'دوراتي';
   static const subscription = 'الاشتراك';

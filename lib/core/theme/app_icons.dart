@@ -77,4 +77,5 @@ abstract final class PhosphorIconsFill {
   static const whatsappLogo = IconData(0xe5d0, fontFamily: 'PhosphorFill');
   static const camera = IconData(0xe10e, fontFamily: 'PhosphorFill');
   static const graduationCap = IconData(0xe62c, fontFamily: 'PhosphorFill');
+  static const megaphoneSimple = IconData(0xe642, fontFamily: 'PhosphorFill');
 }

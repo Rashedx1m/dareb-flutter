@@ -71,4 +71,11 @@ void main() {
 
     await expectLater(loading, completes);
   });
+
+  test('unreadCount يعدّ غير المقروء فقط', () {
+    final unread = AppNotification(id: '3', title: 'x', body: 'y', createdAt: DateTime.utc(2026), isRead: false);
+
+    expect(NotificationsState(items: [_item, unread]).unreadCount, 1);
+    expect(NotificationsState(items: [_item]).unreadCount, 0);
+  });
 }

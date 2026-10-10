@@ -13,6 +13,9 @@ class NotificationsState extends Equatable {
   final List<AppNotification> items;
   final String? error;
 
+  /// يظهر في الترويسة، ويختفي إن قُرئت كلها.
+  int get unreadCount => items.where((item) => !item.isRead).length;
+
   NotificationsState copyWith({
     NotificationsStatus? status,
     List<AppNotification>? items,

@@ -9,11 +9,13 @@ class AppNotification extends Equatable {
     required this.createdAt,
     required this.isRead,
   });
+
   final String id;
   final String title;
   final String body;
   final DateTime createdAt;
   final bool isRead;
+
   @override
   List<Object?> get props => [id, title, body, createdAt, isRead];
 }
