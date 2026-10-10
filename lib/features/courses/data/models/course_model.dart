@@ -1,8 +1,9 @@
 import '../../domain/entities/course.dart';
 
-/// بطاقة المادة كما يعيدها `courses/paginate` و`courses/details`: العنوان في
-/// `course_name` واسم المادة في `name`. العدّادات والسعر أعداد صحيحة، والأعلام
-/// منطقية. تحمل أيضاً `story_*` و`*_rate` و`points_count`، ولا شاشة تعرضها.
+/// بطاقة المادة كما يعيدها `courses/paginate` و`courses/details` و`subscriptions/my`:
+/// العنوان في `course_name` واسم المادة في `name`. العدّادات والسعر والنسب أعداد
+/// صحيحة، والأعلام منطقية. تحمل أيضاً `story_*` و`subject_rate` و`points_count`
+/// و`point_rate`، ولا شاشة تعرضها.
 class CourseModel extends Course {
   const CourseModel({
     required super.id,
@@ -13,7 +14,9 @@ class CourseModel extends Course {
     required super.imageUrl,
     required super.price,
     required super.semestersCount,
+    required super.semesterRate,
     required super.lessonsCount,
+    required super.lessonRate,
     required super.subscriptionsCount,
     required super.isFree,
     required super.isSubscribed,
@@ -29,7 +32,9 @@ class CourseModel extends Course {
       imageUrl: json['image'] as String,
       price: (json['price'] as num).toDouble(),
       semestersCount: json['semesters_count'] as int,
+      semesterRate: json['semester_rate'] as int,
       lessonsCount: json['lessions_count'] as int,
+      lessonRate: json['lession_rate'] as int,
       subscriptionsCount: json['subscriptions_count'] as int,
       isFree: json['is_free'] as bool,
       isSubscribed: json['is_subscription'] as bool,

@@ -34,7 +34,9 @@ void main() {
     'price': 36,
     'image': 'https://x/1.png',
     'semesters_count': 1,
+    'semester_rate': 0,
     'lessions_count': 1,
+    'lession_rate': 0,
     'subscriptions_count': 3,
     'is_subscription': false,
   };

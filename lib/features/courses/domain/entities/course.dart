@@ -12,7 +12,9 @@ class Course extends Equatable {
     required this.imageUrl,
     required this.price,
     required this.semestersCount,
+    required this.semesterRate,
     required this.lessonsCount,
+    required this.lessonRate,
     required this.subscriptionsCount,
     required this.isFree,
     required this.isSubscribed,
@@ -32,7 +34,14 @@ class Course extends Equatable {
 
   /// عدد الفصول، وهي وحدات الدورة التي تُجمع تحتها الدروس.
   final int semestersCount;
+
+  /// نسبة مئوية (0 إلى 100) يحسبها الخادم من فصول المادة. ظهرت 75 لمادة من 4
+  /// فصول لم يُحضر فيها أي درس، فهي لا تعني بالضرورة فصولاً منتهية.
+  final int semesterRate;
   final int lessonsCount;
+
+  /// نسبة الدروس المحضورة من دروس المادة، من 0 إلى 100.
+  final int lessonRate;
   final int subscriptionsCount;
   final bool isFree;
   final bool isSubscribed;
@@ -47,7 +56,9 @@ class Course extends Equatable {
         imageUrl,
         price,
         semestersCount,
+        semesterRate,
         lessonsCount,
+        lessonRate,
         subscriptionsCount,
         isFree,
         isSubscribed,

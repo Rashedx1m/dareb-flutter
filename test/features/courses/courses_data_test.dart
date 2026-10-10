@@ -24,6 +24,7 @@ const _subjectJson = {
 };
 
 /// بطاقة المادة 1 من `courses/paginate`، ومفاتيحها نفسها في رأس `courses/details`.
+/// النسبتان من `courses/details` بعد حضور درس من دروسها الستة.
 const _courseJson = {
   'id': 1,
   'name': 'ناردين الشطناوي',
@@ -34,7 +35,9 @@ const _courseJson = {
   'price': 36,
   'image': 'https://training.tamkeen-dev.com/dareb/public/assets/img/avatars/1.png',
   'semesters_count': 3,
+  'semester_rate': 0,
   'lessions_count': 6,
+  'lession_rate': 17,
   'subscriptions_count': 3,
   'is_subscription': false,
 };
@@ -43,7 +46,6 @@ const _courseJson = {
 /// وفصل بفيديو مجاني محضور وملف.
 const _detailsJson = {
   ..._courseJson,
-  'semester_rate': 0,
   'subject_rate': 17,
   'semesters': [
     {
@@ -127,7 +129,9 @@ const _course = CourseModel(
   imageUrl: 'https://training.tamkeen-dev.com/dareb/public/assets/img/avatars/1.png',
   price: 36,
   semestersCount: 3,
+  semesterRate: 0,
   lessonsCount: 6,
+  lessonRate: 17,
   subscriptionsCount: 3,
   isFree: false,
   isSubscribed: false,
@@ -136,6 +140,10 @@ const _course = CourseModel(
 void main() {
   test('CourseModel.fromJson على بطاقة courses/paginate', () {
     expect(CourseModel.fromJson(_courseJson), _course);
+  });
+
+  test('بطاقة بلا lession_rate تُرفض', () {
+    expect(() => CourseModel.fromJson({..._courseJson}..remove('lession_rate')), throwsA(isA<TypeError>()));
   });
 
   test('CourseDetailsModel.fromJson يحفظ الفصول والدروس بترتيب الخادم', () {
