@@ -1,10 +1,9 @@
 import '../../../../core/data/mock_catalog.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
-import '../../domain/entities/lesson_details.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
+import '../models/lesson_details_model.dart';
 import '../models/subject_model.dart';
 
 /// مصدر الدورات والمواد. يرمي استثناءات [ApiClient] عند الفشل.
@@ -12,7 +11,7 @@ abstract class CoursesRemoteDataSource {
   Future<List<CourseModel>> getCourses();
   Future<List<Course>> getMyCourses();
   Future<CourseDetailsModel> getCourseDetails(String subjectId);
-  Future<LessonDetails> getLesson(String lessonId);
+  Future<LessonDetailsModel> getLesson(String lessonId);
   Future<void> attendLesson(String lessonId);
   Future<List<SubjectModel>> getSubjects();
   Future<List<Course>> searchCourses(String query);
@@ -45,6 +44,24 @@ class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
     );
   }
 
+  /// درس غير موجود يعود 404 برسالة Laravel إنجليزية، فيستبدلها [ApiClient].
+  @override
+  Future<LessonDetailsModel> getLesson(String lessonId) {
+    return _client.get(
+      '/lessions/details',
+      query: {'id': lessonId},
+      parse: (data) => LessonDetailsModel.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  /// يرد 201 بسجل الحضور `{id, lession_id, user_id, created_at, updated_at}`، و
+  /// `lession_id` فيه نص لا رقم. لا يُقرأ منه شيء: الأثر يظهر في `is_attended`
+  /// ونسب `lession_rate` عند الطلب التالي.
+  @override
+  Future<void> attendLesson(String lessonId) async {
+    await _client.post('/lessions/attend-lession', fields: {'lession_id': lessonId});
+  }
+
   /// قائمة المواد تتبع الجلسة: بتوكن مختلف أو بلا توكن تعود مواد أخرى.
   @override
   Future<List<SubjectModel>> getSubjects() {
@@ -66,14 +83,6 @@ abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
     await Future<void>.delayed(MockCatalog.latency);
     return MockCatalog.courses.where((c) => c.isSubscribed).toList();
   }
-
-  @override
-  Future<LessonDetails> getLesson(String lessonId) async {
-    throw const ServerException('المحتوى المطلوب غير موجود');
-  }
-
-  @override
-  Future<void> attendLesson(String lessonId) async {}
 
   @override
   Future<List<Course>> searchCourses(String query) async {
