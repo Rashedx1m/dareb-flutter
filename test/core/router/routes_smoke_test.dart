@@ -140,6 +140,7 @@ void main() {
     '/courses',
     '/courses/1',
     '/courses/1/video/3',
+    '/search',
   ];
 
   for (final path in paths) {

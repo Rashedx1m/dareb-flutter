@@ -107,7 +107,10 @@ abstract final class AppStrings {
   static const exitWord = 'الخروج';
   static const genderHint = 'الجنس';
   static const accountSaved = 'تم حفظ بياناتك بنجاح';
-  static const search = 'ابحث عن دورة أو مادة';
+  static const search = 'ابحث عن مادة';
+  static const searchTitle = 'البحث';
+  static const searchPrompt = 'ابدأ البحث عن مادة';
+  static const noSearchResults = 'لا توجد مواد بهذا الاسم';
   static const continueLearning = 'أكمل القانون';
   static const continueQuiz = 'أكمل مسابقتك';
   static const progressTitle = 'تقدمك الدراسي';
