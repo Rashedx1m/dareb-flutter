@@ -232,6 +232,33 @@ void main() {
       expect(adapter.requests.single.queryParameters, {'subject_id': '1'});
     });
 
+    test('دوراتي من subscriptions/my: بطاقة subject لكل اشتراك، والمادة المكررة مرة واحدة', () async {
+      final subscribed = {..._courseJson, 'is_subscription': true};
+      adapter.on('/subscriptions/my', body: {
+        'message': 'تمت العملية بنجاح',
+        'data': {
+          'subjects': [
+            {'id': 39, 'price': 5000, 'subject': subscribed},
+            {'id': 40, 'price': 0, 'subject': subscribed},
+          ],
+        },
+      });
+
+      final courses = (await repository.getMyCourses()).getOrElse(() => []);
+
+      expect(courses.map((c) => (c.id, c.isSubscribed)), [('1', true)]);
+      expect(adapter.requests.single.queryParameters, isEmpty);
+    });
+
+    test('بلا اشتراكات تعود قائمة فارغة', () async {
+      adapter.on('/subscriptions/my', body: {
+        'message': 'ok',
+        'data': {'subjects': []},
+      });
+
+      expect((await repository.getMyCourses()).getOrElse(() => [_course]), isEmpty);
+    });
+
     test('مادة غير موجودة يرفضها الخادم بـ 422 لا 404', () async {
       adapter.on('/courses/details', status: 422, body: {
         'message': 'الحقل المواد لاغٍ',

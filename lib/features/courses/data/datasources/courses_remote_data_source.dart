@@ -1,6 +1,4 @@
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/network/api_client.dart';
-import '../../domain/entities/course.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
 import '../models/lesson_details_model.dart';
@@ -9,7 +7,7 @@ import '../models/subject_model.dart';
 /// مصدر الدورات والمواد. يرمي استثناءات [ApiClient] عند الفشل.
 abstract class CoursesRemoteDataSource {
   Future<List<CourseModel>> getCourses();
-  Future<List<Course>> getMyCourses();
+  Future<List<CourseModel>> getMyCourses();
   Future<CourseDetailsModel> getCourseDetails(String subjectId);
   Future<LessonDetailsModel> getLesson(String lessonId);
   Future<void> attendLesson(String lessonId);
@@ -17,7 +15,7 @@ abstract class CoursesRemoteDataSource {
   Future<List<SubjectModel>> searchSubjects(String query);
 }
 
-class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
+class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
   const CoursesRemoteDataSourceImpl(this._client);
   final ApiClient _client;
 
@@ -30,6 +28,25 @@ class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
       parse: (data) => [
         for (final json in (data as List).cast<Map<String, dynamic>>()) CourseModel.fromJson(json),
       ],
+    );
+  }
+
+  /// يرد `{subjects: [{id, price, subject}]}`: `id` رقم الاشتراك و`price` ما دُفع،
+  /// و`subject` بطاقة الدورة نفسها بـ `is_subscription: true`. المادة التي تظهر في
+  /// أكثر من اشتراك تُعرض مرة واحدة.
+  @override
+  Future<List<CourseModel>> getMyCourses() {
+    return _client.get(
+      '/subscriptions/my',
+      parse: (data) {
+        final items = ((data as Map<String, dynamic>)['subjects'] as List).cast<Map<String, dynamic>>();
+        final courses = <String, CourseModel>{};
+        for (final item in items) {
+          final course = CourseModel.fromJson(item['subject'] as Map<String, dynamic>);
+          courses.putIfAbsent(course.id, () => course);
+        }
+        return courses.values.toList();
+      },
     );
   }
 
@@ -86,16 +103,4 @@ class CoursesRemoteDataSourceImpl extends CoursesMockDataSource {
       ],
     );
   }
-}
-
-/// ما لم يُربط بالخادم بعد، من [MockCatalog]. يرثه [CoursesRemoteDataSourceImpl].
-abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
-  const CoursesMockDataSource();
-
-  @override
-  Future<List<Course>> getMyCourses() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return MockCatalog.courses.where((c) => c.isSubscribed).toList();
-  }
-
 }

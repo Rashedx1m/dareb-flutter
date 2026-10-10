@@ -1,5 +1,4 @@
 import '../../features/achievements/domain/entities/achievement.dart';
-import '../../features/courses/domain/entities/course.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
 import '../../features/quiz/domain/entities/quiz.dart';
@@ -12,51 +11,6 @@ import '../theme/app_assets.dart';
 abstract final class MockCatalog {
   /// زمن الاستجابة المحاكى لطلبات الشبكة.
   static const latency = Duration(milliseconds: 250);
-
-  static const courses = [
-    Course(
-      id: 'c1',
-      title: 'دورة الرياضيات',
-      subjectName: 'الرياضيات',
-      instructor: 'أ. عمر النابلسي',
-      description: 'دورة شاملة في الرياضيات تغطي الجبر والهندسة والتحليل.',
-      imageUrl: 'https://picsum.photos/seed/math/800/500',
-      price: 120,
-      semestersCount: 3,
-      lessonsCount: 12,
-      subscriptionsCount: 22,
-      isFree: false,
-      isSubscribed: true,
-    ),
-    Course(
-      id: 'c2',
-      title: 'دورة العلوم',
-      subjectName: 'العلوم',
-      instructor: 'أ. سارة الحلبي',
-      description: 'رحلة في عالم العلوم تشمل الأحياء والكيمياء.',
-      imageUrl: 'https://picsum.photos/seed/science/800/500',
-      price: 110,
-      semestersCount: 2,
-      lessonsCount: 15,
-      subscriptionsCount: 34,
-      isFree: false,
-      isSubscribed: false,
-    ),
-    Course(
-      id: 'c3',
-      title: 'دورة الاجتماعيات',
-      subjectName: 'الاجتماعيات',
-      instructor: 'أ. ليلى حمصي',
-      description: 'مادة الاجتماعيات بين التاريخ والجغرافيا.',
-      imageUrl: 'https://picsum.photos/seed/social/800/500',
-      price: 0,
-      semestersCount: 2,
-      lessonsCount: 10,
-      subscriptionsCount: 28,
-      isFree: true,
-      isSubscribed: false,
-    ),
-  ];
 
   static const news = [
     NewsItem(

@@ -79,6 +79,14 @@ void main() {
           ],
         },
       })
+      ..on('/subscriptions/my', body: {
+        'message': 'ok',
+        'data': {
+          'subjects': [
+            {'id': 39, 'price': 5000, 'subject': {...courseJson, 'is_subscription': true}},
+          ],
+        },
+      })
       ..on('/lessions/details', body: {
         'message': 'ok',
         'data': {
