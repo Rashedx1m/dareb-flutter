@@ -203,5 +203,5 @@ abstract final class AppStrings {
   static const noLessons = 'لا توجد دروس بعد';
   static const examLesson = 'اختبار';
   static const lesson = 'الدرس';
-  static const courseContent = 'محتوى الدورة';
+  static const semesterLessons = 'دروس الفصل';
 }

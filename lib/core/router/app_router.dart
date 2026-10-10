@@ -12,6 +12,7 @@ import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/courses/presentation/cubit/course_details_cubit.dart';
 import '../../features/courses/presentation/cubit/courses_cubit.dart';
+import '../../features/courses/presentation/cubit/lesson_cubit.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
 import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/courses/presentation/pages/categories_page.dart';
@@ -153,11 +154,10 @@ GoRouter createRouter() {
       GoRoute(
         path: '/courses/:id/video/:lessonId',
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
           final lessonId = state.pathParameters['lessonId']!;
           return BlocProvider(
-            create: (_) => sl<CourseDetailsCubit>()..load(id),
-            child: VideoPage(courseId: id, lessonId: lessonId),
+            create: (_) => sl<LessonCubit>()..load(lessonId),
+            child: VideoPage(lessonId: lessonId),
           );
         },
       ),

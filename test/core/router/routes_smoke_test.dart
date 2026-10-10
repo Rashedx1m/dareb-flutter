@@ -79,6 +79,22 @@ void main() {
           ],
         },
       })
+      ..on('/lessions/details', body: {
+        'message': 'ok',
+        'data': {
+          ...lessonJson,
+          'semester': {
+            'id': 2,
+            'name': 'الفصل الأول',
+            'is_free': true,
+            'price': 71,
+            'lessions_count': 1,
+            'is_subscription': false,
+            'lessions': [lessonJson],
+          },
+          'comments': [],
+        },
+      })
       ..on('/subjects/all', body: {
         'message': 'ok',
         'data': [
