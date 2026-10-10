@@ -215,7 +215,7 @@ void main() {
     });
   });
 
-  group('صفحة دوراتي', () {
+  group('صفحة موادي', () {
     Future<void> pumpMyCourses(WidgetTester tester) {
       return _pump(tester, '/my-courses', {
         '/my-courses': (_) => BlocProvider(
@@ -225,14 +225,55 @@ void main() {
       });
     }
 
-    testWidgets('تعرض دورات الاشتراكات، والضغط يفتح الدورة', (tester) async {
+    testWidgets('بطاقة المادة تعرض العدّادات والنسبتين، و«متابعة التعلم» تفتح الدورة', (tester) async {
       repository.myCourses.add(Right([_course(isSubscribed: true)]));
       await pumpMyCourses(tester);
 
-      await tester.tap(find.text('الدكتور هناء القطيشات'));
+      expect(find.text(AppStrings.mySubjects), findsOneWidget);
+      expect(find.text('2 ${AppStrings.chaptersLabel} , 4 ${AppStrings.lessonsLabel}'), findsOneWidget);
+      expect(find.text('50%'), findsOneWidget);
+      expect(find.text('25%'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text(AppStrings.completedUnits)).dy,
+        lessThan(tester.getTopLeft(find.text(AppStrings.completedLessons)).dy),
+      );
+
+      await tester.tap(find.text(AppStrings.keepLearning));
       await tester.pumpAndSettle();
 
       expect(find.text('course 1'), findsOneWidget);
+    });
+
+    testWidgets('البحث يصفّي المواد بالعنوان واسم المادة', (tester) async {
+      repository.myCourses.add(Right([_course(isSubscribed: true)]));
+      await pumpMyCourses(tester);
+
+      await tester.enterText(find.byType(TextField), 'ناردين');
+      await tester.pump();
+      expect(find.text('الدكتور هناء القطيشات'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'فيزياء');
+      await tester.pump();
+      expect(find.text('الدكتور هناء القطيشات'), findsNothing);
+      expect(find.text(AppStrings.noSearchResults), findsOneWidget);
+    });
+
+    testWidgets('تبويبا الفصول والباقات فارغان', (tester) async {
+      repository.myCourses.add(Right([_course(isSubscribed: true)]));
+      await pumpMyCourses(tester);
+
+      await tester.tap(find.text(AppStrings.tabSemesters));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.noMySemesters), findsOneWidget);
+      expect(find.text('الدكتور هناء القطيشات'), findsNothing);
+
+      await tester.tap(find.text(AppStrings.tabPackages));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.noMyPackages), findsOneWidget);
+
+      await tester.tap(find.text(AppStrings.subjects));
+      await tester.pumpAndSettle();
+      expect(find.text('الدكتور هناء القطيشات'), findsOneWidget);
     });
 
     testWidgets('بلا اشتراكات تعرض رسالة', (tester) async {
@@ -240,6 +281,17 @@ void main() {
       await pumpMyCourses(tester);
 
       expect(find.text(AppStrings.noMyCourses), findsOneWidget);
+    });
+
+    testWidgets('الفشل يعرض رسالته، وإعادة المحاولة تجلب المواد', (tester) async {
+      repository.myCourses.addAll([const Left(ServerFailure('تعذّر الاتصال')), Right([_course(isSubscribed: true)])]);
+      await pumpMyCourses(tester);
+      expect(find.text('تعذّر الاتصال'), findsOneWidget);
+
+      await tester.tap(find.text(AppStrings.retry));
+      await tester.pumpAndSettle();
+
+      expect(find.text(AppStrings.keepLearning), findsOneWidget);
     });
   });
 

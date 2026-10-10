@@ -82,7 +82,7 @@ class _HomeBody extends StatelessWidget {
           _ProgressCard(
             progress: progress,
             coursesCount: state.curriculumCoursesCount,
-            onDetails: () => context.push('/my-courses'),
+            onDetails: () => context.go('/my-courses'),
           ),
           const SizedBox(height: 16),
           _TestsEntryCard(onTap: () => context.push('/tests')),

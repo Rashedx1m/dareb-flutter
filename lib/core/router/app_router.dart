@@ -119,10 +119,10 @@ GoRouter createRouter() {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/courses',
+              path: '/my-courses',
               builder: (_, _) => BlocProvider(
-                create: (_) => sl<CoursesCubit>()..load(),
-                child: const CoursesPage(),
+                create: (_) => sl<MyCoursesCubit>()..load(),
+                child: const MyCoursesPage(),
               ),
             ),
           ]),
@@ -140,6 +140,13 @@ GoRouter createRouter() {
             ),
           ]),
         ],
+      ),
+      GoRoute(
+        path: '/courses',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<CoursesCubit>()..load(),
+          child: const CoursesPage(),
+        ),
       ),
       GoRoute(
         path: '/courses/:id',
@@ -270,13 +277,6 @@ GoRouter createRouter() {
         builder: (_, _) => BlocProvider(
           create: (_) => sl<DownloadsCubit>()..load(),
           child: const DownloadsPage(),
-        ),
-      ),
-      GoRoute(
-        path: '/my-courses',
-        builder: (_, _) => BlocProvider(
-          create: (_) => sl<MyCoursesCubit>()..load(),
-          child: const MyCoursesPage(),
         ),
       ),
     ],
