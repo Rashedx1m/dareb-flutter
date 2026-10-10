@@ -1,6 +1,8 @@
 import '../../../../core/data/mock_catalog.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/course.dart';
+import '../../domain/entities/lesson_details.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
 import '../models/subject_model.dart';
@@ -10,6 +12,8 @@ abstract class CoursesRemoteDataSource {
   Future<List<CourseModel>> getCourses();
   Future<List<Course>> getMyCourses();
   Future<CourseDetailsModel> getCourseDetails(String subjectId);
+  Future<LessonDetails> getLesson(String lessonId);
+  Future<void> attendLesson(String lessonId);
   Future<List<SubjectModel>> getSubjects();
   Future<List<Course>> searchCourses(String query);
 }
@@ -62,6 +66,14 @@ abstract class CoursesMockDataSource implements CoursesRemoteDataSource {
     await Future<void>.delayed(MockCatalog.latency);
     return MockCatalog.courses.where((c) => c.isSubscribed).toList();
   }
+
+  @override
+  Future<LessonDetails> getLesson(String lessonId) async {
+    throw const ServerException('المحتوى المطلوب غير موجود');
+  }
+
+  @override
+  Future<void> attendLesson(String lessonId) async {}
 
   @override
   Future<List<Course>> searchCourses(String query) async {

@@ -5,7 +5,6 @@ import 'package:educational_app/features/auth/domain/repositories/auth_repositor
 import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
-import 'package:educational_app/features/courses/domain/entities/course_details.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
@@ -43,7 +42,7 @@ const _subjects = [
 ];
 
 /// مستودع مزيّف يتيح ضبط الفشل لاختبار مسارات النجاح والخطأ.
-class _FakeCoursesRepository implements CoursesRepository {
+class _FakeCoursesRepository extends Fake implements CoursesRepository {
   _FakeCoursesRepository({this.failure});
 
   final Failure? failure;
@@ -55,16 +54,6 @@ class _FakeCoursesRepository implements CoursesRepository {
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() async =>
       failure != null ? Left(failure!) : const Right(_subjects);
-
-  @override
-  Future<Either<Failure, List<Course>>> getMyCourses() async => const Right(_courses);
-
-  @override
-  Future<Either<Failure, CourseDetails>> getCourseDetails(String subjectId) async =>
-      Right(CourseDetails(course: _courses.first, semesters: const []));
-
-  @override
-  Future<Either<Failure, List<Course>>> searchCourses(String query) async => const Right(_courses);
 }
 
 class _FakeNewsRepository implements NewsRepository {
