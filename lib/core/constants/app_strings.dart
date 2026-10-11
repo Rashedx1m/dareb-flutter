@@ -208,6 +208,8 @@ abstract final class AppStrings {
   static const examLesson = 'اختبار';
   static const lesson = 'الدرس';
   static const semesterLessons = 'دروس الفصل';
+  static const subscribersOnlyLesson = 'هذا الدرس للمشتركين';
+  static const watchOnYoutube = 'مشاهدة على يوتيوب';
   // صفحة «موادي».
   static const mySubjects = 'موادي';
   static const tabSemesters = 'الفصول';

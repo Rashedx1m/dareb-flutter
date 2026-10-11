@@ -25,6 +25,7 @@ dependencies:
   dio: ^5.11.1
   image_picker: ^1.2.3
   url_launcher: ^6.3.3
+  youtube_player_iframe: ^6.0.2
 
 dev_dependencies:
   flutter_test:

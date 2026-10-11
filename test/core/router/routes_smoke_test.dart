@@ -89,10 +89,14 @@ void main() {
           ],
         },
       })
+      // درس ملف لا فيديو: مشغّل يوتيوب يحتاج WebView لا يعمل هنا، ويغطيه
+      // lessons_flow_test ببديل.
       ..on('/lessions/details', body: {
         'message': 'ok',
         'data': {
           ...lessonJson,
+          'type': {'id': 1, 'name': 'File'},
+          'file': 'https://x/1.pdf',
           'semester': {
             'id': 2,
             'name': 'الفصل الأول',

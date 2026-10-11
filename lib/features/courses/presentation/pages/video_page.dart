@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,22 +10,32 @@ import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/lesson.dart';
 import '../../domain/entities/lesson_details.dart';
 import '../cubit/lesson_cubit.dart';
+import '../widgets/youtube_lesson_player.dart';
 
-/// صفحة الدرس. الفيديو والملف يُفتحان خارج التطبيق: روابط الفيديو من يوتيوب،
-/// وطريق التشغيل الداخلي (`yt-dlp`) يرد 500.
+/// صفحة الدرس. فيديو يوتيوب يعمل داخل التطبيق، ويُفتح خارجياً إن تعذّر المشغّل.
+/// الملف يُفتح خارجياً، وطريق التشغيل عبر الخادم (`yt-dlp`) يرد 500.
 class VideoPage extends StatelessWidget {
-  const VideoPage({super.key, required this.lessonId, this.openLink = openExternalLink});
+  const VideoPage({
+    super.key,
+    required this.lessonId,
+    this.openLink = openExternalLink,
+    this.playerBuilder = youtubeLessonPlayer,
+  });
 
   final String lessonId;
 
   /// يُستبدل في الاختبارات حتى لا يُفتح رابط حقيقي.
   final LinkOpener openLink;
 
+  /// يُستبدل في الاختبارات، لأن WebView لا يعمل داخل `flutter test`.
+  final LessonPlayerBuilder playerBuilder;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LessonCubit, LessonState>(
       builder: (context, state) => switch (state.status) {
-        LessonStatus.success => _LessonView(details: state.details!, openLink: openLink),
+        LessonStatus.success =>
+          _LessonView(details: state.details!, openLink: openLink, playerBuilder: playerBuilder),
         LessonStatus.failure => _Frame(
             title: AppStrings.lesson,
             child: ErrorView(message: state.error, onRetry: () => context.read<LessonCubit>().load(lessonId)),
@@ -55,34 +66,76 @@ class _Frame extends StatelessWidget {
   }
 }
 
-class _LessonView extends StatelessWidget {
-  const _LessonView({required this.details, required this.openLink});
+class _LessonView extends StatefulWidget {
+  const _LessonView({required this.details, required this.openLink, required this.playerBuilder});
 
   final LessonDetails details;
   final LinkOpener openLink;
+  final LessonPlayerBuilder playerBuilder;
 
-  Future<void> _open(BuildContext context, String url) async {
+  @override
+  State<_LessonView> createState() => _LessonViewState();
+}
+
+class _LessonViewState extends State<_LessonView> {
+  /// يوقف تكرار طلب الحضور مع كل استئناف للتشغيل.
+  bool _attendRequested = false;
+  bool _playerFailed = false;
+
+  void _attendOnce() {
+    if (_attendRequested) return;
+    _attendRequested = true;
+    context.read<LessonCubit>().attend();
+  }
+
+  Future<void> _open(String url) async {
     final messenger = ScaffoldMessenger.of(context);
-    final cubit = context.read<LessonCubit>();
     final uri = Uri.tryParse(url);
-    final opened = uri != null && await openLink(uri);
+    final opened = uri != null && await widget.openLink(uri);
+    if (!mounted) return;
     if (opened) {
-      cubit.attend();
+      _attendOnce();
     } else {
       messenger.showSnackBar(const SnackBar(content: Text(AppStrings.linkOpenError)));
     }
   }
 
+  Widget _playerArea(Lesson lesson) {
+    if (lesson.isLocked) return const _LockedNotice();
+    final videoUrl = lesson.videoUrl;
+    if (lesson.type == LessonType.video && videoUrl != null) {
+      final videoId = YoutubePlayerController.convertUrlToId(videoUrl);
+      if (videoId == null || _playerFailed || !youtubePlayerSupported()) {
+        return _WatchOnYoutube(onTap: () => _open(videoUrl));
+      }
+      return widget.playerBuilder(
+        videoId: videoId,
+        onPlaying: _attendOnce,
+        onError: () {
+          if (mounted && !_playerFailed) setState(() => _playerFailed = true);
+        },
+      );
+    }
+    final fileUrl = lesson.type == LessonType.file ? lesson.fileUrl : null;
+    return Material(
+      color: AppColors.videoBackground,
+      child: InkWell(
+        onTap: fileUrl == null ? null : () => _open(fileUrl),
+        child: Center(
+          child: CircleAvatar(
+            radius: 32,
+            backgroundColor: AppColors.primary,
+            child: Icon(_playerIcon(lesson), color: Colors.white, size: 40),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final details = widget.details;
     final lesson = details.lesson;
-    final url = lesson.isLocked
-        ? null
-        : switch (lesson.type) {
-            LessonType.video => lesson.videoUrl,
-            LessonType.file => lesson.fileUrl,
-            LessonType.exam => null,
-          };
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -93,22 +146,7 @@ class _LessonView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Material(
-              color: AppColors.videoBackground,
-              child: InkWell(
-                onTap: url == null ? null : () => _open(context, url),
-                child: Center(
-                  child: CircleAvatar(
-                    radius: 32,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(_playerIcon(lesson), color: Colors.white, size: 40),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          AspectRatio(aspectRatio: 16 / 9, child: _playerArea(lesson)),
           Expanded(
             child: Container(
               width: double.infinity,
@@ -145,7 +183,6 @@ class _LessonView extends StatelessWidget {
   }
 
   static IconData _playerIcon(Lesson lesson) {
-    if (lesson.isLocked) return Icons.lock_outline;
     return switch (lesson.type) {
       LessonType.video => Icons.play_arrow_rounded,
       LessonType.file => PhosphorIconsFill.filePdf,
@@ -160,5 +197,49 @@ class _LessonView extends StatelessWidget {
       LessonType.file => PhosphorIconsFill.filePdf,
       LessonType.exam => PhosphorIconsRegular.exam,
     };
+  }
+}
+
+class _LockedNotice extends StatelessWidget {
+  const _LockedNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: AppColors.videoBackground,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_outline, color: Colors.white, size: 40),
+            SizedBox(height: 10),
+            Text(
+              AppStrings.subscribersOnlyLesson,
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WatchOnYoutube extends StatelessWidget {
+  const _WatchOnYoutube({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.videoBackground,
+      child: Center(
+        child: ElevatedButton.icon(
+          onPressed: onTap,
+          icon: const Icon(PhosphorIconsRegular.youtubeLogo),
+          label: const Text(AppStrings.watchOnYoutube),
+        ),
+      ),
+    );
   }
 }
