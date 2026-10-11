@@ -78,6 +78,35 @@ void main() {
     expect(cubit.state, const SearchState(status: SearchStatus.success, query: 'نار', results: [_subject]));
   });
 
+  test('الكتابة المتتابعة ترسل طلباً واحداً بآخر نص بعد توقفها', () async {
+    final typing = SearchCubit(SearchSubjects(repository), debounce: const Duration(milliseconds: 20));
+    addTearDown(typing.close);
+
+    typing
+      ..queryChanged('ن')
+      ..queryChanged('نا')
+      ..queryChanged('نار');
+    expect(repository.queries, isEmpty);
+
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+
+    expect(repository.queries, ['نار']);
+    expect(typing.state, const SearchState(status: SearchStatus.success, query: 'نار', results: [_subject]));
+  });
+
+  test('مسح النص أثناء الانتظار يلغي الطلب المؤجل', () async {
+    final typing = SearchCubit(SearchSubjects(repository), debounce: const Duration(milliseconds: 20));
+    addTearDown(typing.close);
+
+    typing
+      ..queryChanged('نار')
+      ..queryChanged('');
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+
+    expect(repository.queries, isEmpty);
+    expect(typing.state, const SearchState());
+  });
+
   test('إغلاق الصفحة قبل وصول الرد لا يرمي خطأ', () async {
     final response = Completer<Either<Failure, List<Subject>>>();
     repository.responses['نار'] = response;

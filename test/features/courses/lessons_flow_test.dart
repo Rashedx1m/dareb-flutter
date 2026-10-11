@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 const _videoUrl = 'https://www.youtube.com/watch?v=q0zaEGbs-cE';
 const _fileUrl = 'https://training.tamkeen-dev.com/dareb/public/assets/pdf.pdf';
@@ -89,6 +90,7 @@ void main() {
           create: (_) => LessonCubit(getLesson: GetLesson(repository), attendLesson: AttendLesson(repository))
             ..load(lessonId),
           child: VideoPage(
+            courseId: '1',
             lessonId: lessonId,
             openLink: (uri) async {
               opened.add(uri);
@@ -109,6 +111,53 @@ void main() {
     expect(find.text('السيدة بتول الترابين'), findsOneWidget);
     expect(find.text('درس 4'), findsOneWidget);
     expect(find.text(AppStrings.examLesson), findsOneWidget);
+  });
+
+  testWidgets('درس آخر في الفصل يُفتح مكان الحالي، والدرس الحالي لا يستجيب', (tester) async {
+    repository.lessons.addAll([
+      Right(_details(_lesson('3', LessonType.video))),
+      Right(_details(_lesson('4', LessonType.file))),
+    ]);
+    tester.view
+      ..physicalSize = const Size(1800, 3600)
+      ..devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      initialLocation: '/courses/1/video/3',
+      routes: [
+        GoRoute(
+          path: '/courses/:id/video/:lessonId',
+          // كما في app_router: المفتاح ينشئ Cubit للدرس الجديد في الصفحة نفسها.
+          builder: (_, state) => BlocProvider(
+            key: ValueKey(state.pathParameters['lessonId']),
+            create: (_) => LessonCubit(getLesson: GetLesson(repository), attendLesson: AttendLesson(repository))
+              ..load(state.pathParameters['lessonId']!),
+            child: VideoPage(
+              courseId: state.pathParameters['id']!,
+              lessonId: state.pathParameters['lessonId']!,
+              openLink: (_) async => true,
+              playerBuilder: _fakePlayer,
+            ),
+          ),
+        ),
+      ],
+    );
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    // آخر «درس 3» في الشجرة هو سطره في قائمة الفصل.
+    await tester.tap(find.text('درس 3').last);
+    await tester.pumpAndSettle();
+    expect(repository.lessons, hasLength(1));
+
+    await tester.tap(find.text('درس 4'));
+    await tester.pumpAndSettle();
+
+    expect(repository.lessons, isEmpty);
+    expect(router.routerDelegate.currentConfiguration.uri.toString(), '/courses/1/video/4');
+    // عنوان الصفحة والدرس صارا «درس 4»، ودرس الملف بلا مشغّل.
+    expect(find.text('درس 4'), findsNWidgets(3));
+    expect(find.text('player q0zaEGbs-cE'), findsNothing);
   });
 
   testWidgets('درس الفيديو يعرض المشغّل بمعرّف الفيديو، ولا يسجّل الحضور عند الفتح', (tester) async {

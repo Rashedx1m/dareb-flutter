@@ -12,3 +12,6 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# ملفات مؤقتة لمترجم Kotlin أثناء البناء.
+.kotlin/

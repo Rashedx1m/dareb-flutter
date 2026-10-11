@@ -17,9 +17,18 @@ class LessonModel extends Lesson {
     required super.isAttended,
   });
 
+  /// للدرس المفتوح نفسه: نوع لا يعرفه التطبيق يجعل الرد غير قابل للعرض.
   factory LessonModel.fromJson(Map<String, dynamic> json) {
+    final lesson = tryFromJson(json);
+    if (lesson == null) throw const FormatException('نوع درس غير معروف');
+    return lesson;
+  }
+
+  /// لدروس القائمة: نوع جديد أضافه المشرف (صوت مثلاً) يُرجع `null` فيُتخطى الدرس
+  /// وحده، بدل أن تسقط صفحة الدورة كلها.
+  static LessonModel? tryFromJson(Map<String, dynamic> json) {
     final type = _types[(json['type'] as Map<String, dynamic>)['id']];
-    if (type == null) throw const FormatException('نوع درس غير معروف');
+    if (type == null) return null;
     return LessonModel(
       id: '${json['id']}',
       title: json['name'] as String,

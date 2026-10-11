@@ -281,7 +281,7 @@ void main() {
       );
     });
 
-    test('درس بنوع غير معروف يصير «رد غير متوقع»', () async {
+    test('درس بنوع غير معروف يُتخطى وحده، وتبقى بقية دروس الفصل', () async {
       adapter.on('/courses/details', body: {
         'message': 'ok',
         'data': {
@@ -292,7 +292,7 @@ void main() {
               'name': 'س',
               'is_free': true,
               'price': 0,
-              'lessions_count': 1,
+              'lessions_count': 2,
               'is_subscription': false,
               'lessions': [
                 {
@@ -304,16 +304,26 @@ void main() {
                   'is_subscription': false,
                   'is_attended': false,
                 },
+                {
+                  'id': 10,
+                  'name': 'فيديو',
+                  'is_free': true,
+                  'order': 1,
+                  'type': {'id': 2, 'name': 'Video'},
+                  'time': '00:10:00',
+                  'url': 'https://www.youtube.com/watch?v=q0zaEGbs-cE',
+                  'is_subscription': false,
+                  'is_attended': false,
+                },
               ],
             },
           ],
         },
       });
 
-      expect(
-        await repository.getCourseDetails('1'),
-        const Left<Failure, CourseDetails>(ServerFailure('رد غير متوقع من الخادم')),
-      );
+      final details = (await repository.getCourseDetails('1')).getOrElse(() => throw StateError('failed'));
+
+      expect(details.semesters.single.lessons.map((l) => l.id), ['10']);
     });
 
     test('خطأ الخادم يصل برسالته', () async {

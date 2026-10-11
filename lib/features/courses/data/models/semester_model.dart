@@ -2,7 +2,7 @@ import '../../domain/entities/semester.dart';
 import 'lesson_model.dart';
 
 /// فصل كما يأتي في `courses/details` و`lessions/details`. قد يصل بلا دروس
-/// (`lessions: []` و`lessions_count: 0`).
+/// (`lessions: []` و`lessions_count: 0`). الدرس بنوع غير معروف يُتخطى.
 class SemesterModel extends Semester {
   const SemesterModel({
     required super.id,
@@ -23,7 +23,7 @@ class SemesterModel extends Semester {
       lessonsCount: json['lessions_count'] as int,
       isSubscribed: json['is_subscription'] as bool,
       lessons: [
-        for (final lesson in (json['lessions'] as List).cast<Map<String, dynamic>>()) LessonModel.fromJson(lesson),
+        for (final lesson in (json['lessions'] as List).cast<Map<String, dynamic>>()) ?LessonModel.tryFromJson(lesson),
       ],
     );
   }

@@ -163,8 +163,10 @@ GoRouter createRouter() {
         builder: (context, state) {
           final lessonId = state.pathParameters['lessonId']!;
           return BlocProvider(
+            // الانتقال بين دروس الفصل يُبقي الصفحة نفسها؛ المفتاح ينشئ Cubit للدرس الجديد.
+            key: ValueKey(lessonId),
             create: (_) => sl<LessonCubit>()..load(lessonId),
-            child: VideoPage(lessonId: lessonId),
+            child: VideoPage(courseId: state.pathParameters['id']!, lessonId: lessonId),
           );
         },
       ),

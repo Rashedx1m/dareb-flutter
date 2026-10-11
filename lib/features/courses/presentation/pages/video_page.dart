@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -10,6 +11,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/lesson.dart';
 import '../../domain/entities/lesson_details.dart';
 import '../cubit/lesson_cubit.dart';
+import '../lesson_access.dart';
 import '../widgets/youtube_lesson_player.dart';
 
 /// صفحة الدرس. فيديو يوتيوب يعمل داخل التطبيق، ويُفتح خارجياً إن تعذّر المشغّل.
@@ -17,11 +19,14 @@ import '../widgets/youtube_lesson_player.dart';
 class VideoPage extends StatelessWidget {
   const VideoPage({
     super.key,
+    required this.courseId,
     required this.lessonId,
     this.openLink = openExternalLink,
     this.playerBuilder = youtubeLessonPlayer,
   });
 
+  /// معرّف المادة من المسار، للانتقال إلى دروس الفصل الأخرى.
+  final String courseId;
   final String lessonId;
 
   /// يُستبدل في الاختبارات حتى لا يُفتح رابط حقيقي.
@@ -34,8 +39,12 @@ class VideoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LessonCubit, LessonState>(
       builder: (context, state) => switch (state.status) {
-        LessonStatus.success =>
-          _LessonView(details: state.details!, openLink: openLink, playerBuilder: playerBuilder),
+        LessonStatus.success => _LessonView(
+            courseId: courseId,
+            details: state.details!,
+            openLink: openLink,
+            playerBuilder: playerBuilder,
+          ),
         LessonStatus.failure => _Frame(
             title: AppStrings.lesson,
             child: ErrorView(message: state.error, onRetry: () => context.read<LessonCubit>().load(lessonId)),
@@ -67,8 +76,14 @@ class _Frame extends StatelessWidget {
 }
 
 class _LessonView extends StatefulWidget {
-  const _LessonView({required this.details, required this.openLink, required this.playerBuilder});
+  const _LessonView({
+    required this.courseId,
+    required this.details,
+    required this.openLink,
+    required this.playerBuilder,
+  });
 
+  final String courseId;
   final LessonDetails details;
   final LinkOpener openLink;
   final LessonPlayerBuilder playerBuilder;
@@ -147,9 +162,10 @@ class _LessonViewState extends State<_LessonView> {
       body: Column(
         children: [
           AspectRatio(aspectRatio: 16 / 9, child: _playerArea(lesson)),
+          // Material لا Container ملوّن: دروس القائمة تستجيب للضغط، وأثر الضغط يُرسم
+          // على أقرب Material.
           Expanded(
-            child: Container(
-              width: double.infinity,
+            child: Material(
               color: AppColors.background,
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -172,6 +188,7 @@ class _LessonViewState extends State<_LessonView> {
                         item.type == LessonType.exam ? AppStrings.examLesson : item.duration ?? '',
                         style: const TextStyle(color: AppColors.textMuted),
                       ),
+                      onTap: _onLessonTap(item, current: lesson),
                     ),
                 ],
               ),
@@ -180,6 +197,16 @@ class _LessonViewState extends State<_LessonView> {
         ],
       ),
     );
+  }
+
+  /// درس آخر يُفتح مكان الحالي (لا يتراكم في سجل الرجوع)، والمقفل يشرح سببه.
+  /// الدرس الحالي والاختبار لا يستجيبان.
+  VoidCallback? _onLessonTap(Lesson item, {required Lesson current}) {
+    if (item.id == current.id) return null;
+    if (canOpenLesson(item)) {
+      return () => context.pushReplacement('/courses/${widget.courseId}/video/${item.id}');
+    }
+    return item.isLocked ? () => showLockedLessonMessage(context) : null;
   }
 
   static IconData _playerIcon(Lesson lesson) {

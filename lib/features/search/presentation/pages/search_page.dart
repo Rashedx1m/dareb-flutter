@@ -27,7 +27,7 @@ class SearchPage extends StatelessWidget {
                 hintText: AppStrings.search,
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: context.read<SearchCubit>().search,
+              onChanged: context.read<SearchCubit>().queryChanged,
             ),
           ),
           Expanded(

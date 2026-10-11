@@ -28,7 +28,7 @@ import 'package:go_router/go_router.dart';
 
 const _subject = Subject(id: '2', name: 'سارين الطراونة', imageUrl: 'x', isFree: true, isSubscribed: false);
 
-Course _course({bool isSubscribed = false}) => Course(
+Course _course({bool isSubscribed = false, bool isFree = false}) => Course(
       id: '1',
       title: 'الدكتور هناء القطيشات',
       subjectName: 'ناردين الشطناوي',
@@ -41,7 +41,7 @@ Course _course({bool isSubscribed = false}) => Course(
       lessonsCount: 4,
       lessonRate: 25,
       subscriptionsCount: 3,
-      isFree: false,
+      isFree: isFree,
       isSubscribed: isSubscribed,
     );
 
@@ -56,8 +56,8 @@ Lesson _lesson(String id, LessonType type, {bool isFree = true, String? duration
       isAttended: false,
     );
 
-CourseDetails _details({bool isSubscribed = false}) => CourseDetails(
-      course: _course(isSubscribed: isSubscribed),
+CourseDetails _details({bool isSubscribed = false, bool isFree = false}) => CourseDetails(
+      course: _course(isSubscribed: isSubscribed, isFree: isFree),
       semesters: [
         Semester(
           id: '1',
@@ -225,18 +225,16 @@ void main() {
       });
     }
 
-    testWidgets('بطاقة المادة تعرض العدّادات والنسبتين، و«متابعة التعلم» تفتح الدورة', (tester) async {
+    testWidgets('بطاقة المادة تعرض العدّادات ونسبة الدروس المنجزة، و«متابعة التعلم» تفتح الدورة', (tester) async {
       repository.myCourses.add(Right([_course(isSubscribed: true)]));
       await pumpMyCourses(tester);
 
       expect(find.text(AppStrings.mySubjects), findsOneWidget);
       expect(find.text('2 ${AppStrings.chaptersLabel} , 4 ${AppStrings.lessonsLabel}'), findsOneWidget);
-      expect(find.text('50%'), findsOneWidget);
+      expect(find.text(AppStrings.completedLessons), findsOneWidget);
       expect(find.text('25%'), findsOneWidget);
-      expect(
-        tester.getTopLeft(find.text(AppStrings.completedUnits)).dy,
-        lessThan(tester.getTopLeft(find.text(AppStrings.completedLessons)).dy),
-      );
+      // semesterRate (50) لا يُعرض لأن معناه غير مؤكد.
+      expect(find.text('50%'), findsNothing);
 
       await tester.tap(find.text(AppStrings.keepLearning));
       await tester.pumpAndSettle();
@@ -345,6 +343,31 @@ void main() {
       await pumpDetails(tester);
 
       await tester.tap(find.text('${AppStrings.subscribe} · 36 ${AppStrings.currency}'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('subscription'), findsOneWidget);
+    });
+
+    testWidgets('الدورة المجانية بلا اشتراك تبدأ بأول درس يمكن فتحه، لا بزر الاشتراك', (tester) async {
+      repository.details.add(Right(_details(isFree: true)));
+      await pumpDetails(tester);
+
+      expect(find.textContaining(AppStrings.subscribe), findsNothing);
+      await tester.tap(find.text(AppStrings.startLesson));
+      await tester.pumpAndSettle();
+
+      expect(find.text('lesson 3'), findsOneWidget);
+    });
+
+    testWidgets('الضغط على درس مقفل يشرح السبب، وزر الرسالة يفتح الاشتراك', (tester) async {
+      repository.details.add(Right(_details()));
+      await pumpDetails(tester);
+
+      await tester.tap(find.text('درس 2'));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.subscribersOnlyLesson), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(SnackBarAction, AppStrings.subscribe));
       await tester.pumpAndSettle();
 
       expect(find.text('subscription'), findsOneWidget);

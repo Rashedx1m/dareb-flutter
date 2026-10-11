@@ -7,7 +7,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../domain/entities/course.dart';
 
 /// بطاقة مادة مشترك بها في تبويب «المواد»: الصورة والعنوان والأستاذ والعدّادات،
-/// ثم شريطا التقدم وزر «متابعة التعلم».
+/// ثم شريط الدروس المنجزة وزر «متابعة التعلم».
 class MySubjectCard extends StatelessWidget {
   const MySubjectCard({super.key, required this.course, required this.onContinue});
 
@@ -89,8 +89,7 @@ class MySubjectCard extends StatelessWidget {
             course.subjectName,
             style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 10),
-          _RateBar(label: AppStrings.completedUnits, rate: course.semesterRate),
+          // `semesterRate` لا يُعرض: ظهر 75 لمادة لم يُحضر فيها أي درس، فمعناه غير مؤكد.
           const SizedBox(height: 10),
           _RateBar(label: AppStrings.completedLessons, rate: course.lessonRate),
           const SizedBox(height: 14),

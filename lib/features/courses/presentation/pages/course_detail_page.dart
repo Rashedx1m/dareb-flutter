@@ -11,6 +11,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/course_details.dart';
 import '../../domain/entities/lesson.dart';
 import '../cubit/course_details_cubit.dart';
+import '../lesson_access.dart';
 
 class CourseDetailPage extends StatelessWidget {
   const CourseDetailPage({super.key, required this.courseId});
@@ -46,8 +47,10 @@ class _CourseView extends StatelessWidget {
     final semesters = details.semesters.where((s) => s.lessons.isNotEmpty).toList();
     final firstOpenable = [
       for (final semester in semesters) ...semester.lessons,
-    ].where(_canOpen).firstOrNull;
-    final canStart = course.isSubscribed && firstOpenable != null;
+    ].where(canOpenLesson).firstOrNull;
+    // الدورة المدفوعة بلا اشتراك تعرض زر الاشتراك حتى إن كان فيها درس مجاني للتجربة،
+    // فهو يُفتح من القائمة. أما المجانية فتبدأ مباشرة.
+    final canStart = (course.isSubscribed || course.isFree) && firstOpenable != null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -100,9 +103,11 @@ class _CourseView extends StatelessWidget {
                     for (final lesson in semester.lessons)
                       _LessonTile(
                         lesson: lesson,
-                        onTap: _canOpen(lesson)
+                        onTap: canOpenLesson(lesson)
                             ? () => context.push('/courses/${course.id}/video/${lesson.id}')
-                            : null,
+                            : lesson.isLocked
+                                ? () => showLockedLessonMessage(context)
+                                : null,
                       ),
                   ],
                   const SizedBox(height: 80),
@@ -131,9 +136,6 @@ class _CourseView extends StatelessWidget {
       ),
     );
   }
-
-  /// الاختبارات تُعرض في القائمة فقط، فلا صفحة لها في التطبيق بعد.
-  static bool _canOpen(Lesson lesson) => !lesson.isLocked && lesson.type != LessonType.exam;
 }
 
 class _LessonTile extends StatelessWidget {

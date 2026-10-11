@@ -59,6 +59,8 @@ void main() {
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'ناردين');
+    // البحث ينتظر توقف الكتابة 400ms قبل الطلب.
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     await tester.tap(find.text('ناردين الشطناوي'));
     await tester.pumpAndSettle();
@@ -71,6 +73,8 @@ void main() {
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'زز');
+    // البحث ينتظر توقف الكتابة 400ms قبل الطلب.
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
 
     expect(find.text(AppStrings.noSearchResults), findsOneWidget);
@@ -81,6 +85,8 @@ void main() {
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'ناردين');
+    // البحث ينتظر توقف الكتابة 400ms قبل الطلب.
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('تعذّر الاتصال'), findsOneWidget);
 

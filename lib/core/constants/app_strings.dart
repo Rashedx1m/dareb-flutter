@@ -214,7 +214,6 @@ abstract final class AppStrings {
   static const mySubjects = 'موادي';
   static const tabSemesters = 'الفصول';
   static const tabPackages = 'الباقات';
-  static const completedUnits = 'الوحدات المكتملة';
   static const completedLessons = 'الدروس المنجزة';
   static const keepLearning = 'متابعة التعلم';
   static const noMySemesters = 'لا توجد فصول مشترك بها بعد';
