@@ -34,9 +34,12 @@ import '../../features/notifications/presentation/cubit/notifications_cubit.dart
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/quiz/presentation/bloc/quiz_bloc.dart';
+import '../../features/quiz/presentation/cubit/quiz_cubit.dart';
+import '../../features/quiz/presentation/cubit/quiz_result_cubit.dart';
+import '../../features/quiz/presentation/cubit/tests_cubit.dart';
 import '../../features/quiz/presentation/pages/quiz_page.dart';
 import '../../features/quiz/presentation/pages/quiz_result_page.dart';
+import '../../features/quiz/presentation/pages/quiz_review_page.dart';
 import '../../features/quiz/presentation/pages/tests_page.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/pages/search_page.dart';
@@ -200,7 +203,7 @@ GoRouter createRouter() {
       GoRoute(
         path: '/tests',
         builder: (_, _) => BlocProvider(
-          create: (_) => sl<QuizBloc>()..add(const QuizzesStarted()),
+          create: (_) => sl<TestsCubit>()..load(),
           child: const TestsPage(),
         ),
       ),
@@ -230,7 +233,7 @@ GoRouter createRouter() {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return BlocProvider(
-            create: (_) => sl<QuizBloc>()..add(QuizOpened(id)),
+            create: (_) => sl<QuizCubit>()..load(id),
             child: QuizPage(quizId: id),
           );
         },
@@ -238,8 +241,21 @@ GoRouter createRouter() {
       GoRoute(
         path: '/quiz/:id/result',
         builder: (context, state) {
-          final extra = state.extra as Map<String, int>? ?? const {'score': 0, 'total': 0};
-          return QuizResultPage(score: extra['score'] ?? 0, total: extra['total'] ?? 0);
+          final id = state.pathParameters['id']!;
+          return BlocProvider(
+            create: (_) => sl<QuizResultCubit>()..load(id),
+            child: QuizResultPage(quizId: id),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/quiz/:id/review',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return BlocProvider(
+            create: (_) => sl<QuizResultCubit>()..load(id),
+            child: QuizReviewPage(quizId: id),
+          );
         },
       ),
       GoRoute(

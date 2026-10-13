@@ -2,20 +2,33 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
-/// تبويبات صفحة المادة على مسار أزرق فاتح واحد، والمختار يملأ مكانه فيروزياً بنص
-/// أبيض.
+/// تبويبات على مسار واحد، والمختار يملأ مكانه فيروزياً بنص أبيض.
+/// الافتراضي ألوان صفحة المادة؛ «اختباراتي» يمرّر [trackColor] و[labelColor].
 class SegmentedTabs<T> extends StatelessWidget {
-  const SegmentedTabs({super.key, required this.tabs, required this.selected, required this.onSelect});
+  const SegmentedTabs({
+    super.key,
+    required this.tabs,
+    required this.selected,
+    required this.onSelect,
+    this.trackColor = AppColors.subjectChip,
+    this.labelColor = AppColors.iconBlue,
+  });
 
   /// كل تبويب واسمه، بالترتيب الذي يظهر به.
   final Map<T, String> tabs;
   final T selected;
   final ValueChanged<T> onSelect;
 
+  /// لون المسار خلف التبويبات.
+  final Color trackColor;
+
+  /// لون نص التبويب غير المختار.
+  final Color labelColor;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: AppColors.subjectChip, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: trackColor, borderRadius: BorderRadius.circular(10)),
       child: Row(
         children: [
           for (final MapEntry(key: tab, value: label) in tabs.entries)
@@ -36,7 +49,7 @@ class SegmentedTabs<T> extends StatelessWidget {
                     ),
                     child: Text(
                       label,
-                      style: TextStyle(color: tab == selected ? Colors.white : AppColors.iconBlue, fontSize: 15),
+                      style: TextStyle(color: tab == selected ? Colors.white : labelColor, fontSize: 15),
                     ),
                   ),
                 ),

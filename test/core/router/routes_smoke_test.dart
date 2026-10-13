@@ -136,6 +136,28 @@ void main() {
         'data': [
           {'id': 1, 'name': 'باسل', 'phone': '0993571184', 'governorate': 'دمشق', 'method': 'الهرم', 'image': null},
         ],
+      })
+      ..on('/exams/my', body: {'message': 'ok', 'data': <Object>[]})
+      ..on('/daily-activities/my', body: {'message': 'ok', 'data': <Object>[]})
+      ..on('/exams/result', body: {
+        'message': 'ok',
+        'data': {
+          'id': 6,
+          'title': 'هذا اختبار رباضيات',
+          'questions': [
+            {
+              'id': 51,
+              'title': 'س',
+              'answers': [
+                {'id': 201, 'title': '100', 'correct': false},
+                {'id': 202, 'title': '110', 'correct': true},
+              ],
+            },
+          ],
+          'questions_count': 1,
+          'correct_answers': 0,
+          'failed_answers': 0,
+        },
       });
     final dio = Dio(BaseOptions(baseUrl: 'https://api.test/api'))..httpClientAdapter = adapter;
     sl
@@ -165,6 +187,9 @@ void main() {
     '/courses/1',
     '/courses/1/video/3',
     '/search',
+    '/quiz/6',
+    '/quiz/6/result',
+    '/quiz/6/review',
   ];
 
   for (final path in paths) {

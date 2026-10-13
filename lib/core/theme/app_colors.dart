@@ -65,6 +65,8 @@ abstract final class AppColors {
   static const tabTrack = Color(0xFFB0B8BC);
   static const tabLabel = Color(0xFFF2F5F6);
   static const quizCardBorder = Color(0xFFBFD3F3);
+  static const reviewWrongFill = Color(0xFFFDECEC);
+  static const reviewWrongBorder = Color(0xFFF3B4B4);
   static const metaText = Color(0xFF5C5C5C);
   // صفحة الدورة: «مسار التعلم» وبطاقات دروسه.
   static const pathTitle = Color(0xFF000000);

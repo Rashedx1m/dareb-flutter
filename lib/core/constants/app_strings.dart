@@ -74,7 +74,22 @@ abstract final class AppStrings {
   static const searchHere = 'ابحث هنا...';
   static const questionUnit = 'سؤال';
   static const noTestsFound = 'لا توجد نتائج مطابقة';
+  static const noMyExams = 'لا توجد اختبارات بعد';
+  static const noMyActivities = 'لا توجد نشاطات يومية بعد';
   static const myTestsEntrySubtitle = 'اختباراتك ونشاطاتك اليومية';
+  static const quizResult = 'النتيجة';
+  static const quizFinishedTitle = 'تم إنهاء الاختبار بنجاح!';
+  static const quizFinishedSubtitle = 'لقد حققت نتيجة رائعة، استمر في هذا الأداء المتميز.';
+  static const questionsCountLabel = 'عدد الأسئلة';
+  static const correctAnswersLabel = 'الأجوبة الصحيحة';
+  static const wrongAnswersLabel = 'الأجوبة الخطأ';
+  static const reviewAnswers = 'تأكد من الأجوبة';
+  static const backToHome = 'الرجوع للصفحة الرئيسية';
+  static const quizReviewTitle = 'نتائج الاختبار';
+  static const detailedReview = 'مراجعة تفصيلية';
+  static const yourAnswerCorrect = 'إجابتك (صحيحة):';
+  static const yourAnswerWrong = 'إجابتك (خاطئة):';
+  static const correctAnswerLabel = 'الإجابة الصحيحة:';
   // المعرض (ألبومات الصور).
   static const gallery = 'المعرض';
   static const galleryEmpty = 'لا توجد صور في هذا الألبوم بعد';

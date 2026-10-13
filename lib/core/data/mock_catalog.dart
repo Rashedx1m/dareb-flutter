@@ -1,7 +1,6 @@
 import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
-import '../../features/quiz/domain/entities/quiz.dart';
 import '../theme/app_assets.dart';
 
 /// بيانات تجريبية إلى أن تُربط واجهات الـ API.
@@ -26,31 +25,6 @@ abstract final class MockCatalog {
       date: 'منذ أسبوع',
     ),
   ];
-
-  static const quizzes = [
-    Quiz(id: 'qt1', title: 'اختبار رياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20),
-    Quiz(id: 'qa1', title: 'نشاطات رياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, kind: QuizKind.activity),
-  ];
-
-  static const quizDetails = <String, QuizDetails>{
-    'qt1': QuizDetails(
-      id: 'qt1',
-      title: 'اختبار رياضيات',
-      questionsCount: 1,
-      correctAnswers: 0,
-      failedAnswers: 0,
-      questions: [
-        QuizQuestion(
-          id: 'm1',
-          text: 'ما ناتج 7 × 8 ؟',
-          answers: [
-            QuizAnswer(id: 'a1', text: '54', isCorrect: false),
-            QuizAnswer(id: 'a2', text: '56', isCorrect: true),
-          ],
-        ),
-      ],
-    ),
-  };
 
   static const achievements = [
     Achievement(id: 'a1', title: 'أول خطوة', subtitle: 'أكمل أول درس', unlocked: true),

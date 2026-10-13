@@ -72,7 +72,7 @@
 | [`2-4576`](figma/exams/2-4576_my_activities.jpg) | إختباراتي: تبويب النشاطات اليومية | `/tests` | لقطة ضبابية قليلاً |
 | [`2-11725`](figma/exams/2-11725_quiz_question.jpg) | سؤال الاختبار | `/quiz/:id` |  |
 | [`2-11931`](figma/exams/2-11931_quiz_finished.jpg) | تم إنهاء الاختبار بنجاح | `/quiz/:id/result` |  |
-| [`2-11795`](figma/exams/2-11795_quiz_review.jpg) | نتائج الاختبار: مراجعة تفصيلية | `/quiz/:id/result` |  |
+| [`2-11795`](figma/exams/2-11795_quiz_review.jpg) | نتائج الاختبار: مراجعة تفصيلية | `/quiz/:id/review` |  |
 
 ## المعرض (`gallery`)
 
