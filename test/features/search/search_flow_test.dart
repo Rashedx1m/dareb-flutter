@@ -44,6 +44,8 @@ void main() {
           ),
         ),
         GoRoute(path: '/courses/:id', builder: (_, state) => Text('course ${state.pathParameters['id']}')),
+        GoRoute(path: '/quiz/:id', builder: (_, state) => Text('quiz ${state.pathParameters['id']}')),
+        GoRoute(path: '/subscription', builder: (_, _) => const Text('subscription')),
       ],
     );
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
@@ -143,5 +145,26 @@ void main() {
     expect(find.text(AppStrings.sectionCourses), findsOneWidget);
     expect(find.text(AppStrings.sectionActivities), findsNothing);
     expect(find.text(AppStrings.sectionExams), findsNothing);
+  });
+
+  testWidgets('الضغط على اختبار مجاني يفتح صفحة الحل', (tester) async {
+    const exam = SubjectExam(
+      id: '6',
+      title: 'إختبار رياضيات',
+      instructor: 'أ.عمر النابلسي',
+      questionsCount: 20,
+      isFree: true,
+      isSubscribed: false,
+    );
+    repository.results.add(const Right(SearchResults(exams: [exam])));
+    await pumpSearch(tester);
+
+    await tester.enterText(find.byType(TextField), 'رياضيات');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('إختبار رياضيات'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('quiz 6'), findsOneWidget);
   });
 }

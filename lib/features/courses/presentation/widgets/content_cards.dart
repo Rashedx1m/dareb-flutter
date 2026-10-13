@@ -9,6 +9,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../domain/entities/course.dart';
 import '../../domain/entities/subject.dart';
 import '../../domain/entities/subject_details.dart';
+import '../lesson_access.dart';
 
 /// بطاقات صفحة المادة والبحث: صورة أو أيقونة في البداية، ثم العنوان الفيروزي
 /// وتحته الأستاذ والعدّاد، وفي النهاية النقاط إن وُجدت.
@@ -168,8 +169,8 @@ class SubjectContentCard extends StatelessWidget {
   }
 }
 
-/// بطاقة اختبار أو نشاط يومي بأيقونته وعدد أسئلته. لا تُفتح بعد: صفحة الاختبار لم
-/// تُربط بالخادم.
+/// بطاقة اختبار أو نشاط يومي بأيقونته وعدد أسئلته. المجاني أو المشترك يفتح
+/// `/quiz/:id`، وغيره نافذة الاشتراك.
 class ExamContentCard extends StatelessWidget {
   const ExamContentCard({
     super.key,
@@ -187,6 +188,13 @@ class ExamContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ContentCard(
+      onTap: () {
+        if (exam.isFree || exam.isSubscribed) {
+          context.push('/quiz/${exam.id}');
+        } else {
+          showSubscribeDialog(context);
+        }
+      },
       height: 108,
       borderColor: borderColor,
       leading: Padding(

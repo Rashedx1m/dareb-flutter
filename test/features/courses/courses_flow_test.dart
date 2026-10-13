@@ -157,6 +157,7 @@ Future<void> _pump(WidgetTester tester, String location, Map<String, Widget Func
         builder: (_, state) => Text('lesson ${state.pathParameters['lessonId']}'),
       ),
       GoRoute(path: '/subscription', builder: (_, _) => const Text('subscription')),
+      GoRoute(path: '/quiz/:id', builder: (_, state) => Text('quiz ${state.pathParameters['id']}')),
     ],
   );
   await tester.pumpWidget(MaterialApp.router(routerConfig: router));
@@ -273,6 +274,34 @@ void main() {
       await tester.enterText(find.byType(TextField), 'رياضيات');
       await tester.pumpAndSettle();
       expect(find.text('هذا اختبار رياضيات'), findsOneWidget);
+    });
+
+    testWidgets('الاختبار المجاني أو المشترك يفتح صفحة الحل، وغيره نافذة الاشتراك', (tester) async {
+      const free = SubjectExam(
+        id: '6',
+        title: 'هذا اختبار رياضيات',
+        instructor: 'أ.عمر النابلسي',
+        questionsCount: 20,
+        isFree: true,
+        isSubscribed: false,
+      );
+      repository.subjectDetails.add(Right(details(exams: [free])));
+      await pumpSubject(tester);
+      await tester.tap(find.text(AppStrings.tabExams));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('هذا اختبار رياضيات'));
+      await tester.pumpAndSettle();
+      expect(find.text('quiz 6'), findsOneWidget);
+    });
+
+    testWidgets('الاختبار غير المجاني وغير المشترك يطلب الاشتراك', (tester) async {
+      repository.subjectDetails.add(Right(details()));
+      await pumpSubject(tester);
+      await tester.tap(find.text(AppStrings.tabExams));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('هذا اختبار رياضيات'));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.subscribeToGetIt), findsOneWidget);
     });
 
     testWidgets('بلا اختبارات يعرض رسالتها', (tester) async {
