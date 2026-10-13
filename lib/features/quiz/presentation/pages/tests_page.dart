@@ -315,37 +315,9 @@ class _QuizCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            _CountBadge(count: quiz.participants),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '$count',
-          style: const TextStyle(
-            color: AppColors.iconBlue,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Lato',
-          ),
-        ),
-        const SizedBox(width: 4),
-        const Icon(Icons.layers_rounded, color: AppColors.iconBlue, size: 20),
-      ],
     );
   }
 }

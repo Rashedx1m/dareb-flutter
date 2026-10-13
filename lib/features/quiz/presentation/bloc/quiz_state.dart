@@ -15,7 +15,7 @@ class QuizState extends Equatable {
 
   final QuizStatus status;
   final List<Quiz> quizzes;
-  final Quiz? current;
+  final QuizDetails? current;
   final int currentIndex;
   final Map<int, int> answers;
   final int score;
@@ -24,7 +24,7 @@ class QuizState extends Equatable {
   QuizState copyWith({
     QuizStatus? status,
     List<Quiz>? quizzes,
-    Quiz? current,
+    QuizDetails? current,
     int? currentIndex,
     Map<int, int>? answers,
     int? score,

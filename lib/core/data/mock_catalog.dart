@@ -27,54 +27,30 @@ abstract final class MockCatalog {
     ),
   ];
 
-  // أسئلة رياضيات مشتركة تُستخدم في اختبارات ونشاطات شاشة «اختباراتي».
-  static const _mathQuestions = [
-    QuizQuestion(
-      id: 'm1',
-      text: 'ما ناتج 7 × 8 ؟',
-      options: ['54', '56', '58', '48'],
-      correctIndex: 1,
-    ),
-    QuizQuestion(
-      id: 'm2',
-      text: 'ما قيمة x في المعادلة x + 5 = 12 ؟',
-      options: ['5', '6', '7', '8'],
-      correctIndex: 2,
-    ),
-    QuizQuestion(
-      id: 'm3',
-      text: 'مساحة مربع طول ضلعه 6 سم تساوي',
-      options: ['12', '24', '36', '30'],
-      correctIndex: 2,
-    ),
-    QuizQuestion(
-      id: 'm4',
-      text: 'أيّ الأعداد التالية عدد أوّلي؟',
-      options: ['9', '15', '21', '13'],
-      correctIndex: 3,
-    ),
-    QuizQuestion(
-      id: 'm5',
-      text: 'ناتج 144 ÷ 12 يساوي',
-      options: ['12', '14', '11', '13'],
-      correctIndex: 0,
-    ),
+  static const quizzes = [
+    Quiz(id: 'qt1', title: 'اختبار رياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20),
+    Quiz(id: 'qa1', title: 'نشاطات رياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, kind: QuizKind.activity),
   ];
 
-  // بطاقات شاشة «اختباراتي»: تبويب «اختبارات» (kind=test) و«نشاطات يومية»
-  // (kind=activity). كلاهما يفتح تدفق حل الأسئلة نفسه عند الضغط.
-  static const quizzes = [
-    // ── اختبارات ──
-    Quiz(id: 'qt1', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt2', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt3', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.أحمد الحفار', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    Quiz(id: 'qt4', title: 'اختبار رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions),
-    // ── نشاطات يومية ──
-    Quiz(id: 'qa1', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
-    Quiz(id: 'qa2', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
-    Quiz(id: 'qa3', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.أحمد الحفار', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
-    Quiz(id: 'qa4', title: 'نشاطات رياضيات', courseTitle: 'الرياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, durationMinutes: 20, participants: 22, progress: 0, questions: _mathQuestions, kind: QuizKind.activity),
-  ];
+  static const quizDetails = <String, QuizDetails>{
+    'qt1': QuizDetails(
+      id: 'qt1',
+      title: 'اختبار رياضيات',
+      questionsCount: 1,
+      correctAnswers: 0,
+      failedAnswers: 0,
+      questions: [
+        QuizQuestion(
+          id: 'm1',
+          text: 'ما ناتج 7 × 8 ؟',
+          answers: [
+            QuizAnswer(id: 'a1', text: '54', isCorrect: false),
+            QuizAnswer(id: 'a2', text: '56', isCorrect: true),
+          ],
+        ),
+      ],
+    ),
+  };
 
   static const achievements = [
     Achievement(id: 'a1', title: 'أول خطوة', subtitle: 'أكمل أول درس', unlocked: true),

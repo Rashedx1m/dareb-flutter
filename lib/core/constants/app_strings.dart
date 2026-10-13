@@ -258,4 +258,6 @@ abstract final class AppStrings {
   static const keepLearning = 'متابعة التعلم';
   static const noMySemesters = 'لا توجد فصول مشترك بها بعد';
   static const noMyPackages = 'لا توجد باقات مشترك بها بعد';
+  static const errorExamRequired = 'معرّف الاختبار مطلوب';
+  static const errorAnswersRequired = 'أجب عن كل الأسئلة أولاً';
 }

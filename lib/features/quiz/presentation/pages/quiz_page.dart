@@ -48,7 +48,7 @@ class QuizPage extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(question.text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, height: 1.4)),
                 const SizedBox(height: 20),
-                ...List.generate(question.options.length, (i) {
+                ...List.generate(question.answers.length, (i) {
                   final isSelected = selected == i;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -64,7 +64,7 @@ class QuizPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
                         ),
-                        child: Text(question.options[i], style: const TextStyle(fontWeight: FontWeight.w700)),
+                        child: Text(question.answers[i].text, style: const TextStyle(fontWeight: FontWeight.w700)),
                       ),
                     ),
                   );

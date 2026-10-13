@@ -69,8 +69,9 @@ import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/quiz/data/datasources/quiz_remote_data_source.dart';
 import '../../features/quiz/data/repositories/quiz_repository_impl.dart';
 import '../../features/quiz/domain/repositories/quiz_repository.dart';
+import '../../features/quiz/domain/usecases/get_my_activities.dart';
+import '../../features/quiz/domain/usecases/get_my_exams.dart';
 import '../../features/quiz/domain/usecases/get_quiz.dart';
-import '../../features/quiz/domain/usecases/get_quizzes.dart';
 import '../../features/quiz/presentation/bloc/quiz_bloc.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/subscription/data/datasources/subscription_remote_data_source.dart';
@@ -184,9 +185,10 @@ void _initQuiz() {
   sl
     ..registerLazySingleton<QuizRemoteDataSource>(QuizMockDataSource.new)
     ..registerLazySingleton<QuizRepository>(() => QuizRepositoryImpl(sl()))
-    ..registerLazySingleton(() => GetQuizzes(sl()))
+    ..registerLazySingleton(() => GetMyExams(sl()))
+    ..registerLazySingleton(() => GetMyActivities(sl()))
     ..registerLazySingleton(() => GetQuiz(sl()))
-    ..registerFactory(() => QuizBloc(getQuizzes: sl(), getQuiz: sl()));
+    ..registerFactory(() => QuizBloc(getMyExams: sl(), getMyActivities: sl(), getQuiz: sl()));
 }
 
 void _initHome() {

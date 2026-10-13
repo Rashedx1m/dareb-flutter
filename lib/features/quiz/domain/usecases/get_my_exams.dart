@@ -5,12 +5,12 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/quiz.dart';
 import '../repositories/quiz_repository.dart';
 
-class GetQuizzes implements UseCase<List<Quiz>, NoParams> {
-  const GetQuizzes(this.repository);
+class GetMyExams implements UseCase<List<Quiz>, NoParams> {
+  const GetMyExams(this.repository);
   final QuizRepository repository;
 
   @override
   Future<Either<Failure, List<Quiz>>> call(NoParams params) {
-    return repository.getQuizzes();
+    return repository.getMyExams();
   }
 }
