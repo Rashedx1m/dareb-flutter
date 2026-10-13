@@ -2,23 +2,31 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/features/auth/domain/entities/user.dart';
+import 'package:educational_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:educational_app/features/auth/domain/usecases/get_current_user.dart';
+import 'package:educational_app/features/courses/domain/entities/comment.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/entities/course_details.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson_details.dart';
 import 'package:educational_app/features/courses/domain/entities/semester.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
+import 'package:educational_app/features/courses/domain/entities/subject_details.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
+import 'package:educational_app/features/courses/domain/usecases/add_comment.dart';
 import 'package:educational_app/features/courses/domain/usecases/attend_lesson.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_lesson.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_my_courses.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_subject_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/lesson_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/my_courses_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/subject_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -56,6 +64,8 @@ const _details = CourseDetails(
       ],
     ),
   ],
+  pointsCount: 600,
+  isFirstStory: false,
 );
 
 const _lesson = Lesson(
@@ -82,6 +92,15 @@ const _lessonDetails = LessonDetails(
   ),
 );
 
+const _me = User(id: '30', name: 'Rashed eybo', phone: '');
+
+class _FakeAuth extends Fake implements AuthRepository {
+  Either<Failure, User?> user = const Right(_me);
+
+  @override
+  Future<Either<Failure, User?>> currentUser() async => user;
+}
+
 /// مستودع مزيّف: كل دالة تُرجع ما يعيده الرد المضبوط لها.
 class _FakeRepository extends Fake implements CoursesRepository {
   Future<Either<Failure, List<Subject>>> Function() subjects = () async => const Right([_subject]);
@@ -95,6 +114,14 @@ class _FakeRepository extends Fake implements CoursesRepository {
   Future<Either<Failure, LessonDetails>> Function(String id) lesson = (_) async => const Right(_lessonDetails);
   Future<Either<Failure, void>> Function(String id) attend = (_) async => const Right(null);
   final attended = <String>[];
+  Future<Either<Failure, void>> Function(NewComment comment) comment = (_) async => const Right(null);
+  final comments = <NewComment>[];
+
+  @override
+  Future<Either<Failure, void>> addComment(NewComment comment) {
+    comments.add(comment);
+    return this.comment(comment);
+  }
 
   @override
   Future<Either<Failure, LessonDetails>> getLesson(String lessonId) => lesson(lessonId);
@@ -107,6 +134,16 @@ class _FakeRepository extends Fake implements CoursesRepository {
 
   @override
   Future<Either<Failure, List<Subject>>> getSubjects() => subjects();
+
+  Future<Either<Failure, SubjectDetails>> Function(String id) subjectDetails =
+      (_) async => const Right(SubjectDetails(course: _course, pointsCount: 300, exams: [], activities: []));
+  final subjectRequests = <String>[];
+
+  @override
+  Future<Either<Failure, SubjectDetails>> getSubjectDetails(String subjectId) {
+    subjectRequests.add(subjectId);
+    return subjectDetails(subjectId);
+  }
 
   @override
   Future<Either<Failure, List<Course>>> getCourses() => courses();
@@ -250,6 +287,64 @@ void main() {
 
       await expectLater(loading, completes);
     });
+
+    test('التحديث بعد الرجوع من درس يبدّل الدورة بلا loading', () async {
+      const attended = CourseDetails(course: _course, semesters: [], pointsCount: 610, isFirstStory: false);
+      final results = <Either<Failure, CourseDetails>>[const Right(_details), const Right(attended)];
+      repository.details = (_) async => results.removeAt(0);
+      final cubit = CourseDetailsCubit(GetCourseDetails(repository));
+      await cubit.load('1');
+
+      final states = expectLater(
+        cubit.stream,
+        emits(const CourseDetailsState(status: CourseDetailsStatus.success, details: attended)),
+      );
+      await cubit.refresh('1');
+      await states;
+    });
+
+    test('فشل التحديث لا يغيّر ما يراه الطالب', () async {
+      final results = <Either<Failure, CourseDetails>>[
+        const Right(_details),
+        const Left(ServerFailure('تعذّر الاتصال')),
+      ];
+      repository.details = (_) async => results.removeAt(0);
+      final cubit = CourseDetailsCubit(GetCourseDetails(repository));
+      await cubit.load('1');
+
+      await cubit.refresh('1');
+
+      expect(cubit.state, const CourseDetailsState(status: CourseDetailsStatus.success, details: _details));
+    });
+  });
+
+  group('SubjectDetailsCubit', () {
+    test('يحمّل المادة المطلوبة بتبويباتها', () async {
+      final cubit = SubjectDetailsCubit(GetSubjectDetails(repository));
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const SubjectDetailsState(status: SubjectDetailsStatus.loading),
+          const SubjectDetailsState(
+            status: SubjectDetailsStatus.success,
+            details: SubjectDetails(course: _course, pointsCount: 300, exams: [], activities: []),
+          ),
+        ]),
+      );
+      await cubit.load('13');
+      await states;
+      expect(repository.subjectRequests, ['13']);
+    });
+
+    test('الفشل يصل برسالته', () async {
+      repository.subjectDetails = (_) async => const Left(ServerFailure('تعذّر الاتصال'));
+      final cubit = SubjectDetailsCubit(GetSubjectDetails(repository));
+
+      await cubit.load('13');
+
+      expect(cubit.state, const SubjectDetailsState(status: SubjectDetailsStatus.failure, error: 'تعذّر الاتصال'));
+    });
   });
 
   group('MyCoursesCubit', () {
@@ -294,20 +389,87 @@ void main() {
   });
 
   group('LessonCubit', () {
-    LessonCubit build() => LessonCubit(getLesson: GetLesson(repository), attendLesson: AttendLesson(repository));
+    late _FakeAuth auth;
+    setUp(() => auth = _FakeAuth());
 
-    test('يحمّل الدرس وفصله', () async {
+    LessonCubit build() => LessonCubit(
+          getLesson: GetLesson(repository),
+          attendLesson: AttendLesson(repository),
+          addComment: AddComment(repository),
+          getCurrentUser: GetCurrentUser(auth),
+        );
+
+    test('يحمّل الدرس وفصله ومعهما صاحب الجلسة', () async {
       final cubit = build();
 
       final states = expectLater(
         cubit.stream,
         emitsInOrder([
           const LessonState(status: LessonStatus.loading),
-          const LessonState(status: LessonStatus.success, details: _lessonDetails),
+          const LessonState(status: LessonStatus.success, details: _lessonDetails, user: _me),
         ]),
       );
       await cubit.load('3');
       await states;
+    });
+
+    test('تعذّر قراءة صاحب الجلسة لا يمنع عرض الدرس', () async {
+      auth.user = const Left(CacheFailure('x'));
+      final cubit = build();
+
+      await cubit.load('3');
+
+      expect(cubit.state, const LessonState(status: LessonStatus.success, details: _lessonDetails));
+    });
+
+    test('التعليق يُرسل بنص الطالب، ثم يُجلب الدرس بتعليقاته', () async {
+      const withComment = LessonDetails(
+        lesson: _lesson,
+        semester: Semester(
+          id: '2',
+          name: 'السيدة بتول الترابين',
+          isFree: true,
+          price: 71,
+          lessonsCount: 1,
+          isSubscribed: false,
+          lessons: [_lesson],
+        ),
+        comments: [Comment(id: '1', text: 'شرح ممتاز', authorId: '30', authorName: 'Rashed eybo')],
+      );
+      final results = <Either<Failure, LessonDetails>>[const Right(_lessonDetails), const Right(withComment)];
+      repository.lesson = (_) async => results.removeAt(0);
+      final cubit = build();
+      await cubit.load('3');
+
+      final states = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<LessonState>().having((s) => s.commentStatus, 'commentStatus', CommentStatus.sending),
+          isA<LessonState>()
+              .having((s) => s.commentStatus, 'commentStatus', CommentStatus.done)
+              .having((s) => s.details, 'details', withComment),
+        ]),
+      );
+      await cubit.sendComment('شرح ممتاز');
+      await states;
+      expect(repository.comments, [const NewComment(lessonId: '3', text: 'شرح ممتاز')]);
+    });
+
+    test('فشل التعليق يصل برسالته ولا يُعاد جلب الدرس', () async {
+      repository.comment = (_) async => const Left(ValidationFailure('اكتب تعليقك أولاً'));
+      var loads = 0;
+      repository.lesson = (_) async {
+        loads++;
+        return const Right(_lessonDetails);
+      };
+      final cubit = build();
+      await cubit.load('3');
+
+      await cubit.sendComment('');
+
+      expect(cubit.state.commentStatus, CommentStatus.failure);
+      expect(cubit.state.commentError, 'اكتب تعليقك أولاً');
+      expect(loads, 1);
     });
 
     test('الفشل يصل برسالته', () async {
@@ -316,7 +478,10 @@ void main() {
 
       await cubit.load('999');
 
-      expect(cubit.state, const LessonState(status: LessonStatus.failure, error: 'المحتوى المطلوب غير موجود'));
+      expect(
+        cubit.state,
+        const LessonState(status: LessonStatus.failure, error: 'المحتوى المطلوب غير موجود', user: _me),
+      );
     });
 
     test('الحضور يُرسل مرة واحدة مهما تكرر الفتح', () async {

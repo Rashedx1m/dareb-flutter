@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_icons.dart';
 import '../../../../core/utils/external_link.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/lesson.dart';
 import '../../domain/entities/lesson_details.dart';
 import '../cubit/lesson_cubit.dart';
 import '../lesson_access.dart';
+import '../lesson_path.dart';
+import '../widgets/learning_path.dart';
+import '../widgets/lesson_discussions.dart';
+import '../widgets/lesson_media.dart';
 import '../widgets/youtube_lesson_player.dart';
 
-/// صفحة الدرس. فيديو يوتيوب يعمل داخل التطبيق، ويُفتح خارجياً إن تعذّر المشغّل.
-/// الملف يُفتح خارجياً، وطريق التشغيل عبر الخادم (`yt-dlp`) يرد 500.
+/// صفحة الدرس كما في التصميم: مساحة الفيديو أو الملف في الأعلى، ثم «النقاشات»، ثم
+/// «مسار التعلم» لفصل الدرس. فيديو يوتيوب يعمل داخل التطبيق بعد الضغط على غلافه،
+/// ويُفتح خارجياً إن تعذّر المشغّل. الملف يُفتح خارجياً، وطريق التشغيل عبر الخادم
+/// (`yt-dlp`) يرد 500.
 class VideoPage extends StatelessWidget {
   const VideoPage({
     super.key,
@@ -38,6 +43,7 @@ class VideoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LessonCubit, LessonState>(
+      buildWhen: (previous, current) => previous.status != current.status || previous.details != current.details,
       builder: (context, state) => switch (state.status) {
         LessonStatus.success => _LessonView(
             courseId: courseId,
@@ -46,31 +52,33 @@ class VideoPage extends StatelessWidget {
             playerBuilder: playerBuilder,
           ),
         LessonStatus.failure => _Frame(
-            title: AppStrings.lesson,
             child: ErrorView(message: state.error, onRetry: () => context.read<LessonCubit>().load(lessonId)),
           ),
-        _ => const _Frame(title: AppStrings.lesson, child: LoadingView()),
+        _ => const _Frame(child: LoadingView()),
       },
     );
   }
 }
 
+/// التحميل والخطأ: مساحة الدرس الداكنة فارغة، وتحتها الرسالة.
 class _Frame extends StatelessWidget {
-  const _Frame({required this.title, required this.child});
+  const _Frame({required this.child});
 
-  final String title;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Text(title),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            const LessonMediaFrame(child: SizedBox.expand()),
+            Expanded(child: child),
+          ],
+        ),
       ),
-      body: Container(width: double.infinity, color: AppColors.background, child: child),
     );
   }
 }
@@ -93,9 +101,18 @@ class _LessonView extends StatefulWidget {
 }
 
 class _LessonViewState extends State<_LessonView> {
+  final _comment = TextEditingController();
+
   /// يوقف تكرار طلب الحضور مع كل استئناف للتشغيل.
   bool _attendRequested = false;
+  bool _playing = false;
   bool _playerFailed = false;
+
+  @override
+  void dispose() {
+    _comment.dispose();
+    super.dispose();
+  }
 
   void _attendOnce() {
     if (_attendRequested) return;
@@ -115,156 +132,135 @@ class _LessonViewState extends State<_LessonView> {
     }
   }
 
-  Widget _playerArea(Lesson lesson) {
-    if (lesson.isLocked) return const _LockedNotice();
+  /// لا حزمة مشاركة في المشروع بعد، فيُنسخ رابط الدرس.
+  Future<void> _share(String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await Clipboard.setData(ClipboardData(text: url));
+    messenger.showSnackBar(const SnackBar(content: Text(AppStrings.lessonLinkCopied)));
+  }
+
+  void _play(String videoUrl) {
+    if (youtubePlayerSupported()) {
+      setState(() => _playing = true);
+    } else {
+      _open(videoUrl);
+    }
+  }
+
+  Widget _media(Lesson lesson) {
+    if (lesson.isLocked) return const LockedCover();
     final videoUrl = lesson.videoUrl;
     if (lesson.type == LessonType.video && videoUrl != null) {
       final videoId = YoutubePlayerController.convertUrlToId(videoUrl);
-      if (videoId == null || _playerFailed || !youtubePlayerSupported()) {
-        return _WatchOnYoutube(onTap: () => _open(videoUrl));
+      if (videoId == null || _playerFailed) return WatchOnYoutubeCover(onTap: () => _open(videoUrl));
+      if (!_playing) {
+        return VideoCover(
+          lesson: lesson,
+          videoId: videoId,
+          onPlay: () => _play(videoUrl),
+          onShare: () => _share(videoUrl),
+        );
       }
-      return widget.playerBuilder(
-        videoId: videoId,
-        onPlaying: _attendOnce,
-        onError: () {
-          if (mounted && !_playerFailed) setState(() => _playerFailed = true);
-        },
+      // المشغّل بنسبته 16:9 في أسفل المساحة، تحت شريط الحالة.
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: widget.playerBuilder(
+            videoId: videoId,
+            onPlaying: _attendOnce,
+            onError: () {
+              if (mounted && !_playerFailed) setState(() => _playerFailed = true);
+            },
+          ),
+        ),
       );
     }
     final fileUrl = lesson.type == LessonType.file ? lesson.fileUrl : null;
-    return Material(
-      color: AppColors.videoBackground,
-      child: InkWell(
-        onTap: fileUrl == null ? null : () => _open(fileUrl),
-        child: Center(
-          child: CircleAvatar(
-            radius: 32,
-            backgroundColor: AppColors.primary,
-            child: Icon(_playerIcon(lesson), color: Colors.white, size: 40),
-          ),
-        ),
-      ),
-    );
+    if (fileUrl != null) return FileCover(onOpen: () => _open(fileUrl), onShare: () => _share(fileUrl));
+    return const SizedBox.expand();
+  }
+
+  /// الدرس الحالي لا يستجيب، ودرس آخر يُفتح مكانه (لا يتراكم في سجل الرجوع).
+  void _onPathTap(PathLesson item) {
+    final current = widget.details.lesson;
+    if (item.lesson.id == current.id) return;
+    void open(Lesson lesson) {
+      if (lesson.id != current.id) context.pushReplacement('/courses/${widget.courseId}/video/${lesson.id}');
+    }
+
+    switch (item.step) {
+      case LessonStep.open:
+        open(item.lesson);
+      case LessonStep.locked:
+        showSubscribeDialog(context);
+      case LessonStep.waiting:
+        showFinishPreviousDialog(context, onStart: () => open(item.previous!));
+      case LessonStep.exam:
+        break;
+    }
+  }
+
+  void _onCommentStatus(BuildContext context, LessonState state) {
+    switch (state.commentStatus) {
+      case CommentStatus.done:
+        _comment.clear();
+        FocusScope.of(context).unfocus();
+      case CommentStatus.failure:
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.commentError ?? '')));
+      case CommentStatus.idle || CommentStatus.sending:
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final details = widget.details;
     final lesson = details.lesson;
+    final user = context.select((LessonCubit cubit) => cubit.state.user);
+    final sending = context.select((LessonCubit cubit) => cubit.state.commentStatus == CommentStatus.sending);
+    // «قيد التشغيل» في صفحة الدرس على الدرس المفتوح نفسه.
+    final path = [
+      for (final (_, lessons) in learningPath([details.semester]))
+        for (final item in lessons)
+          PathLesson(item.lesson, item.step, previous: item.previous, isCurrent: item.lesson.id == lesson.id),
+    ];
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Text(lesson.title),
-      ),
-      body: Column(
-        children: [
-          AspectRatio(aspectRatio: 16 / 9, child: _playerArea(lesson)),
-          // Material لا Container ملوّن: دروس القائمة تستجيب للضغط، وأثر الضغط يُرسم
-          // على أقرب Material.
-          Expanded(
-            child: Material(
-              color: AppColors.background,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(lesson.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 6),
-                  Text(details.semester.name, style: const TextStyle(color: AppColors.textSecondary)),
-                  const SizedBox(height: 16),
-                  const Text(AppStrings.semesterLessons, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  for (final item in details.semester.lessons)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        item.id == lesson.id ? Icons.pause_circle_filled : _listIcon(item),
-                        color: AppColors.primary,
-                      ),
-                      title: Text(item.title),
-                      trailing: Text(
-                        item.type == LessonType.exam ? AppStrings.examLesson : item.duration ?? '',
-                        style: const TextStyle(color: AppColors.textMuted),
-                      ),
-                      onTap: _onLessonTap(item, current: lesson),
-                    ),
-                ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: BlocListener<LessonCubit, LessonState>(
+        listenWhen: (previous, current) => previous.commentStatus != current.commentStatus,
+        listener: _onCommentStatus,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: ListView(
+            padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 32),
+            children: [
+              LessonMediaFrame(child: _media(lesson)),
+              const SizedBox(height: 46),
+              LessonDiscussions(
+                comments: details.comments,
+                user: user,
+                controller: _comment,
+                sending: sending,
+                onSend: () => context.read<LessonCubit>().sendComment(_comment.text),
               ),
-            ),
+              if (path.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: LearningPathTitle(),
+                ),
+                const SizedBox(height: 8),
+                SemesterPath(
+                  semester: details.semester,
+                  lessons: path,
+                  onLessonTap: _onPathTap,
+                  onDownload: (item) => _open(item.fileUrl!),
+                ),
+              ],
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  /// درس آخر يُفتح مكان الحالي (لا يتراكم في سجل الرجوع)، والمقفل يشرح سببه.
-  /// الدرس الحالي والاختبار لا يستجيبان.
-  VoidCallback? _onLessonTap(Lesson item, {required Lesson current}) {
-    if (item.id == current.id) return null;
-    if (canOpenLesson(item)) {
-      return () => context.pushReplacement('/courses/${widget.courseId}/video/${item.id}');
-    }
-    return item.isLocked ? () => showLockedLessonMessage(context) : null;
-  }
-
-  static IconData _playerIcon(Lesson lesson) {
-    return switch (lesson.type) {
-      LessonType.video => Icons.play_arrow_rounded,
-      LessonType.file => PhosphorIconsFill.filePdf,
-      LessonType.exam => PhosphorIconsRegular.exam,
-    };
-  }
-
-  static IconData _listIcon(Lesson lesson) {
-    if (lesson.isLocked) return Icons.lock_outline;
-    return switch (lesson.type) {
-      LessonType.video => Icons.play_circle_outline,
-      LessonType.file => PhosphorIconsFill.filePdf,
-      LessonType.exam => PhosphorIconsRegular.exam,
-    };
-  }
-}
-
-class _LockedNotice extends StatelessWidget {
-  const _LockedNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: AppColors.videoBackground,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.lock_outline, color: Colors.white, size: 40),
-            SizedBox(height: 10),
-            Text(
-              AppStrings.subscribersOnlyLesson,
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _WatchOnYoutube extends StatelessWidget {
-  const _WatchOnYoutube({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.videoBackground,
-      child: Center(
-        child: ElevatedButton.icon(
-          onPressed: onTap,
-          icon: const Icon(PhosphorIconsRegular.youtubeLogo),
-          label: const Text(AppStrings.watchOnYoutube),
         ),
       ),
     );

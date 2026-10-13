@@ -24,4 +24,15 @@ class CourseDetailsCubit extends Cubit<CourseDetailsState> {
       ),
     );
   }
+
+  /// بعد الرجوع من درس: يجلب الدورة من جديد بلا شاشة تحميل، فتظهر الدروس المحضورة
+  /// وتنفتح الدروس التي كانت تنتظرها. الفشل لا يغيّر ما يراه الطالب.
+  Future<void> refresh(String subjectId) async {
+    final result = await _getCourseDetails(subjectId);
+    if (isClosed) return;
+    result.fold(
+      (_) {},
+      (details) => emit(state.copyWith(status: CourseDetailsStatus.success, details: details)),
+    );
+  }
 }

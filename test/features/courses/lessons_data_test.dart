@@ -1,10 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:educational_app/core/constants/app_strings.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/courses/data/datasources/courses_remote_data_source.dart';
+import 'package:educational_app/features/courses/data/models/comment_model.dart';
 import 'package:educational_app/features/courses/data/models/lesson_details_model.dart';
 import 'package:educational_app/features/courses/data/repositories/courses_repository_impl.dart';
+import 'package:educational_app/features/courses/domain/entities/comment.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson_details.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,6 +76,39 @@ void main() {
     expect(details.semester.lessons.map((l) => l.id), ['3', '4']);
   });
 
+  test('التعليقات تُقرأ من comments، والتعليق بلا نص يُتخطى', () {
+    // الشكل غير مؤكد: لم يظهر تعليق على خادم التدريب بعد.
+    final details = LessonDetailsModel.fromJson({
+      ..._fileLessonJson,
+      'comments': [
+        {
+          'id': 1,
+          'comment': '  درس رائع ومفيد  ',
+          'created_at': '2025-06-15T09:30:00.000000Z',
+          'user': {'id': 30, 'f_name': 'أحمد', 'l_name': 'المصري', 'image': 'https://x/a.png'},
+        },
+        {'id': 2, 'body': 'نص في body', 'user_id': 7},
+        {'id': 3, 'comment': ' '},
+      ],
+    });
+
+    expect(details.comments, [
+      CommentModel(
+        id: '1',
+        text: 'درس رائع ومفيد',
+        authorId: '30',
+        authorName: 'أحمد المصري',
+        authorImageUrl: 'https://x/a.png',
+        createdAt: DateTime.parse('2025-06-15T09:30:00.000000Z'),
+      ),
+      const CommentModel(id: '2', text: 'نص في body', authorId: '7', authorName: ''),
+    ]);
+  });
+
+  test('رد بلا comments يعني بلا تعليقات', () {
+    expect(LessonDetailsModel.fromJson({..._fileLessonJson}..remove('comments')).comments, isEmpty);
+  });
+
   test('الاختبار الشقيق بلا مفتاح exam يُقرأ', () {
     final json = {
       ..._fileLessonJson,
@@ -138,6 +174,22 @@ void main() {
       expect((await repository.attendLesson('3')).isRight(), isTrue);
       expect(adapter.requests.single.method, 'POST');
       expect(formFields(adapter.requests.single), {'lession_id': '3'});
+    });
+
+    test('التعليق يرسل lession_id وcomment كـ form-data بنص منظّف', () async {
+      adapter.on('/comments/add-comment', body: {'message': 'تمت العملية بنجاح', 'data': {}});
+
+      expect((await repository.addComment(const NewComment(lessonId: '3', text: '  شرح ممتاز '))).isRight(), isTrue);
+      expect(adapter.requests.single.method, 'POST');
+      expect(formFields(adapter.requests.single), {'lession_id': '3', 'comment': 'شرح ممتاز'});
+    });
+
+    test('التعليق الفارغ يُرفض بلا طلب', () async {
+      expect(
+        await repository.addComment(const NewComment(lessonId: '3', text: '   ')),
+        const Left<Failure, void>(ValidationFailure(AppStrings.errorCommentRequired)),
+      );
+      expect(adapter.requests, isEmpty);
     });
 
     test('فشل تسجيل الحضور يصل برسالته', () async {

@@ -1,13 +1,17 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../domain/entities/course.dart';
+import 'content_cards.dart';
 
-/// بطاقة مادة مشترك بها في تبويب «المواد»: الصورة والعنوان والأستاذ والعدّادات،
-/// ثم شريط الدروس المنجزة وزر «متابعة التعلم».
+/// بطاقة مادة مشترك بها في تبويب «المواد» كما في التصميم: صورة دائرية في البداية
+/// وبجانبها العنوان والأستاذ والعدّادات، ثم اسم المادة وشريط الدروس المنجزة وزر
+/// «متابعة التعلم».
+///
+/// التصميم يضع فوق شريط الدروس شريط «الوحدات المكتملة»، ولا يُعرض: `semester_rate`
+/// ظهرت 75 لمادة لم يُحضر فيها أي درس، فهي ليست نسبة إنجاز.
 class MySubjectCard extends StatelessWidget {
   const MySubjectCard({super.key, required this.course, required this.onContinue});
 
@@ -17,91 +21,43 @@ class MySubjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsetsDirectional.fromSTEB(23, 27, 24, 26),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorderSoft),
-        boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 10, offset: Offset(0, 4))],
+        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: course.imageUrl,
-                  width: 84,
-                  height: 84,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => const ColoredBox(color: AppColors.primarySoft),
-                  errorWidget: (_, _, _) => const ColoredBox(
-                    color: AppColors.primarySoft,
-                    child: Icon(PhosphorIconsFill.bookOpen, color: AppColors.primary, size: 32),
-                  ),
-                ),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 6),
+                child: CircleImage(url: course.imageUrl, size: 110),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            course.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(PhosphorIconsFill.bookOpen, color: AppColors.iconBlue, size: 18),
-                      ],
-                    ),
-                    if (course.instructor.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        course.instructor,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                      ),
-                    ],
-                    const SizedBox(height: 4),
-                    Text(
-                      '${course.semestersCount} ${AppStrings.chaptersLabel} , '
-                      '${course.lessonsCount} ${AppStrings.lessonsLabel}',
-                      style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(width: 13),
+              Expanded(child: _Summary(course: course)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             course.subjectName,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w700),
+            style: const TextStyle(color: AppColors.lessonTitle, fontSize: 17, fontWeight: FontWeight.w600),
           ),
-          // `semesterRate` لا يُعرض: ظهر 75 لمادة لم يُحضر فيها أي درس، فمعناه غير مؤكد.
-          const SizedBox(height: 10),
-          _RateBar(label: AppStrings.completedLessons, rate: course.lessonRate),
-          const SizedBox(height: 14),
+          const SizedBox(height: 6),
+          _RateRow(label: AppStrings.completedLessons, rate: course.lessonRate),
+          const SizedBox(height: 26),
           OutlinedButton(
             onPressed: onContinue,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              minimumSize: const Size.fromHeight(44),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              side: const BorderSide(color: AppColors.cardBorder),
+              minimumSize: const Size.fromHeight(40),
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text(AppStrings.keepLearning, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            child: const Text(AppStrings.keepLearning, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
           ),
         ],
       ),
@@ -109,8 +65,49 @@ class MySubjectCard extends StatelessWidget {
   }
 }
 
-class _RateBar extends StatelessWidget {
-  const _RateBar({required this.label, required this.rate});
+/// العنوان الفيروزي بأيقونته، ثم الأستاذ، ثم عدد الفصول والدروس.
+class _Summary extends StatelessWidget {
+  const _Summary({required this.course});
+
+  final Course course;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                course.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppColors.primary, fontSize: 17),
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(PhosphorIconsFill.bookOpen, color: AppColors.iconBlue, size: 20),
+          ],
+        ),
+        if (course.instructor.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(course.instructor, style: const TextStyle(color: AppColors.metaText, fontSize: 15)),
+        ],
+        const SizedBox(height: 8),
+        Text(
+          '${course.semestersCount} ${AppStrings.chaptersLabel} , '
+          '${course.lessonsCount} ${AppStrings.lessonsLabel}',
+          style: const TextStyle(color: AppColors.primary, fontSize: 16),
+        ),
+      ],
+    );
+  }
+}
+
+/// اسم النسبة في البداية، ثم الشريط، ثم النسبة في النهاية.
+class _RateRow extends StatelessWidget {
+  const _RateRow({required this.label, required this.rate});
 
   final String label;
 
@@ -119,33 +116,21 @@ class _RateBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    const style = TextStyle(color: AppColors.metaText, fontSize: 13);
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(label, style: const TextStyle(color: AppColors.progressText, fontSize: 13)),
-            ),
-            Text(
-              '$rate%',
-              style: const TextStyle(
-                color: AppColors.progressText,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Lato',
-              ),
-            ),
-          ],
+        SizedBox(width: 106, child: Text(label, style: style)),
+        Expanded(
+          child: LinearProgressIndicator(
+            value: rate.clamp(0, 100) / 100,
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+            color: AppColors.iconBlue,
+            backgroundColor: AppColors.controlFill,
+          ),
         ),
-        const SizedBox(height: 6),
-        LinearProgressIndicator(
-          value: rate.clamp(0, 100) / 100,
-          minHeight: 8,
-          borderRadius: BorderRadius.circular(8),
-          color: AppColors.primary,
-          backgroundColor: AppColors.progressTrack,
-        ),
+        const SizedBox(width: 27),
+        Text('$rate%', style: style.copyWith(fontFamily: 'Lato')),
       ],
     );
   }

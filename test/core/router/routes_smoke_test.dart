@@ -64,10 +64,20 @@ void main() {
       ..on('/branches/all', body: {'message': 'ok', 'data': []})
       ..on('/notifications/get', body: {'message': 'ok', 'data': []})
       ..on('/courses/paginate', body: {'message': 'ok', 'data': [courseJson]})
+      ..on('/subjects/details', body: {
+        'message': 'ok',
+        'data': {
+          'content': {...courseJson, 'points_count': 0},
+          'exams': [],
+          'dailyActivities': [],
+        },
+      })
       ..on('/courses/details', body: {
         'message': 'ok',
         'data': {
           ...courseJson,
+          'points_count': 0,
+          'is_first_story': false,
           'semesters': [
             {
               'id': 2,

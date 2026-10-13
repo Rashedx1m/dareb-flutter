@@ -1,26 +1,29 @@
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/constants/app_strings.dart';
 import 'package:educational_app/core/error/failures.dart';
-import 'package:educational_app/core/theme/app_icons.dart';
 import 'package:educational_app/core/widgets/error_view.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/entities/course_details.dart';
 import 'package:educational_app/features/courses/domain/entities/lesson.dart';
 import 'package:educational_app/features/courses/domain/entities/semester.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
+import 'package:educational_app/features/courses/domain/entities/subject_details.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_course_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_my_courses.dart';
+import 'package:educational_app/features/courses/domain/usecases/get_subject_details.dart';
 import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
 import 'package:educational_app/features/courses/presentation/cubit/course_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/courses_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/my_courses_cubit.dart';
+import 'package:educational_app/features/courses/presentation/cubit/subject_details_cubit.dart';
 import 'package:educational_app/features/courses/presentation/cubit/subjects_cubit.dart';
 import 'package:educational_app/features/courses/presentation/pages/categories_page.dart';
 import 'package:educational_app/features/courses/presentation/pages/course_detail_page.dart';
 import 'package:educational_app/features/courses/presentation/pages/courses_page.dart';
 import 'package:educational_app/features/courses/presentation/pages/my_courses_page.dart';
+import 'package:educational_app/features/courses/presentation/pages/subject_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,18 +48,33 @@ Course _course({bool isSubscribed = false, bool isFree = false}) => Course(
       isSubscribed: isSubscribed,
     );
 
-Lesson _lesson(String id, LessonType type, {bool isFree = true, String? duration = '11:50:51'}) => Lesson(
+Lesson _lesson(
+  String id,
+  LessonType type, {
+  bool isFree = true,
+  String? duration = '00:11:50',
+  bool isAttended = false,
+}) =>
+    Lesson(
       id: id,
       title: 'درس $id',
       type: type,
       duration: type == LessonType.exam ? null : duration,
+      fileUrl: type == LessonType.file ? 'https://api.test/lesson-$id.pdf' : null,
       order: 0,
       isFree: isFree,
       isSubscribed: false,
-      isAttended: false,
+      isAttended: isAttended,
     );
 
-CourseDetails _details({bool isSubscribed = false, bool isFree = false}) => CourseDetails(
+/// الفصل الأول: فيديو مقفل ثم اختبار. الثاني: فيديو مجاني ثم ملف ينتظره.
+CourseDetails _details({
+  bool isSubscribed = false,
+  bool isFree = false,
+  bool attended3 = false,
+  bool story = false,
+}) =>
+    CourseDetails(
       course: _course(isSubscribed: isSubscribed, isFree: isFree),
       semesters: [
         Semester(
@@ -76,9 +94,16 @@ CourseDetails _details({bool isSubscribed = false, bool isFree = false}) => Cour
           price: 71,
           lessonsCount: 2,
           isSubscribed: false,
-          lessons: [_lesson('3', LessonType.video), _lesson('4', LessonType.file, duration: '20:24:16')],
+          lessons: [
+            _lesson('3', LessonType.video, isAttended: attended3),
+            _lesson('4', LessonType.file, duration: '00:20:24'),
+          ],
         ),
       ],
+      pointsCount: 600,
+      storyImageUrl: story ? 'x' : null,
+      storyText: story ? 'قصة الدورة' : null,
+      isFirstStory: story,
     );
 
 /// مستودع مزيّف يُرجع النتائج بالترتيب، نتيجة لكل طلب.
@@ -87,6 +112,10 @@ class _FakeRepository extends Fake implements CoursesRepository {
   final courses = <Either<Failure, List<Course>>>[];
   final details = <Either<Failure, CourseDetails>>[];
   final myCourses = <Either<Failure, List<Course>>>[];
+  final subjectDetails = <Either<Failure, SubjectDetails>>[];
+
+  @override
+  Future<Either<Failure, SubjectDetails>> getSubjectDetails(String subjectId) async => subjectDetails.removeAt(0);
 
   @override
   Future<Either<Failure, List<Course>>> getMyCourses() async => myCourses.removeAt(0);
@@ -113,6 +142,11 @@ Future<void> _pump(WidgetTester tester, String location, Map<String, Widget Func
     initialLocation: location,
     routes: [
       for (final entry in pages.entries) GoRoute(path: entry.key, builder: (_, state) => entry.value(state)),
+      if (!pages.containsKey('/categories/:id'))
+        GoRoute(
+          path: '/categories/:id',
+          builder: (_, state) => Text('subject ${state.pathParameters['id']}'),
+        ),
       if (!pages.containsKey('/courses/:id'))
         GoRoute(
           path: '/courses/:id',
@@ -144,14 +178,15 @@ void main() {
       });
     }
 
-    testWidgets('تعرض المواد، والضغط على مادة يفتح دورتها بمعرّف المادة', (tester) async {
+    testWidgets('«كل الفئات» تعرض المواد، والضغط على مادة يفتح صفحتها', (tester) async {
       repository.subjects.add(const Right([_subject]));
       await pumpSubjects(tester);
 
+      expect(find.text(AppStrings.allCategories), findsOneWidget);
       await tester.tap(find.text('سارين الطراونة'));
       await tester.pumpAndSettle();
 
-      expect(find.text('course 2'), findsOneWidget);
+      expect(find.text('subject 2'), findsOneWidget);
     });
 
     testWidgets('القائمة الفارغة تعرض رسالة', (tester) async {
@@ -171,6 +206,94 @@ void main() {
 
       expect(find.byType(ErrorView), findsNothing);
       expect(find.text('سارين الطراونة'), findsOneWidget);
+    });
+  });
+
+  group('صفحة المادة', () {
+    const exam = SubjectExam(
+      id: '6',
+      title: 'هذا اختبار رياضيات',
+      instructor: 'أ.عمر النابلسي',
+      questionsCount: 20,
+      isFree: false,
+      isSubscribed: false,
+    );
+    SubjectDetails details({List<SubjectExam> exams = const [exam]}) =>
+        SubjectDetails(course: _course(), pointsCount: 600, exams: exams, activities: const []);
+
+    Future<void> pumpSubject(WidgetTester tester) {
+      return _pump(tester, '/categories/1', {
+        '/categories/:id': (state) => BlocProvider(
+              create: (_) => SubjectDetailsCubit(GetSubjectDetails(repository))..load(state.pathParameters['id']!),
+              child: SubjectPage(subjectId: state.pathParameters['id']!),
+            ),
+      });
+    }
+
+    testWidgets('الترويسة باسم المادة، و«المحتوى» بطاقة دورتها تفتحها', (tester) async {
+      repository.subjectDetails.add(Right(details()));
+      await pumpSubject(tester);
+
+      expect(find.text('ناردين الشطناوي'), findsOneWidget);
+      expect(find.text('أكرم أبو الرب'), findsOneWidget);
+      expect(find.text('600'), findsOneWidget);
+      expect(find.text('2 ${AppStrings.chaptersLabel} , 4 ${AppStrings.lessonsLabel}'), findsOneWidget);
+
+      await tester.tap(find.text('الدكتور هناء القطيشات'));
+      await tester.pumpAndSettle();
+      expect(find.text('course 1'), findsOneWidget);
+    });
+
+    testWidgets('«اختبارات» تعرض الاختبارات بعدد أسئلتها، و«نشاطات يومية» فارغة برسالتها', (tester) async {
+      repository.subjectDetails.add(Right(details()));
+      await pumpSubject(tester);
+
+      await tester.tap(find.text(AppStrings.tabExams));
+      await tester.pumpAndSettle();
+      expect(find.text('هذا اختبار رياضيات'), findsOneWidget);
+      expect(find.text('20 ${AppStrings.questionsUnit}'), findsOneWidget);
+      expect(find.text('الدكتور هناء القطيشات'), findsNothing);
+
+      await tester.tap(find.text(AppStrings.tabActivities));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.noSubjectActivities), findsOneWidget);
+    });
+
+    testWidgets('البحث يصفّي التبويب المفتوح', (tester) async {
+      repository.subjectDetails.add(Right(details()));
+      await pumpSubject(tester);
+      await tester.tap(find.text(AppStrings.tabExams));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'كيمياء');
+      await tester.pumpAndSettle();
+      expect(find.text('هذا اختبار رياضيات'), findsNothing);
+      expect(find.text(AppStrings.noMatches), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'رياضيات');
+      await tester.pumpAndSettle();
+      expect(find.text('هذا اختبار رياضيات'), findsOneWidget);
+    });
+
+    testWidgets('بلا اختبارات يعرض رسالتها', (tester) async {
+      repository.subjectDetails.add(Right(details(exams: [])));
+      await pumpSubject(tester);
+
+      await tester.tap(find.text(AppStrings.tabExams));
+      await tester.pumpAndSettle();
+
+      expect(find.text(AppStrings.noSubjectExams), findsOneWidget);
+    });
+
+    testWidgets('الفشل يعرض رسالته، وإعادة المحاولة تجلب المادة', (tester) async {
+      repository.subjectDetails.addAll([const Left(ServerFailure('تعذّر الاتصال')), Right(details())]);
+      await pumpSubject(tester);
+      expect(find.text('تعذّر الاتصال'), findsOneWidget);
+
+      await tester.tap(find.text(AppStrings.retry));
+      await tester.pumpAndSettle();
+
+      expect(find.text('الدكتور هناء القطيشات'), findsOneWidget);
     });
   });
 
@@ -294,93 +417,150 @@ void main() {
   });
 
   group('صفحة الدورة', () {
+    late List<Uri> opened;
+
     Future<void> pumpDetails(WidgetTester tester) {
+      opened = [];
       return _pump(tester, '/courses/1', {
         '/courses/:id': (state) => BlocProvider(
               create: (_) => CourseDetailsCubit(GetCourseDetails(repository))..load(state.pathParameters['id']!),
-              child: CourseDetailPage(courseId: state.pathParameters['id']!),
+              child: CourseDetailPage(
+                courseId: state.pathParameters['id']!,
+                openLink: (uri) async {
+                  opened.add(uri);
+                  return true;
+                },
+              ),
             ),
       });
     }
 
-    testWidgets('تعرض الدروس تحت فصولها وتخفي الفصل الفارغ', (tester) async {
+    /// الصفحة أطول من الشاشة، فيُمرَّر إلى العنصر قبل الضغط عليه.
+    Future<void> tapText(WidgetTester tester, String text) async {
+      await tester.ensureVisible(find.text(text));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(text));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('الرأس يعرض الأستاذ والنقاط واسم الدورة وعدد فصولها ودروسها والوصف', (tester) async {
       repository.details.add(Right(_details()));
       await pumpDetails(tester);
 
-      expect(find.text('الفصل الأول'), findsOneWidget);
-      expect(find.text('الفصل الثاني'), findsOneWidget);
-      expect(find.text('فصل فارغ'), findsNothing);
+      expect(find.text('أكرم أبو الرب'), findsOneWidget);
+      expect(find.text('600'), findsOneWidget);
+      expect(find.text('الدكتور هناء القطيشات'), findsOneWidget);
+      expect(find.text('2 ${AppStrings.chaptersLabel} , 4 ${AppStrings.lessonsLabel}'), findsOneWidget);
+      expect(find.text('وصف الدورة'), findsOneWidget);
+      expect(find.text(AppStrings.learningPath), findsOneWidget);
+    });
+
+    testWidgets('تعرض الدروس تحت فصولها بعددها، وتخفي الفصل الفارغ', (tester) async {
+      repository.details.add(Right(_details()));
+      await pumpDetails(tester);
+
+      expect(find.textContaining('الفصل الأول'), findsOneWidget);
+      expect(find.textContaining('الفصل الثاني'), findsOneWidget);
+      expect(find.textContaining('فصل فارغ'), findsNothing);
       expect(
-        tester.getTopLeft(find.text('الفصل الأول')).dy,
+        tester.getTopLeft(find.textContaining('الفصل الأول')).dy,
         lessThan(tester.getTopLeft(find.text('درس 2')).dy),
       );
       expect(
-        tester.getTopLeft(find.text('الفصل الثاني')).dy,
+        tester.getTopLeft(find.textContaining('الفصل الثاني')).dy,
         lessThan(tester.getTopLeft(find.text('درس 3')).dy),
       );
+      expect(find.text('11:50 ${AppStrings.minutesUnit}'), findsNWidgets(2));
       expect(find.text(AppStrings.examLesson), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
-      expect(find.byIcon(PhosphorIconsFill.filePdf), findsOneWidget);
+      expect(find.text(AppStrings.pdfFile), findsOneWidget);
     });
 
-    testWidgets('الدرس المجاني يفتح، والمقفل والاختبار لا يفتحان', (tester) async {
+    testWidgets('الدرس المفتوح يُفتح، والاختبار لا يستجيب', (tester) async {
       repository.details.add(Right(_details()));
       await pumpDetails(tester);
 
-      await tester.tap(find.text('درس 2'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('درس 5'));
-      await tester.pumpAndSettle();
+      await tapText(tester, 'درس 5');
       expect(find.textContaining('lesson '), findsNothing);
+      expect(find.byType(Dialog), findsNothing);
 
-      await tester.tap(find.text('درس 3'));
-      await tester.pumpAndSettle();
+      await tapText(tester, 'درس 3');
       expect(find.text('lesson 3'), findsOneWidget);
     });
 
-    testWidgets('غير المشترك يرى زر الاشتراك بالسعر', (tester) async {
+    testWidgets('الدرس المقفل يفتح نافذة الاشتراك، و«اشترك» يفتح صفحة الاشتراك', (tester) async {
       repository.details.add(Right(_details()));
       await pumpDetails(tester);
 
-      await tester.tap(find.text('${AppStrings.subscribe} · 36 ${AppStrings.currency}'));
-      await tester.pumpAndSettle();
+      await tapText(tester, 'درس 2');
+      expect(find.text(AppStrings.subscribeToGetIt), findsOneWidget);
 
+      await tester.tap(find.text(AppStrings.subscribeWord));
+      await tester.pumpAndSettle();
       expect(find.text('subscription'), findsOneWidget);
     });
 
-    testWidgets('الدورة المجانية بلا اشتراك تبدأ بأول درس يمكن فتحه، لا بزر الاشتراك', (tester) async {
-      repository.details.add(Right(_details(isFree: true)));
-      await pumpDetails(tester);
-
-      expect(find.textContaining(AppStrings.subscribe), findsNothing);
-      await tester.tap(find.text(AppStrings.startLesson));
-      await tester.pumpAndSettle();
-
-      expect(find.text('lesson 3'), findsOneWidget);
-    });
-
-    testWidgets('الضغط على درس مقفل يشرح السبب، وزر الرسالة يفتح الاشتراك', (tester) async {
+    testWidgets('«الرجوع» يغلق نافذة الاشتراك بلا انتقال', (tester) async {
       repository.details.add(Right(_details()));
       await pumpDetails(tester);
 
-      await tester.tap(find.text('درس 2'));
-      await tester.pumpAndSettle();
-      expect(find.text(AppStrings.subscribersOnlyLesson), findsOneWidget);
-
-      await tester.tap(find.widgetWithText(SnackBarAction, AppStrings.subscribe));
+      await tapText(tester, 'درس 2');
+      await tester.tap(find.text(AppStrings.back));
       await tester.pumpAndSettle();
 
-      expect(find.text('subscription'), findsOneWidget);
+      expect(find.text(AppStrings.subscribeToGetIt), findsNothing);
+      expect(find.text('subscription'), findsNothing);
     });
 
-    testWidgets('المشترك يبدأ بأول درس يمكن فتحه', (tester) async {
-      repository.details.add(Right(_details(isSubscribed: true)));
+    testWidgets('الدرس الذي ينتظر سابقه يطلب إكماله، و«ابدأ» يفتح الدرس السابق', (tester) async {
+      repository.details.add(Right(_details()));
       await pumpDetails(tester);
 
-      await tester.tap(find.text(AppStrings.startLesson));
+      expect(find.text(AppStrings.nowPlaying), findsOneWidget);
+      await tapText(tester, 'درس 4');
+      expect(find.text(AppStrings.finishPreviousLesson), findsOneWidget);
+
+      await tester.tap(find.text(AppStrings.startWord));
+      await tester.pumpAndSettle();
+      expect(find.text('lesson 3'), findsOneWidget);
+    });
+
+    testWidgets('حضور الدرس يفتح ما بعده، ويظهر عليه «تمت المشاهدة»', (tester) async {
+      repository.details.add(Right(_details(attended3: true)));
+      await pumpDetails(tester);
+
+      expect(find.text(AppStrings.watched), findsOneWidget);
+      await tapText(tester, 'درس 4');
+      expect(find.text('lesson 4'), findsOneWidget);
+    });
+
+    testWidgets('زر التنزيل في درس الملف المفتوح يفتح رابط الملف', (tester) async {
+      repository.details.add(Right(_details(attended3: true)));
+      await pumpDetails(tester);
+
+      await tester.ensureVisible(find.byTooltip(AppStrings.downloadFile));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip(AppStrings.downloadFile));
+      await tester.pumpAndSettle();
+
+      expect(opened, [Uri.parse('https://api.test/lesson-4.pdf')]);
+    });
+
+    testWidgets('نافذة التعريف تظهر حين يطلبها الخادم، و«ابدأ الآن» يفتح درس «قيد التشغيل»', (tester) async {
+      repository.details.add(Right(_details(story: true)));
+      await pumpDetails(tester);
+
+      expect(find.text('قصة الدورة'), findsOneWidget);
+      await tester.tap(find.text(AppStrings.startNow));
       await tester.pumpAndSettle();
 
       expect(find.text('lesson 3'), findsOneWidget);
+    });
+
+    testWidgets('بلا طلب من الخادم لا تظهر نافذة التعريف', (tester) async {
+      repository.details.add(Right(_details()));
+      await pumpDetails(tester);
+
+      expect(find.text(AppStrings.startNow), findsNothing);
     });
 
     testWidgets('الفشل يعرض رسالة الخادم، وإعادة المحاولة تجلب الدورة', (tester) async {
@@ -391,7 +571,7 @@ void main() {
       await tester.tap(find.text(AppStrings.retry));
       await tester.pumpAndSettle();
 
-      expect(find.text('الفصل الأول'), findsOneWidget);
+      expect(find.textContaining('الفصل الأول'), findsOneWidget);
     });
   });
 }

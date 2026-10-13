@@ -151,7 +151,7 @@ class _MethodCard extends StatelessWidget {
   }
 }
 
-/// شعار شركة التحويل من الخادم، وأيقونة بديلة إن لم يوجد أو تعذّر تحميله.
+/// شعار شركة التحويل من الخادم. بلا شعار لا يظهر شيء، كما في التصميم.
 class _MethodLogo extends StatelessWidget {
   const _MethodLogo({required this.method});
 
@@ -159,7 +159,7 @@ class _MethodLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const fallback = Icon(PhosphorIconsRegular.bank, color: AppColors.iconMuted, size: 28);
+    const fallback = SizedBox.shrink();
     final image = method.imageUrl;
     if (image == null) return fallback;
     return CachedNetworkImage(

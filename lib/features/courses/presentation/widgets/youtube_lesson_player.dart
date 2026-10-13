@@ -54,8 +54,10 @@ class _YoutubeLessonPlayerState extends State<YoutubeLessonPlayer> {
   @override
   void initState() {
     super.initState();
+    // يُبنى بعد ضغط الطالب على غلاف الدرس، فيبدأ مباشرة.
     _controller = YoutubePlayerController.fromVideoId(
       videoId: widget.videoId,
+      autoPlay: true,
       params: const YoutubePlayerParams(showFullscreenButton: true, interfaceLanguage: 'ar'),
     );
     _subscription = _controller.listen(_onValue);

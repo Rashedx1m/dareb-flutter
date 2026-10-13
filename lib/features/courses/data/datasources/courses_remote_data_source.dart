@@ -2,6 +2,8 @@ import '../../../../core/network/api_client.dart';
 import '../models/course_details_model.dart';
 import '../models/course_model.dart';
 import '../models/lesson_details_model.dart';
+import '../models/search_results_model.dart';
+import '../models/subject_details_model.dart';
 import '../models/subject_model.dart';
 
 /// مصدر الدورات والمواد. يرمي استثناءات [ApiClient] عند الفشل.
@@ -11,8 +13,10 @@ abstract class CoursesRemoteDataSource {
   Future<CourseDetailsModel> getCourseDetails(String subjectId);
   Future<LessonDetailsModel> getLesson(String lessonId);
   Future<void> attendLesson(String lessonId);
+  Future<void> addComment(String lessonId, String text);
   Future<List<SubjectModel>> getSubjects();
-  Future<List<SubjectModel>> searchSubjects(String query);
+  Future<SubjectDetailsModel> getSubjectDetails(String subjectId);
+  Future<SearchResultsModel> search(String query);
 }
 
 class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
@@ -79,17 +83,31 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
     await _client.post('/lessions/attend-lession', fields: {'lession_id': lessonId});
   }
 
-  /// يرد `{subjects, exams, dailyActivities}` ويُقرأ `subjects` وحده. يطابق اسم
-  /// المادة فقط، لا اسم الأستاذ ولا عنوان الدورة.
+  /// يعمل بلا توكن، ويرد `{content, exams, dailyActivities}`.
   @override
-  Future<List<SubjectModel>> searchSubjects(String query) {
+  Future<SubjectDetailsModel> getSubjectDetails(String subjectId) {
+    return _client.get(
+      '/subjects/details',
+      query: {'id': subjectId},
+      parse: (data) => SubjectDetailsModel.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  /// كما في مجموعة Postman: `lession_id` و`comment`. لم يُجرَّب على الخادم بعد،
+  /// والرد لا يُقرأ: التعليق يظهر عند إعادة جلب الدرس.
+  @override
+  Future<void> addComment(String lessonId, String text) async {
+    await _client.post('/comments/add-comment', fields: {'lession_id': lessonId, 'comment': text});
+  }
+
+  /// يرد `{subjects, exams, dailyActivities}`. يطابق اسم المادة فقط، لا اسم الأستاذ
+  /// ولا عنوان الدورة.
+  @override
+  Future<SearchResultsModel> search(String query) {
     return _client.get(
       '/home-page/search',
       query: {'text': query},
-      parse: (data) => [
-        for (final json in ((data as Map<String, dynamic>)['subjects'] as List).cast<Map<String, dynamic>>())
-          SubjectModel.fromJson(json),
-      ],
+      parse: (data) => SearchResultsModel.fromJson(data as Map<String, dynamic>),
     );
   }
 

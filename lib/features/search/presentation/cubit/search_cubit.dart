@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../courses/domain/entities/subject.dart';
-import '../../../courses/domain/usecases/search_subjects.dart';
+import '../../../courses/domain/entities/search_results.dart';
+import '../../../courses/domain/usecases/search_content.dart';
 
 part 'search_state.dart';
 
-/// صفحة البحث في المواد. الكتابة لا ترسل طلباً مع كل حرف: [queryChanged] ينتظر
+/// صفحة البحث في المواد والاختبارات والنشاطات. الكتابة لا ترسل طلباً مع كل حرف: [queryChanged] ينتظر
 /// توقف الكتابة [debounce] ثم يبحث.
 class SearchCubit extends Cubit<SearchState> {
-  SearchCubit(this._searchSubjects, {this.debounce = const Duration(milliseconds: 400)})
+  SearchCubit(this._search, {this.debounce = const Duration(milliseconds: 400)})
       : super(const SearchState());
 
-  final SearchSubjects _searchSubjects;
+  final SearchContent _search;
 
   /// يُقصَّر في الاختبارات.
   final Duration debounce;
@@ -36,13 +36,13 @@ class SearchCubit extends Cubit<SearchState> {
       return;
     }
     emit(state.copyWith(query: query, status: SearchStatus.loading));
-    final result = await _searchSubjects(query);
+    final result = await _search(query);
     // ردّ متأخر لنص سابق (كتب المستخدم بعده) لا يُعرض.
     if (isClosed || state.query != query) return;
     emit(
       result.fold(
         (f) => state.copyWith(status: SearchStatus.failure, error: f.message),
-        (subjects) => state.copyWith(status: SearchStatus.success, results: subjects),
+        (results) => state.copyWith(status: SearchStatus.success, results: results),
       ),
     );
   }

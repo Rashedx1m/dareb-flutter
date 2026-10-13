@@ -5,6 +5,7 @@ import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/courses/data/datasources/courses_remote_data_source.dart';
 import 'package:educational_app/features/courses/data/models/course_details_model.dart';
 import 'package:educational_app/features/courses/data/models/course_model.dart';
+import 'package:educational_app/features/courses/data/models/subject_details_model.dart';
 import 'package:educational_app/features/courses/data/models/subject_model.dart';
 import 'package:educational_app/features/courses/data/repositories/courses_repository_impl.dart';
 import 'package:educational_app/features/courses/domain/entities/course_details.dart';
@@ -43,10 +44,15 @@ const _courseJson = {
 };
 
 /// مقتطف من `courses/details?subject_id=1`: فصل بفيديو مقفل واختبار `exam: null`،
-/// وفصل بفيديو مجاني محضور وملف.
+/// وفصل بفيديو مجاني محضور وملف. حقول النقاط ونافذة التعريف من رد المادة 15 في 2026-10-11.
 const _detailsJson = {
   ..._courseJson,
   'subject_rate': 17,
+  'points_count': 600,
+  'point_rate': 0,
+  'story_image': 'https://training.tamkeen-dev.com/dareb/public/storage/10/story.png',
+  'story_text': 'History is Amazing',
+  'is_first_story': false,
   'semesters': [
     {
       'id': 1,
@@ -120,6 +126,32 @@ const _detailsJson = {
   ],
 };
 
+/// مقتطف من `subjects/details?id=13` في 2026-10-11: بطاقة المادة واختبار واحد
+/// (أسئلته محذوفة هنا)، والنشاطات فارغة.
+const _subjectDetailsJson = {
+  'content': {..._courseJson, 'points_count': 300, 'point_rate': 0, 'is_first_story': false},
+  'exams': [
+    {
+      'id': 11,
+      'expiry_date': '2026-10-26',
+      'type': 'الأختبارات',
+      'is_free': true,
+      'exam': {
+        'id': 6,
+        'title': 'هذا اختبار رباضيات',
+        'professor': '',
+        'type': {'id': 2, 'name': 'Exam'},
+        'questions': [],
+        'questions_count': 2,
+        'subscriptions_count': 0,
+        'is_subscription': false,
+        'is_free': false,
+      },
+    },
+  ],
+  'dailyActivities': [],
+};
+
 const _course = CourseModel(
   id: '1',
   title: 'الدكتور هناء القطيشات',
@@ -142,6 +174,37 @@ void main() {
     expect(CourseModel.fromJson(_courseJson), _course);
   });
 
+  test('نافذة التعريف تظهر إن طلبها الخادم وفيها نص أو صورة', () {
+    final first = CourseDetailsModel.fromJson({..._detailsJson, 'is_first_story': true});
+    expect(first.hasStory, isTrue);
+
+    final empty = CourseDetailsModel.fromJson({
+      ..._detailsJson,
+      'is_first_story': true,
+      'story_image': null,
+      'story_text': '  ',
+    });
+    expect(empty.hasStory, isFalse);
+  });
+
+  test('SubjectDetailsModel.fromJson: الدورة من content، والاختبار من exam', () {
+    final details = SubjectDetailsModel.fromJson(_subjectDetailsJson);
+
+    expect(details.course, _course);
+    expect(details.pointsCount, 300);
+    expect(details.exams, const [
+      SubjectExamModel(
+        id: '6',
+        title: 'هذا اختبار رباضيات',
+        instructor: '',
+        questionsCount: 2,
+        isFree: false,
+        isSubscribed: false,
+      ),
+    ]);
+    expect(details.activities, isEmpty);
+  });
+
   test('بطاقة بلا lession_rate تُرفض', () {
     expect(() => CourseModel.fromJson({..._courseJson}..remove('lession_rate')), throwsA(isA<TypeError>()));
   });
@@ -150,6 +213,11 @@ void main() {
     final details = CourseDetailsModel.fromJson(_detailsJson);
 
     expect(details.course, _course);
+    expect(details.pointsCount, 600);
+    expect(details.storyImageUrl, 'https://training.tamkeen-dev.com/dareb/public/storage/10/story.png');
+    expect(details.storyText, 'History is Amazing');
+    expect(details.isFirstStory, isFalse);
+    expect(details.hasStory, isFalse);
     expect(details.semesters.map((s) => s.id), ['1', '2']);
     expect(details.semesters.first.price, 88);
     expect(details.semesters.first.lessonsCount, 2);
@@ -267,6 +335,15 @@ void main() {
       expect((await repository.getMyCourses()).getOrElse(() => [_course]), isEmpty);
     });
 
+    test('صفحة المادة من subjects/details بمعرّفها', () async {
+      adapter.on('/subjects/details', body: {'message': 'تمت العملية بنجاح', 'data': _subjectDetailsJson});
+
+      final result = await repository.getSubjectDetails('13');
+
+      expect(result.map((d) => d.exams.length), const Right<Failure, int>(1));
+      expect(adapter.requests.single.queryParameters, {'id': '13'});
+    });
+
     test('مادة غير موجودة يرفضها الخادم بـ 422 لا 404', () async {
       adapter.on('/courses/details', status: 422, body: {
         'message': 'الحقل المواد لاغٍ',
@@ -286,6 +363,8 @@ void main() {
         'message': 'ok',
         'data': {
           ..._courseJson,
+          'points_count': 0,
+          'is_first_story': false,
           'semesters': [
             {
               'id': 1,

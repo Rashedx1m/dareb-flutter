@@ -14,11 +14,13 @@ import '../../features/courses/presentation/cubit/course_details_cubit.dart';
 import '../../features/courses/presentation/cubit/courses_cubit.dart';
 import '../../features/courses/presentation/cubit/lesson_cubit.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
+import '../../features/courses/presentation/cubit/subject_details_cubit.dart';
 import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/courses/presentation/pages/categories_page.dart';
 import '../../features/courses/presentation/pages/course_detail_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
 import '../../features/courses/presentation/pages/my_courses_page.dart';
+import '../../features/courses/presentation/pages/subject_page.dart';
 import '../../features/courses/presentation/pages/video_page.dart';
 import '../../features/downloads/presentation/cubit/downloads_cubit.dart';
 import '../../features/downloads/presentation/pages/downloads_page.dart';
@@ -211,10 +213,13 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: '/categories/:id',
-        builder: (context, state) => BlocProvider(
-          create: (_) => sl<SubjectsCubit>()..load(),
-          child: CategoriesPage(initialId: state.pathParameters['id']),
-        ),
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return BlocProvider(
+            create: (_) => sl<SubjectDetailsCubit>()..load(id),
+            child: SubjectPage(subjectId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/search',

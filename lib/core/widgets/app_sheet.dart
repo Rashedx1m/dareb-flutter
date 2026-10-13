@@ -27,10 +27,11 @@ Future<T?> showAppSheet<T>(BuildContext context, WidgetBuilder builder) {
 
 /// عنوان الورقة أو النافذة: أيقونة وعنوان في البداية، وزر الإغلاق في النهاية.
 class SheetHeader extends StatelessWidget {
-  const SheetHeader({super.key, required this.title, this.icon, this.onClose});
+  const SheetHeader({super.key, required this.title, this.icon, this.iconColor = AppColors.iconBlue, this.onClose});
 
   final String title;
   final IconData? icon;
+  final Color iconColor;
 
   /// بلا قيمة تُغلق الورقة الحالية.
   final VoidCallback? onClose;
@@ -40,7 +41,7 @@ class SheetHeader extends StatelessWidget {
     return Row(
       children: [
         if (icon case final icon?) ...[
-          Icon(icon, color: AppColors.iconBlue, size: 28),
+          Icon(icon, color: iconColor, size: 28),
           const SizedBox(width: 8),
         ],
         Expanded(
@@ -196,23 +197,36 @@ class SheetActions extends StatelessWidget {
   }
 }
 
-/// نافذة تأكيد صغيرة في وسط الشاشة (مثل تأكيد تسجيل الخروج). تعيد `true` عند التأكيد.
-Future<bool> showConfirmDialog(BuildContext context, {required String title}) async {
+/// نافذة تأكيد صغيرة في وسط الشاشة فوق طبقة داكنة (تأكيد تسجيل الخروج، ونوافذ الدروس).
+/// تعيد `true` عند التأكيد.
+Future<bool> showConfirmDialog(
+  BuildContext context, {
+  required String title,
+  String confirmLabel = AppStrings.confirm,
+  IconData? icon,
+  Color iconColor = AppColors.iconBlue,
+}) async {
   final confirmed = await showDialog<bool>(
     context: context,
+    barrierColor: AppColors.overlay70,
     builder: (dialogContext) => Dialog(
       backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 42),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        padding: const EdgeInsets.fromLTRB(22, 29, 22, 35),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SheetHeader(title: title, onClose: () => Navigator.of(dialogContext).pop(false)),
-            const SizedBox(height: 20),
+            SheetHeader(
+              title: title,
+              icon: icon,
+              iconColor: iconColor,
+              onClose: () => Navigator.of(dialogContext).pop(false),
+            ),
+            const SizedBox(height: 29),
             SheetActions(
-              primaryLabel: AppStrings.confirm,
+              primaryLabel: confirmLabel,
               onPrimary: () => Navigator.of(dialogContext).pop(true),
               secondaryLabel: AppStrings.back,
               onSecondary: () => Navigator.of(dialogContext).pop(false),

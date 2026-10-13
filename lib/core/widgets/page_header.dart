@@ -17,6 +17,7 @@ class PageHeader extends StatelessWidget {
     this.onNotifications,
     this.trailing,
     this.bottom,
+    this.short = false,
   });
 
   final String title;
@@ -31,8 +32,11 @@ class PageHeader extends StatelessWidget {
   /// يحل محل زر الإشعارات في نهاية الترويسة، كعدد غير المقروء في صفحة الإشعارات.
   final Widget? trailing;
 
-  /// يظهر تحت صف العنوان داخل الترويسة، كحقل البحث في «موادي».
+  /// يظهر تحت صف العنوان داخل الترويسة، كحقل البحث في صفحة المادة.
   final Widget? bottom;
+
+  /// ترويسة «موادي» في التصميم أقصر من غيرها: 16 تحت صف العنوان بدل 36.
+  final bool short;
 
   /// عرض طرفي الترويسة متساوٍ حتى يبقى العنوان في المنتصف تماماً.
   static const _sideWidth = 52.0;
@@ -117,7 +121,12 @@ class PageHeader extends StatelessWidget {
     );
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top + 27, 16, bottom == null ? 36 : 22),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        MediaQuery.paddingOf(context).top + 27,
+        16,
+        bottom != null ? 22 : (short ? 16 : 36),
+      ),
       decoration: const BoxDecoration(
         color: AppColors.headerTeal,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),

@@ -5,7 +5,7 @@ import 'package:educational_app/core/network/api_client.dart';
 import 'package:educational_app/features/courses/data/datasources/courses_remote_data_source.dart';
 import 'package:educational_app/features/courses/data/models/subject_model.dart';
 import 'package:educational_app/features/courses/data/repositories/courses_repository_impl.dart';
-import 'package:educational_app/features/courses/domain/entities/subject.dart';
+import 'package:educational_app/features/courses/domain/entities/search_results.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_http_adapter.dart';
@@ -40,10 +40,10 @@ void main() {
   test('يقرأ subjects من home-page/search بالنص بعد قصّ المسافات', () async {
     adapter.on('/home-page/search', body: {'message': 'ok', 'data': _searchJson});
 
-    final result = await repository.searchSubjects('  ناردين ');
+    final result = await repository.search('  ناردين ');
 
     expect(
-      result.getOrElse(() => []),
+      result.getOrElse(() => SearchResults.empty).subjects,
       const [
         SubjectModel(
           id: '1',
@@ -58,18 +58,50 @@ void main() {
   });
 
   test('النص الفارغ لا يُرسل، لأن الخادم يعيد له كل المواد', () async {
-    expect((await repository.searchSubjects('   ')).getOrElse(() => [_dummy]), isEmpty);
+    expect(await repository.search('   '), const Right<Failure, SearchResults>(SearchResults.empty));
     expect(adapter.requests, isEmpty);
   });
 
-  test('رد بلا subjects يصير «رد غير متوقع»', () async {
-    adapter.on('/home-page/search', body: {'message': 'ok', 'data': {'exams': []}});
+  test('الاختبارات والنشاطات تُقرأ بغلاف exam أو بدونه', () async {
+    const exam = {
+      'id': 6,
+      'title': 'هذا اختبار رباضيات',
+      'professor': '',
+      'questions_count': 2,
+      'is_subscription': false,
+      'is_free': false,
+    };
+    adapter.on('/home-page/search', body: {
+      'message': 'ok',
+      'data': {
+        'subjects': [],
+        'exams': [
+          {'id': 11, 'is_free': true, 'exam': exam},
+        ],
+        'dailyActivities': [exam],
+      },
+    });
+
+    final results = (await repository.search('هذا')).getOrElse(() => SearchResults.empty);
+
+    expect(results.exams.single.title, 'هذا اختبار رباضيات');
+    expect(results.exams.single.id, '6');
+    expect(results.activities.single.questionsCount, 2);
+  });
+
+  test('اسم مادة غير نصي يصير «رد غير متوقع»', () async {
+    adapter.on('/home-page/search', body: {
+      'message': 'ok',
+      'data': {
+        'subjects': [
+          {'id': 1, 'name': null, 'image': 'x', 'is_free': true, 'is_subscription': false},
+        ],
+      },
+    });
 
     expect(
-      await repository.searchSubjects('x'),
-      const Left<Failure, List<Subject>>(ServerFailure('رد غير متوقع من الخادم')),
+      await repository.search('x'),
+      const Left<Failure, SearchResults>(ServerFailure('رد غير متوقع من الخادم')),
     );
   });
 }
-
-const _dummy = Subject(id: '0', name: '', imageUrl: '', isFree: false, isSubscribed: false);

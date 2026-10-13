@@ -3,7 +3,9 @@ import 'package:educational_app/core/constants/app_strings.dart';
 import 'package:educational_app/core/error/failures.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
 import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
-import 'package:educational_app/features/courses/domain/usecases/search_subjects.dart';
+import 'package:educational_app/features/courses/domain/entities/search_results.dart';
+import 'package:educational_app/features/courses/domain/entities/subject_details.dart';
+import 'package:educational_app/features/courses/domain/usecases/search_content.dart';
 import 'package:educational_app/features/search/presentation/cubit/search_cubit.dart';
 import 'package:educational_app/features/search/presentation/pages/search_page.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +17,10 @@ const _subject = Subject(id: '1', name: 'ناردين الشطناوي', imageUr
 
 /// مستودع مزيّف يُرجع النتائج بالترتيب، نتيجة لكل طلب.
 class _FakeRepository extends Fake implements CoursesRepository {
-  final results = <Either<Failure, List<Subject>>>[];
+  final results = <Either<Failure, SearchResults>>[];
 
   @override
-  Future<Either<Failure, List<Subject>>> searchSubjects(String query) async => results.removeAt(0);
+  Future<Either<Failure, SearchResults>> search(String query) async => results.removeAt(0);
 }
 
 void main() {
@@ -37,7 +39,7 @@ void main() {
         GoRoute(
           path: '/search',
           builder: (_, _) => BlocProvider(
-            create: (_) => SearchCubit(SearchSubjects(repository)),
+            create: (_) => SearchCubit(SearchContent(repository)),
             child: const SearchPage(),
           ),
         ),
@@ -55,7 +57,7 @@ void main() {
   });
 
   testWidgets('الكتابة تعرض المواد، والضغط على مادة يفتح دورتها', (tester) async {
-    repository.results.add(const Right([_subject]));
+    repository.results.add(const Right(SearchResults(subjects: [_subject])));
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'ناردين');
@@ -69,7 +71,7 @@ void main() {
   });
 
   testWidgets('لا نتائج تعرض رسالة', (tester) async {
-    repository.results.add(const Right([]));
+    repository.results.add(const Right(SearchResults.empty));
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'زز');
@@ -77,11 +79,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
 
-    expect(find.text(AppStrings.noSearchResults), findsOneWidget);
+    expect(find.text(AppStrings.noMatches), findsOneWidget);
   });
 
   testWidgets('الفشل يعرض رسالته، وإعادة المحاولة تبحث بالنص نفسه', (tester) async {
-    repository.results.addAll([const Left(ServerFailure('تعذّر الاتصال')), const Right([_subject])]);
+    repository.results.addAll([const Left(ServerFailure('تعذّر الاتصال')), const Right(SearchResults(subjects: [_subject]))]);
     await pumpSearch(tester);
 
     await tester.enterText(find.byType(TextField), 'ناردين');
@@ -94,5 +96,52 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('ناردين الشطناوي'), findsOneWidget);
+  });
+
+  testWidgets('النتائج مجمّعة: النشاطات ثم الدورات ثم الاختبارات', (tester) async {
+    const exam = SubjectExam(
+      id: '6',
+      title: 'إختبار رياضيات',
+      instructor: 'أ.عمر النابلسي',
+      questionsCount: 20,
+      isFree: true,
+      isSubscribed: false,
+    );
+    const activity = SubjectExam(
+      id: '7',
+      title: 'نشاطات رياضيات',
+      instructor: 'أ.باسم السليمان',
+      questionsCount: 20,
+      isFree: true,
+      isSubscribed: false,
+    );
+    repository.results.add(const Right(SearchResults(subjects: [_subject], exams: [exam], activities: [activity])));
+    await pumpSearch(tester);
+
+    await tester.enterText(find.byType(TextField), 'رياضيات');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    final activities = tester.getTopLeft(find.text(AppStrings.sectionActivities)).dy;
+    final courses = tester.getTopLeft(find.text(AppStrings.sectionCourses)).dy;
+    final exams = tester.getTopLeft(find.text(AppStrings.sectionExams)).dy;
+    expect(activities, lessThan(courses));
+    expect(courses, lessThan(exams));
+    expect(find.text('نشاطات رياضيات'), findsOneWidget);
+    expect(find.text('إختبار رياضيات'), findsOneWidget);
+    expect(find.text('20 ${AppStrings.questionsUnit}'), findsNWidgets(2));
+  });
+
+  testWidgets('القسم الفارغ لا يظهر', (tester) async {
+    repository.results.add(const Right(SearchResults(subjects: [_subject])));
+    await pumpSearch(tester);
+
+    await tester.enterText(find.byType(TextField), 'ناردين');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.sectionCourses), findsOneWidget);
+    expect(find.text(AppStrings.sectionActivities), findsNothing);
+    expect(find.text(AppStrings.sectionExams), findsNothing);
   });
 }

@@ -209,6 +209,46 @@ abstract final class AppStrings {
   static const lesson = 'الدرس';
   static const semesterLessons = 'دروس الفصل';
   static const subscribersOnlyLesson = 'هذا الدرس للمشتركين';
+  // صفحة الدورة.
+  static const courseDescription = 'الوصف';
+  static const learningPath = 'مسار التعلم';
+  static const nowPlaying = 'قيد التشغيل';
+  static const watched = 'تمت المشاهدة';
+  static const hoursUnit = 'ساعة';
+  static const pdfFile = 'ملف PDF';
+  static const downloadFile = 'تنزيل الملف';
+  static const subscribeToGetIt = 'اشترك الآن واحصل عليه';
+  static const subscribeWord = 'اشترك';
+  static const finishPreviousLesson = 'أكمل الدرس السابق';
+  static const startWord = 'ابدأ';
+  static const startNow = 'ابدأ الآن';
+  // صفحة الدرس.
+  static const discussions = 'النقاشات';
+  static const showLess = 'أظهر أقل';
+  static const writeComment = 'أكتب تعليق...';
+  static const sendComment = 'إرسال التعليق';
+  static const noComments = 'لا توجد تعليقات بعد، كن أول من يعلّق';
+  static const errorCommentRequired = 'اكتب تعليقك أولاً';
+  static const totalDuration = 'الإجمالي';
+  static const completedWord = 'مكتمل';
+  static const shareLesson = 'مشاركة الدرس';
+  static const lessonLinkCopied = 'تم نسخ رابط الدرس';
+  static const playLesson = 'تشغيل الدرس';
+  static const openFile = 'فتح الملف';
+  // كل الفئات وصفحة المادة.
+  static const allCategories = 'كل الفئات';
+  static const tabContent = 'المحتوى';
+  static const tabExams = 'اختبارات';
+  static const tabActivities = 'نشاطات يومية';
+  static const questionsUnit = 'سؤال';
+  static const noSubjectExams = 'لا توجد اختبارات لهذه المادة بعد';
+  static const noSubjectActivities = 'لا توجد نشاطات يومية لهذه المادة بعد';
+  static const noMatches = 'لا توجد نتائج تطابق بحثك';
+  // البحث المجمّع.
+  static const searchResults = 'نتائج البحث';
+  static const sectionActivities = 'النشاطات';
+  static const sectionCourses = 'الدورات';
+  static const sectionExams = 'الاختبارات';
   static const watchOnYoutube = 'مشاهدة على يوتيوب';
   // صفحة «موادي».
   static const mySubjects = 'موادي';

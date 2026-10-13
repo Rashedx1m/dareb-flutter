@@ -58,6 +58,17 @@ abstract final class PhosphorIconsRegular {
   static const handCoins = IconData(0xea8c, fontFamily: _family);
   static const calculator = IconData(0xe538, fontFamily: _family);
   static const receipt = IconData(0xe3ec, fontFamily: _family);
+  // صفحتا الدورة والدرس.
+  static const coins = IconData(0xe78e, fontFamily: _family);
+  static const path = IconData(0xe39c, fontFamily: _family);
+  static const play = IconData(0xe3d0, fontFamily: _family);
+  static const timer = IconData(0xe492, fontFamily: _family);
+  static const lock = IconData(0xe2fa, fontFamily: _family);
+  static const chats = IconData(0xe17c, fontFamily: _family);
+  static const cornersOut = IconData(0xe1d0, fontFamily: _family);
+  static const shareNetwork = IconData(0xe408, fontFamily: _family);
+  static const downloadSimple = IconData(0xe20c, fontFamily: _family);
+  static const paperPlaneRight = IconData(0xe396, fontFamily: _family);
 }
 
 abstract final class PhosphorIconsFill {
@@ -78,4 +89,7 @@ abstract final class PhosphorIconsFill {
   static const camera = IconData(0xe10e, fontFamily: 'PhosphorFill');
   static const graduationCap = IconData(0xe62c, fontFamily: 'PhosphorFill');
   static const megaphoneSimple = IconData(0xe642, fontFamily: 'PhosphorFill');
+  static const trayArrowDown = IconData(0xe010, fontFamily: 'PhosphorFill');
+  static const warning = IconData(0xe4e0, fontFamily: 'PhosphorFill');
+  static const play = IconData(0xe3d0, fontFamily: 'PhosphorFill');
 }

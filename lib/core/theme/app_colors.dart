@@ -66,6 +66,18 @@ abstract final class AppColors {
   static const tabLabel = Color(0xFFF2F5F6);
   static const quizCardBorder = Color(0xFFBFD3F3);
   static const metaText = Color(0xFF5C5C5C);
+  // صفحة الدورة: «مسار التعلم» وبطاقات دروسه.
+  static const pathTitle = Color(0xFF000000);
+  static const lessonTitle = Color(0xFF171717);
+  static const timelineLine = Color(0xFFF3F3F3);
+  static const stepIdleFill = Color(0xFFF4F5F7); // دائرة الدرس المقفل في المسار
+  static const stepIdleIcon = Color(0xFF8F9092);
+  static const chipFill = Color(0xFFF4F4F4); // شارة المدة أو النوع في بطاقة الدرس
+  static const watchedFill = Color(0xFFD3F8E2);
+  static const watchedBorder = Color(0xFF8FCBAA);
+  static const watchedText = Color(0xFF1E3A28);
+  static const commentOwnFill = Color(0xFFEBFBFB); // تعليق الطالب نفسه في «النقاشات»
+  static const searchCardBorder = Color(0xFF8D9DC1); // إطار حقل البحث وبطاقات نتائجه
   // الاشتراكات.
   static const onAccentBlue = Color(0xFFEBFAFA); // نص بطاقة الباقة المختارة
   static const iconMuted = Color(0xFFAFB6BC);

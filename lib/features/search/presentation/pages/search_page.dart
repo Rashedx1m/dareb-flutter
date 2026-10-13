@@ -1,33 +1,40 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/error_view.dart';
-import '../../../courses/domain/entities/subject.dart';
+import '../../../../core/widgets/page_header.dart';
+import '../../../courses/domain/entities/search_results.dart';
+import '../../../courses/presentation/widgets/content_cards.dart';
+import '../../../courses/presentation/widgets/outlined_search_field.dart';
 import '../cubit/search_cubit.dart';
 
+/// «نتائج البحث» كما في التصميم: حقل بإطار أزرق تحت الترويسة، ثم النتائج مجمّعة:
+/// النشاطات، ثم الدورات، ثم الاختبارات.
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.searchTitle)),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
+          PageHeader(
+            title: AppStrings.searchResults,
+            onBack: () => Navigator.of(context).maybePop(),
+            onNotifications: () => context.push('/notifications'),
+          ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: AppStrings.search,
-                prefixIcon: Icon(Icons.search),
-              ),
+            padding: const EdgeInsets.fromLTRB(13, 8, 13, 0),
+            child: OutlinedSearchField(
               onChanged: context.read<SearchCubit>().queryChanged,
+              borderColor: AppColors.searchCardBorder,
+              autofocus: true,
             ),
           ),
           Expanded(
@@ -37,8 +44,8 @@ class SearchPage extends StatelessWidget {
                 SearchStatus.loading => const LoadingView(),
                 SearchStatus.failure => ErrorView(message: state.error, onRetry: context.read<SearchCubit>().retry),
                 SearchStatus.success when state.results.isEmpty =>
-                  const EmptyView(message: AppStrings.noSearchResults, icon: PhosphorIconsRegular.magnifyingGlass),
-                SearchStatus.success => _Results(subjects: state.results),
+                  const EmptyView(message: AppStrings.noMatches, icon: PhosphorIconsRegular.magnifyingGlass),
+                SearchStatus.success => _Results(results: state.results),
               },
             ),
           ),
@@ -49,53 +56,44 @@ class SearchPage extends StatelessWidget {
 }
 
 class _Results extends StatelessWidget {
-  const _Results({required this.subjects});
+  const _Results({required this.results});
 
-  final List<Subject> subjects;
+  final SearchResults results;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: subjects.length,
-      separatorBuilder: (_, _) => const Divider(),
-      itemBuilder: (context, i) {
-        final subject = subjects[i];
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: subject.imageUrl,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => const _ImageFallback(),
-              errorWidget: (_, _, _) => const _ImageFallback(),
-            ),
+    const border = AppColors.searchCardBorder;
+    final sections = [
+      if (results.activities.isNotEmpty)
+        (
+          AppStrings.sectionActivities,
+          [
+            for (final activity in results.activities)
+              ExamContentCard(exam: activity, icon: AppAssets.icActivity, borderColor: border),
+          ]
+        ),
+      if (results.subjects.isNotEmpty)
+        (
+          AppStrings.sectionCourses,
+          [for (final subject in results.subjects) SubjectContentCard(subject: subject, borderColor: border)]
+        ),
+      if (results.exams.isNotEmpty)
+        (
+          AppStrings.sectionExams,
+          [for (final exam in results.exams) ExamContentCard(exam: exam, icon: AppAssets.icQuiz, borderColor: border)]
+        ),
+    ];
+    return ListView(
+      padding: EdgeInsetsDirectional.fromSTEB(14, 0, 16, MediaQuery.paddingOf(context).bottom + 24),
+      children: [
+        for (final (title, cards) in sections) ...[
+          Padding(
+            padding: const EdgeInsetsDirectional.only(top: 22, bottom: 12, start: 2),
+            child: Text(title, style: const TextStyle(color: AppColors.primary, fontSize: 15)),
           ),
-          title: Text(subject.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-          trailing: const Icon(Icons.chevron_left),
-          // دورة المادة تحمل معرّف المادة نفسه.
-          onTap: () => context.push('/courses/${subject.id}'),
-        );
-      },
-    );
-  }
-}
-
-class _ImageFallback extends StatelessWidget {
-  const _ImageFallback();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 56,
-      height: 56,
-      child: ColoredBox(
-        color: AppColors.primarySoft,
-        child: Icon(PhosphorIconsRegular.bookOpen, color: AppColors.primary),
-      ),
+          for (final (i, card) in cards.indexed) ...[if (i > 0) const SizedBox(height: 17), card],
+        ],
+      ],
     );
   }
 }

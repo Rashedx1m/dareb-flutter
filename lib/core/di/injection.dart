@@ -29,17 +29,20 @@ import '../../features/auth/presentation/cubit/registration_options_cubit.dart';
 import '../../features/courses/data/datasources/courses_remote_data_source.dart';
 import '../../features/courses/data/repositories/courses_repository_impl.dart';
 import '../../features/courses/domain/repositories/courses_repository.dart';
+import '../../features/courses/domain/usecases/add_comment.dart';
 import '../../features/courses/domain/usecases/attend_lesson.dart';
 import '../../features/courses/domain/usecases/get_course_details.dart';
 import '../../features/courses/domain/usecases/get_courses.dart';
 import '../../features/courses/domain/usecases/get_lesson.dart';
 import '../../features/courses/domain/usecases/get_my_courses.dart';
+import '../../features/courses/domain/usecases/get_subject_details.dart';
 import '../../features/courses/domain/usecases/get_subjects.dart';
-import '../../features/courses/domain/usecases/search_subjects.dart';
+import '../../features/courses/domain/usecases/search_content.dart';
 import '../../features/courses/presentation/cubit/course_details_cubit.dart';
 import '../../features/courses/presentation/cubit/courses_cubit.dart';
 import '../../features/courses/presentation/cubit/lesson_cubit.dart';
 import '../../features/courses/presentation/cubit/my_courses_cubit.dart';
+import '../../features/courses/presentation/cubit/subject_details_cubit.dart';
 import '../../features/courses/presentation/cubit/subjects_cubit.dart';
 import '../../features/downloads/data/datasources/downloads_local_data_source.dart';
 import '../../features/downloads/data/repositories/downloads_repository_impl.dart';
@@ -164,12 +167,15 @@ void _initCourses() {
     ..registerLazySingleton(() => GetCourseDetails(sl()))
     ..registerLazySingleton(() => GetLesson(sl()))
     ..registerLazySingleton(() => AttendLesson(sl()))
+    ..registerLazySingleton(() => AddComment(sl()))
     ..registerLazySingleton(() => GetSubjects(sl()))
-    ..registerLazySingleton(() => SearchSubjects(sl()))
+    ..registerLazySingleton(() => GetSubjectDetails(sl()))
+    ..registerLazySingleton(() => SearchContent(sl()))
     ..registerFactory(() => CoursesCubit(sl()))
     ..registerFactory(() => CourseDetailsCubit(sl()))
-    ..registerFactory(() => LessonCubit(getLesson: sl(), attendLesson: sl()))
+    ..registerFactory(() => LessonCubit(getLesson: sl(), attendLesson: sl(), addComment: sl(), getCurrentUser: sl()))
     ..registerFactory(() => SubjectsCubit(sl()))
+    ..registerFactory(() => SubjectDetailsCubit(sl()))
     ..registerFactory(() => MyCoursesCubit(sl()))
     ..registerFactory(() => SearchCubit(sl()));
 }

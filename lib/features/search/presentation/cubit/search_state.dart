@@ -7,13 +7,13 @@ class SearchState extends Equatable {
   const SearchState({
     this.status = SearchStatus.idle,
     this.query = '',
-    this.results = const [],
+    this.results = SearchResults.empty,
     this.error,
   });
 
   final SearchStatus status;
   final String query;
-  final List<Subject> results;
+  final SearchResults results;
 
   /// يُعرض فقط مع `failure`.
   final String? error;
@@ -21,7 +21,7 @@ class SearchState extends Equatable {
   SearchState copyWith({
     SearchStatus? status,
     String? query,
-    List<Subject>? results,
+    SearchResults? results,
     String? error,
   }) {
     return SearchState(

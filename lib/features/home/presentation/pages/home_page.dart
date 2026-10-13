@@ -627,21 +627,26 @@ class _SubjectsSection extends StatelessWidget {
             for (var i = 0; i < shown.length; i++) ...[
               if (i > 0) const SizedBox(width: 8),
               Expanded(
-                child: Container(
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.chipBlue,
+                // زر المادة وصورتها يفتحان صفحتها بتبويباتها.
+                child: Material(
+                  color: AppColors.chipBlue,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    onTap: () => context.push('/categories/${shown[i].id}'),
                     borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    shown[i].name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    child: Container(
+                      height: 40,
+                      alignment: Alignment.center,
+                      child: Text(
+                        shown[i].name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -654,7 +659,10 @@ class _SubjectsSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             for (final subject in shown)
-              _SubjectImage(imageUrl: subject.imageUrl),
+              GestureDetector(
+                onTap: () => context.push('/categories/${subject.id}'),
+                child: _SubjectImage(imageUrl: subject.imageUrl),
+              ),
           ],
         ),
       ],
