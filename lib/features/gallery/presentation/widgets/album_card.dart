@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/gallery_album.dart';
+import 'gallery_image.dart';
 
 /// بطاقة ألبوم في شبكة المعرض: مصغّرة على هيئة صور مكدّسة، ثم اسم الألبوم وعدد
 /// صوره بين قوسين كما في التصميم («ألبوم الأعمال ( 12 )»).
@@ -104,7 +105,7 @@ class _Photo extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Color(front ? 0x30000000 : 0x1F000000),
+            color: front ? AppColors.overlay40 : AppColors.shadowStrong,
             blurRadius: front ? 10 : 6,
             offset: const Offset(0, 4),
           ),
@@ -112,7 +113,7 @@ class _Photo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(11),
-        child: Image.asset(path, fit: BoxFit.cover),
+        child: SizedBox.expand(child: GalleryImage(url: path)),
       ),
     );
   }

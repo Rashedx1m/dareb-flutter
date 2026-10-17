@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../cubit/gallery_cubit.dart';
 import '../widgets/gallery_header.dart';
+import '../widgets/gallery_image.dart';
 
 /// شاشة ألبوم واحد: شبكة صوره. الضغط على صورة يفتح عارض الصور.
 class AlbumPage extends StatelessWidget {
@@ -37,12 +38,7 @@ class AlbumPage extends StatelessWidget {
                         message: state.error,
                         onRetry: () => context.read<GalleryCubit>().loadAlbum(albumId),
                       ),
-                    GalleryStatus.success when photos.isEmpty => const Center(
-                        child: Text(
-                          AppStrings.galleryEmpty,
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                        ),
-                      ),
+                    GalleryStatus.success when photos.isEmpty => const EmptyView(message: AppStrings.galleryEmpty),
                     GalleryStatus.success => GridView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -83,7 +79,7 @@ class _PhotoTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(path, fit: BoxFit.cover),
+            child: GalleryImage(url: path),
           ),
           const Positioned(
             right: 8,

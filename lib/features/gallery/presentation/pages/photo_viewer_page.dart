@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../cubit/gallery_cubit.dart';
+import '../widgets/gallery_image.dart';
 
 /// عارض صور الألبوم بملء الشاشة مع خلفية معتمة، تمرير بين الصور، وزر إغلاق.
 class PhotoViewerPage extends StatelessWidget {
@@ -99,13 +100,13 @@ class _PhotoPagerState extends State<_PhotoPager> {
             itemBuilder: (context, i) => Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: InteractiveViewer(
-                  maxScale: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: Image.asset(photos[i], fit: BoxFit.contain),
-                  ),
-                ),
+                    child: InteractiveViewer(
+                      maxScale: 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: GalleryImage(url: photos[i], fit: BoxFit.contain),
+                      ),
+                    ),
               ),
             ),
           ),

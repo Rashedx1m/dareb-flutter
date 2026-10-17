@@ -2,8 +2,8 @@ import '../../domain/entities/course.dart';
 
 /// بطاقة المادة كما يعيدها `courses/paginate` و`courses/details` و`subscriptions/my`:
 /// العنوان في `course_name` واسم المادة في `name`. العدّادات والسعر والنسب أعداد
-/// صحيحة، والأعلام منطقية. تحمل أيضاً `story_*` و`subject_rate` و`points_count`
-/// و`point_rate`، ولا شاشة تعرضها.
+/// صحيحة، والأعلام منطقية. `subject_rate` و`points_count` و`point_rate` تظهر في
+/// `courses/details` وقد تغيب عن القائمة فتصير 0. `story_*` لتفاصيل الدورة.
 class CourseModel extends Course {
   const CourseModel({
     required super.id,
@@ -20,6 +20,9 @@ class CourseModel extends Course {
     required super.subscriptionsCount,
     required super.isFree,
     required super.isSubscribed,
+    super.subjectRate,
+    super.pointsCount,
+    super.pointRate,
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +41,9 @@ class CourseModel extends Course {
       subscriptionsCount: json['subscriptions_count'] as int,
       isFree: json['is_free'] as bool,
       isSubscribed: json['is_subscription'] as bool,
+      subjectRate: (json['subject_rate'] as num?)?.toInt() ?? 0,
+      pointsCount: (json['points_count'] as num?)?.toInt() ?? 0,
+      pointRate: (json['point_rate'] as num?)?.toInt() ?? 0,
     );
   }
 }

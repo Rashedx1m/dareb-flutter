@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../cubit/gallery_cubit.dart';
 import '../widgets/album_card.dart';
@@ -30,6 +31,7 @@ class GalleryPage extends StatelessWidget {
                         message: state.error,
                         onRetry: () => context.read<GalleryCubit>().loadAlbums(),
                       ),
+                    GalleryStatus.success when state.albums.isEmpty => const EmptyView(message: AppStrings.galleryNoAlbums),
                     GalleryStatus.success => GridView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

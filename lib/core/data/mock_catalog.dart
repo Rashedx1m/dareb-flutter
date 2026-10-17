@@ -1,4 +1,3 @@
-import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
 import '../../features/quiz/domain/entities/quiz.dart';
@@ -88,13 +87,6 @@ abstract final class MockCatalog {
       ],
     ),
   };
-
-  static const achievements = [
-    Achievement(id: 'a1', title: 'أول خطوة', subtitle: 'أكمل أول درس', unlocked: true),
-    Achievement(id: 'a2', title: 'مثابر', subtitle: 'تعلّم 7 أيام متتالية', unlocked: true),
-    Achievement(id: 'a3', title: 'عالم القانون', subtitle: 'أنهِ دورة قانونية', unlocked: false),
-    Achievement(id: 'a4', title: 'ممتاز', subtitle: 'احصل على 90% في اختبار', unlocked: false),
-  ];
 
   // ألبومات المعرض (تطابق تصميم فيجما: الاسم + عدد الصور بين قوسين).
   // لكل ألبوم ترتيب [order] مختلف على صور AppAssets.galleryPhotos الست، بحيث

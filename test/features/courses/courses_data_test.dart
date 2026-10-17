@@ -169,9 +169,59 @@ const _course = CourseModel(
   isSubscribed: false,
 );
 
+const _detailsCourse = CourseModel(
+  id: '1',
+  title: 'الدكتور هناء القطيشات',
+  subjectName: 'ناردين الشطناوي',
+  instructor: 'أكرم أبو الرب',
+  description: 'Similique aut reiciendis sint inventore voluptas qui quod.',
+  imageUrl: 'https://training.tamkeen-dev.com/dareb/public/assets/img/avatars/1.png',
+  price: 36,
+  semestersCount: 3,
+  semesterRate: 0,
+  lessonsCount: 6,
+  lessonRate: 17,
+  subscriptionsCount: 3,
+  isFree: false,
+  isSubscribed: false,
+  subjectRate: 17,
+  pointsCount: 600,
+);
+
+const _subjectCourse = CourseModel(
+  id: '1',
+  title: 'الدكتور هناء القطيشات',
+  subjectName: 'ناردين الشطناوي',
+  instructor: 'أكرم أبو الرب',
+  description: 'Similique aut reiciendis sint inventore voluptas qui quod.',
+  imageUrl: 'https://training.tamkeen-dev.com/dareb/public/assets/img/avatars/1.png',
+  price: 36,
+  semestersCount: 3,
+  semesterRate: 0,
+  lessonsCount: 6,
+  lessonRate: 17,
+  subscriptionsCount: 3,
+  isFree: false,
+  isSubscribed: false,
+  pointsCount: 300,
+);
+
 void main() {
   test('CourseModel.fromJson على بطاقة courses/paginate', () {
     expect(CourseModel.fromJson(_courseJson), _course);
+  });
+
+  test('subject_rate وpoints_count وpoint_rate تُقرأ إن وُجدت وإلا 0', () {
+    expect(CourseModel.fromJson(_courseJson).pointsCount, 0);
+    final withRates = CourseModel.fromJson({
+      ..._courseJson,
+      'subject_rate': 17,
+      'points_count': 600,
+      'point_rate': 40,
+    });
+    expect(withRates.subjectRate, 17);
+    expect(withRates.pointsCount, 600);
+    expect(withRates.pointRate, 40);
   });
 
   test('نافذة التعريف تظهر إن طلبها الخادم وفيها نص أو صورة', () {
@@ -190,7 +240,7 @@ void main() {
   test('SubjectDetailsModel.fromJson: الدورة من content، والاختبار من exam', () {
     final details = SubjectDetailsModel.fromJson(_subjectDetailsJson);
 
-    expect(details.course, _course);
+    expect(details.course, _subjectCourse);
     expect(details.pointsCount, 300);
     expect(details.exams, const [
       SubjectExamModel(
@@ -212,7 +262,7 @@ void main() {
   test('CourseDetailsModel.fromJson يحفظ الفصول والدروس بترتيب الخادم', () {
     final details = CourseDetailsModel.fromJson(_detailsJson);
 
-    expect(details.course, _course);
+    expect(details.course, _detailsCourse);
     expect(details.pointsCount, 600);
     expect(details.storyImageUrl, 'https://training.tamkeen-dev.com/dareb/public/storage/10/story.png');
     expect(details.storyText, 'History is Amazing');

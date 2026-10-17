@@ -92,6 +92,7 @@ abstract final class AppStrings {
   // المعرض (ألبومات الصور).
   static const gallery = 'المعرض';
   static const galleryEmpty = 'لا توجد صور في هذا الألبوم بعد';
+  static const galleryNoAlbums = 'لا توجد ألبومات بعد';
   static const photoCounter = 'من'; // «3 من 12»
   static const searchHint = 'ابحث هنا...';
   static const welcomeBack = 'أهلاً بعودتك، ';
@@ -142,6 +143,7 @@ abstract final class AppStrings {
   static const am = 'صباحًا';
   static const pm = 'مساءً';
   static const achievements = 'إنجازاتي';
+  static const achievementsEmpty = 'لا توجد مواد لمتابعة إنجازها بعد';
   static const myCourses = 'دوراتي';
   static const subscription = 'الاشتراك';
   static const checkout = 'إتمام الشراء';

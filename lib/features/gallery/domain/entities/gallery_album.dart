@@ -1,9 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// ألبوم صور يظهر في شاشة المعرض (مثل: «ألبوم الأعمال»).
-///
-/// [cover] و [photos] مسارات صور محلية (assets). العدد المعروض بين قوسين
-/// في التصميم هو [count]، ويطابق طول قائمة [photos].
+/// ألبوم من `galleries/all`: `{id, name, images}`.
 class GalleryAlbum extends Equatable {
   const GalleryAlbum({
     required this.id,
@@ -14,6 +11,8 @@ class GalleryAlbum extends Equatable {
 
   final String id;
   final String title;
+
+  /// أول صورة، أو فارغ إن لم يرسل الخادم صوراً.
   final String cover;
   final List<String> photos;
 

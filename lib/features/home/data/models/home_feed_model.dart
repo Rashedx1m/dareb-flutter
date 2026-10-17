@@ -65,6 +65,9 @@ class HomeFeedModel extends HomeFeed {
       subscriptionsCount: json['subscriptions_count'] as int,
       isFree: json['is_free'] as bool,
       isSubscribed: json['is_subscription'] as bool,
+      subjectRate: (json['subject_rate'] as num?)?.toInt() ?? 0,
+      pointsCount: (json['points_count'] as num?)?.toInt() ?? 0,
+      pointRate: (json['point_rate'] as num?)?.toInt() ?? 0,
     );
   }
 }

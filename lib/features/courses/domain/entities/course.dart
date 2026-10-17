@@ -18,6 +18,9 @@ class Course extends Equatable {
     required this.subscriptionsCount,
     required this.isFree,
     required this.isSubscribed,
+    this.subjectRate = 0,
+    this.pointsCount = 0,
+    this.pointRate = 0,
   });
 
   final String id;
@@ -46,6 +49,14 @@ class Course extends Equatable {
   final bool isFree;
   final bool isSubscribed;
 
+  /// نسبة إنجاز المادة من 0 إلى 100. قد تغيب عن `courses/paginate` فتُحسب 0.
+  final int subjectRate;
+
+  /// مجموع نقاط المادة، و`point_rate` نسبتها المكتسبة. يظهران في `courses/details`
+  /// وقد يغيبان عن بطاقة القائمة.
+  final int pointsCount;
+  final int pointRate;
+
   @override
   List<Object?> get props => [
         id,
@@ -62,5 +73,8 @@ class Course extends Equatable {
         subscriptionsCount,
         isFree,
         isSubscribed,
+        subjectRate,
+        pointsCount,
+        pointRate,
       ];
 }

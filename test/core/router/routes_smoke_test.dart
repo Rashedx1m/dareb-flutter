@@ -157,6 +157,16 @@ void main() {
       })
       ..on('/exams/my', body: {'message': 'ok', 'data': <Object>[]})
       ..on('/daily-activities/my', body: {'message': 'ok', 'data': <Object>[]})
+      ..on('/galleries/all', body: {
+        'message': 'ok',
+        'data': [
+          {
+            'id': 14,
+            'name': 'Tamkeen',
+            'images': ['https://x/g1.png', 'https://x/g2.png'],
+          },
+        ],
+      })
       ..on('/exams/result', body: {
         'message': 'ok',
         'data': {
@@ -189,8 +199,8 @@ void main() {
     '/subscription',
     '/checkout?package=1',
     '/gallery',
-    '/gallery/gal_math',
-    '/gallery/gal_math/photo/1',
+    '/gallery/14',
+    '/gallery/14/photo/0',
     '/tests',
     '/profile',
     '/downloads',

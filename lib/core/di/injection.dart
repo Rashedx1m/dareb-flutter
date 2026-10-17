@@ -1,10 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/achievements/data/datasources/achievements_remote_data_source.dart';
-import '../../features/achievements/data/repositories/achievements_repository_impl.dart';
-import '../../features/achievements/domain/repositories/achievements_repository.dart';
-import '../../features/achievements/domain/usecases/get_achievements.dart';
 import '../../features/achievements/presentation/cubit/achievements_cubit.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -213,7 +209,7 @@ void _initHome() {
 
 void _initGallery() {
   sl
-    ..registerLazySingleton<GalleryRemoteDataSource>(GalleryMockDataSource.new)
+    ..registerLazySingleton<GalleryRemoteDataSource>(() => GalleryRemoteDataSourceImpl(sl()))
     ..registerLazySingleton<GalleryRepository>(() => GalleryRepositoryImpl(sl()))
     ..registerLazySingleton(() => GetAlbums(sl()))
     ..registerLazySingleton(() => GetAlbum(sl()))
@@ -229,11 +225,13 @@ void _initNotifications() {
 }
 
 void _initAchievements() {
-  sl
-    ..registerLazySingleton<AchievementsRemoteDataSource>(AchievementsMockDataSource.new)
-    ..registerLazySingleton<AchievementsRepository>(() => AchievementsRepositoryImpl(sl()))
-    ..registerLazySingleton(() => GetAchievements(sl()))
-    ..registerFactory(() => AchievementsCubit(sl()));
+  sl.registerFactory(
+    () => AchievementsCubit(
+      getCurrentUser: sl(),
+      refreshProfile: sl(),
+      getMyCourses: sl(),
+    ),
+  );
 }
 
 void _initSubscription() {
