@@ -233,32 +233,41 @@ class _LessonViewState extends State<_LessonView> {
         listener: _onCommentStatus,
         child: Scaffold(
           backgroundColor: Colors.white,
-          body: ListView(
-            padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 32),
+          body: Column(
             children: [
-              LessonMediaFrame(child: _media(lesson)),
-              const SizedBox(height: 46),
-              LessonDiscussions(
-                comments: details.comments,
-                user: user,
-                controller: _comment,
-                sending: sending,
-                onSend: () => context.read<LessonCubit>().sendComment(_comment.text),
+              LessonMediaFrame(
+                clip: !_playing,
+                child: _media(lesson),
               ),
-              if (path.isNotEmpty) ...[
-                const SizedBox(height: 18),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: LearningPathTitle(),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 32),
+                  children: [
+                    const SizedBox(height: 46),
+                    LessonDiscussions(
+                      comments: details.comments,
+                      user: user,
+                      controller: _comment,
+                      sending: sending,
+                      onSend: () => context.read<LessonCubit>().sendComment(_comment.text),
+                    ),
+                    if (path.isNotEmpty) ...[
+                      const SizedBox(height: 18),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: LearningPathTitle(),
+                      ),
+                      const SizedBox(height: 8),
+                      SemesterPath(
+                        semester: details.semester,
+                        lessons: path,
+                        onLessonTap: _onPathTap,
+                        onDownload: (item) => _open(item.fileUrl!),
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 8),
-                SemesterPath(
-                  semester: details.semester,
-                  lessons: path,
-                  onLessonTap: _onPathTap,
-                  onDownload: (item) => _open(item.fileUrl!),
-                ),
-              ],
+              ),
             ],
           ),
         ),

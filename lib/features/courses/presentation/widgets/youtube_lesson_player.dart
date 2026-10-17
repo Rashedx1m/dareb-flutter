@@ -65,7 +65,10 @@ class _YoutubeLessonPlayerState extends State<YoutubeLessonPlayer> {
 
   void _onValue(YoutubePlayerValue value) {
     if (value.hasError) {
-      widget.onError();
+      // بعد الإطار الحالي حتى لا يُعاد بناء الصفحة أثناء إنشاء المشغّل فيعلّق.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onError();
+      });
       return;
     }
     if (value.playerState == PlayerState.playing && _lastState != PlayerState.playing) {

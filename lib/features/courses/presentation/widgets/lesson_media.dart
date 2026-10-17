@@ -9,21 +9,27 @@ import '../lesson_path.dart';
 
 /// مساحة الدرس أعلى الصفحة: تمتد تحت شريط الحالة بزوايا سفلية دائرية.
 class LessonMediaFrame extends StatelessWidget {
-  const LessonMediaFrame({super.key, required this.child});
+  const LessonMediaFrame({super.key, required this.child, this.clip = true});
 
   final Widget child;
+
+  /// `false` حول مشغّل يوتيوب: قصّ WebView داخل التمرير يجمّد الصفحة.
+  final bool clip;
 
   /// ارتفاعها تحت شريط الحالة.
   static const height = 275.0;
 
   @override
   Widget build(BuildContext context) {
+    final box = ColoredBox(color: AppColors.videoBackground, child: child);
     return SizedBox(
       height: MediaQuery.paddingOf(context).top + height,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        child: ColoredBox(color: AppColors.videoBackground, child: child),
-      ),
+      child: clip
+          ? ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              child: box,
+            )
+          : box,
     );
   }
 }
