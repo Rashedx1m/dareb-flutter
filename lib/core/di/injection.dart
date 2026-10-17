@@ -55,10 +55,10 @@ import '../../features/gallery/domain/repositories/gallery_repository.dart';
 import '../../features/gallery/domain/usecases/get_album.dart';
 import '../../features/gallery/domain/usecases/get_albums.dart';
 import '../../features/gallery/presentation/cubit/gallery_cubit.dart';
-import '../../features/home/data/datasources/news_remote_data_source.dart';
-import '../../features/home/data/repositories/news_repository_impl.dart';
-import '../../features/home/domain/repositories/news_repository.dart';
-import '../../features/home/domain/usecases/get_news.dart';
+import '../../features/home/data/datasources/home_remote_data_source.dart';
+import '../../features/home/data/repositories/home_repository_impl.dart';
+import '../../features/home/domain/repositories/home_repository.dart';
+import '../../features/home/domain/usecases/get_home.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
@@ -199,14 +199,12 @@ void _initQuiz() {
 
 void _initHome() {
   sl
-    ..registerLazySingleton<NewsRemoteDataSource>(NewsMockDataSource.new)
-    ..registerLazySingleton<NewsRepository>(() => NewsRepositoryImpl(sl()))
-    ..registerLazySingleton(() => GetNews(sl()))
+    ..registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(sl()))
+    ..registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl()))
+    ..registerLazySingleton(() => GetHome(sl()))
     ..registerFactory(
       () => HomeCubit(
-        getCourses: sl(),
-        getSubjects: sl(),
-        getNews: sl(),
+        getHome: sl(),
         getCurrentUser: sl(),
         refreshProfile: sl(),
       ),

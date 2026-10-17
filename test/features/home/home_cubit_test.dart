@@ -6,18 +6,17 @@ import 'package:educational_app/features/auth/domain/usecases/get_current_user.d
 import 'package:educational_app/features/auth/domain/usecases/refresh_profile.dart';
 import 'package:educational_app/features/courses/domain/entities/course.dart';
 import 'package:educational_app/features/courses/domain/entities/subject.dart';
-import 'package:educational_app/features/courses/domain/repositories/courses_repository.dart';
-import 'package:educational_app/features/courses/domain/usecases/get_courses.dart';
-import 'package:educational_app/features/courses/domain/usecases/get_subjects.dart';
+import 'package:educational_app/features/home/domain/entities/home_banner.dart';
+import 'package:educational_app/features/home/domain/entities/home_feed.dart';
 import 'package:educational_app/features/home/domain/entities/news_item.dart';
-import 'package:educational_app/features/home/domain/repositories/news_repository.dart';
-import 'package:educational_app/features/home/domain/usecases/get_news.dart';
+import 'package:educational_app/features/home/domain/repositories/home_repository.dart';
+import 'package:educational_app/features/home/domain/usecases/get_home.dart';
 import 'package:educational_app/features/home/presentation/cubit/home_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _user = User(id: 'u1', name: 'أحمد', phone: '0501234567', progress: 0.4, points: 55);
 
-const _news = [NewsItem(id: 'nw1', title: 'خبر', imageUrl: 'x', date: 'اليوم')];
+const _news = [NewsItem(id: 'nw1', imageUrl: 'x', link: 'https://example.com')];
 
 const _courses = [
   Course(
@@ -43,29 +42,23 @@ const _subjects = [
   Subject(id: '2', name: 'العلوم', imageUrl: 'y', isFree: true, isSubscribed: false),
 ];
 
-/// مستودع مزيّف يتيح ضبط الفشل لاختبار مسارات النجاح والخطأ.
-class _FakeCoursesRepository extends Fake implements CoursesRepository {
-  _FakeCoursesRepository({this.failure});
+const _feed = HomeFeed(
+  sliders: [HomeBanner(id: '1', imageUrl: 's', link: 'https://example.com')],
+  subjects: _subjects,
+  news: _news,
+  courses: _courses,
+  completionRate: 0.4,
+  subjectCount: 22,
+);
+
+class _FakeHomeRepository implements HomeRepository {
+  _FakeHomeRepository({this.failure});
 
   final Failure? failure;
 
   @override
-  Future<Either<Failure, List<Course>>> getCourses() async =>
-      failure != null ? Left(failure!) : const Right(_courses);
-
-  @override
-  Future<Either<Failure, List<Subject>>> getSubjects() async =>
-      failure != null ? Left(failure!) : const Right(_subjects);
-}
-
-class _FakeNewsRepository implements NewsRepository {
-  _FakeNewsRepository({this.failure});
-
-  final Failure? failure;
-
-  @override
-  Future<Either<Failure, List<NewsItem>>> getNews() async =>
-      failure != null ? Left(failure!) : const Right(_news);
+  Future<Either<Failure, HomeFeed>> getHome() async =>
+      failure != null ? Left(failure!) : const Right(_feed);
 }
 
 /// الصفحة الرئيسية تحتاج من مستودع المصادقة المستخدم المحفوظ ونسخته من الخادم.
@@ -84,82 +77,69 @@ class _FakeAuthRepository extends Fake implements AuthRepository {
       fresh == null ? const Left(ServerFailure()) : Right(fresh!);
 }
 
-HomeCubit _cubit(
-  _FakeCoursesRepository repository, {
-  _FakeNewsRepository? news,
+HomeCubit _cubit({
+  Failure? homeFailure,
   User? user = _user,
   User? fresh,
 }) {
   final auth = _FakeAuthRepository(user, fresh: fresh);
   return HomeCubit(
-    getCourses: GetCourses(repository),
-    getSubjects: GetSubjects(repository),
-    getNews: GetNews(news ?? _FakeNewsRepository()),
+    getHome: GetHome(_FakeHomeRepository(failure: homeFailure)),
     getCurrentUser: GetCurrentUser(auth),
     refreshProfile: RefreshProfile(auth),
   );
 }
 
 void main() {
-  test('load ينجح ويملأ الدورات والمواد والأخبار', () async {
-    final cubit = _cubit(_FakeCoursesRepository());
+  test('load ينجح ويملأ الدورات والمواد والأخبار والسلايدر', () async {
+    final cubit = _cubit();
     await cubit.load();
 
     expect(cubit.state.status, HomeStatus.success);
     expect(cubit.state.courses, _courses);
     expect(cubit.state.subjects, _subjects);
     expect(cubit.state.news, _news);
+    expect(cubit.state.sliders, _feed.sliders);
+    expect(cubit.state.progress, 0.4);
   });
 
   test('load يعرض المستخدم المحدّث من الخادم', () async {
     const fresh = User(id: 'u1', name: 'أحمد', phone: '0501234567', points: 120);
-    final cubit = _cubit(_FakeCoursesRepository(), fresh: fresh);
+    final cubit = _cubit(fresh: fresh);
     await cubit.load();
 
     expect(cubit.state.user, fresh);
     expect(cubit.state.points, 120);
   });
 
-  test('تعذّر التحديث: الاسم والنقاط والإنجاز من النسخة المحفوظة', () async {
-    final cubit = _cubit(_FakeCoursesRepository());
+  test('تعذّر التحديث: الاسم والنقاط من النسخة المحفوظة', () async {
+    final cubit = _cubit();
     await cubit.load();
 
     expect(cubit.state.user, _user);
     expect(cubit.state.points, 55);
-    expect(cubit.state.progress, 0.4);
   });
 
   test('غياب الجلسة لا يُفشل الصفحة', () async {
-    final cubit = _cubit(_FakeCoursesRepository(), user: null);
+    final cubit = _cubit(user: null);
     await cubit.load();
 
     expect(cubit.state.status, HomeStatus.success);
     expect(cubit.state.points, 0);
   });
 
-  test('فشل الأخبار يضبط الحالة failure', () async {
-    final cubit = _cubit(
-      _FakeCoursesRepository(),
-      news: _FakeNewsRepository(failure: const ServerFailure('تعذر جلب الأخبار')),
-    );
+  test('فشل الرئيسية يضبط الحالة failure', () async {
+    final cubit = _cubit(homeFailure: const ServerFailure('تعذر جلب الصفحة'));
     await cubit.load();
 
     expect(cubit.state.status, HomeStatus.failure);
-    expect(cubit.state.error, 'تعذر جلب الأخبار');
+    expect(cubit.state.error, 'تعذر جلب الصفحة');
   });
 
-  test('load يعدّ دورات المنهاج من قائمة الدورات', () async {
-    final cubit = _cubit(_FakeCoursesRepository());
+  test('load يعدّ مواد المنهاج من subject_count', () async {
+    final cubit = _cubit();
     await cubit.load();
 
-    expect(cubit.state.curriculumCoursesCount, _courses.length);
-  });
-
-  test('load عند الفشل يضبط الحالة failure ويحمل الرسالة', () async {
-    final cubit = _cubit(_FakeCoursesRepository(failure: const ServerFailure('خطأ في الخادم')));
-    await cubit.load();
-
-    expect(cubit.state.status, HomeStatus.failure);
-    expect(cubit.state.error, 'خطأ في الخادم');
+    expect(cubit.state.curriculumCoursesCount, 22);
   });
 }

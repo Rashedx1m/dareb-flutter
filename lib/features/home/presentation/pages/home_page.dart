@@ -10,15 +10,20 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/utils/external_link.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../courses/domain/entities/course.dart';
 import '../../../courses/domain/entities/subject.dart';
+import '../../domain/entities/home_banner.dart';
 import '../../domain/entities/news_item.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/complete_account.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.openLink = openExternalLink});
+
+  /// يفتح رابط السلايدر أو الخبر خارج التطبيق، ويُستبدل في الاختبارات.
+  final LinkOpener openLink;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +47,7 @@ class HomePage extends StatelessWidget {
                     onNotify: () => context.push('/notifications'),
                     onAchievements: () => context.push('/achievements'),
                   ),
-                  _HomeBody(state: state),
+                  _HomeBody(state: state, openLink: openLink),
                 ],
               ),
             ),
@@ -54,9 +59,10 @@ class HomePage extends StatelessWidget {
 }
 
 class _HomeBody extends StatelessWidget {
-  const _HomeBody({required this.state});
+  const _HomeBody({required this.state, required this.openLink});
 
   final HomeState state;
+  final LinkOpener openLink;
 
   @override
   Widget build(BuildContext context) {
@@ -85,19 +91,21 @@ class _HomeBody extends StatelessWidget {
             onDetails: () => context.go('/my-courses'),
           ),
           const SizedBox(height: 16),
-          _TestsEntryCard(onTap: () => context.push('/tests')),
-          const SizedBox(height: 16),
-          _PromoBanner(onCheckAccount: () => showCompleteAccountDialog(context)),
-          const SizedBox(height: 14),
-          const _BannerDots(),
-          const SizedBox(height: 18),
-          _SubjectsSection(
-            subjects: state.subjects,
-            onShowAll: () => context.push('/categories'),
+          _PromoCarousel(
+            sliders: state.sliders,
+            onCheckAccount: () => showCompleteAccountDialog(context),
+            openLink: openLink,
           ),
+          if (state.subjects.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            _SubjectsSection(
+              subjects: state.subjects,
+              onShowAll: () => context.push('/categories'),
+            ),
+          ],
           if (state.news.isNotEmpty) ...[
             const SizedBox(height: 22),
-            _NewsSection(news: state.news),
+            _NewsSection(news: state.news, openLink: openLink),
           ],
           if (state.courses.isNotEmpty) ...[
             const SizedBox(height: 22),
@@ -384,59 +392,70 @@ class _ProgressCard extends StatelessWidget {
   }
 }
 
-class _TestsEntryCard extends StatelessWidget {
-  const _TestsEntryCard({required this.onTap});
+class _PromoCarousel extends StatefulWidget {
+  const _PromoCarousel({
+    required this.sliders,
+    required this.onCheckAccount,
+    required this.openLink,
+  });
 
-  final VoidCallback onTap;
+  final List<HomeBanner> sliders;
+  final VoidCallback onCheckAccount;
+  final LinkOpener openLink;
+
+  @override
+  State<_PromoCarousel> createState() => _PromoCarouselState();
+}
+
+class _PromoCarouselState extends State<_PromoCarousel> {
+  var _page = 0;
+
+  Future<void> _open(String link) async {
+    final uri = Uri.tryParse(link);
+    if (uri == null || !uri.hasScheme) return;
+    await widget.openLink(uri);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.cardBorderSoft),
-          boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 16, offset: Offset(0, 8))],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.iconTileBlue,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: SvgPicture.asset(AppAssets.icQuiz, fit: BoxFit.contain),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    AppStrings.myTests,
-                    style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
+    // بلا سلايدر من الخادم تبقى بانر فيجما؛ النقاط للشريحات الحقيقية فقط.
+    if (widget.sliders.isEmpty) {
+      return _PromoBanner(onCheckAccount: widget.onCheckAccount);
+    }
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 148,
+          child: PageView.builder(
+            itemCount: widget.sliders.length,
+            onPageChanged: (index) => setState(() => _page = index),
+            itemBuilder: (context, index) {
+              final slide = widget.sliders[index];
+              return GestureDetector(
+                onTap: () => _open(slide.link),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: CachedNetworkImage(
+                    imageUrl: slide.imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    placeholder: (_, _) => const ColoredBox(color: AppColors.primarySoft),
+                    errorWidget: (_, _, _) => const ColoredBox(
+                      color: AppColors.headerTeal,
+                      child: Icon(Icons.image_outlined, color: Colors.white, size: 36),
+                    ),
                   ),
-                  SizedBox(height: 3),
-                  Text(
-                    AppStrings.myTestsEntrySubtitle,
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_left, color: AppColors.textMuted, size: 24),
-          ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
+        if (widget.sliders.length > 1) ...[
+          const SizedBox(height: 14),
+          _BannerDots(count: widget.sliders.length, index: _page),
+        ],
+      ],
     );
   }
 }
@@ -520,20 +539,22 @@ class _PromoBanner extends StatelessWidget {
 }
 
 class _BannerDots extends StatelessWidget {
-  const _BannerDots();
+  const _BannerDots({required this.count, required this.index});
+
+  final int count;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    return const Directionality(
+    return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _Dot(active: true),
-          SizedBox(width: 6),
-          _Dot(),
-          SizedBox(width: 6),
-          _Dot(),
+          for (var i = 0; i < count; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            _Dot(active: i == index),
+          ],
         ],
       ),
     );
@@ -695,9 +716,10 @@ class _SubjectImage extends StatelessWidget {
 }
 
 class _NewsSection extends StatelessWidget {
-  const _NewsSection({required this.news});
+  const _NewsSection({required this.news, required this.openLink});
 
   final List<NewsItem> news;
+  final LinkOpener openLink;
 
   @override
   Widget build(BuildContext context) {
@@ -713,7 +735,7 @@ class _NewsSection extends StatelessWidget {
             padding: EdgeInsets.zero,
             itemCount: news.length,
             separatorBuilder: (_, _) => const SizedBox(width: 12),
-            itemBuilder: (context, i) => _NewsCard(item: news[i]),
+            itemBuilder: (context, i) => _NewsCard(item: news[i], openLink: openLink),
           ),
         ),
       ],
@@ -722,66 +744,32 @@ class _NewsSection extends StatelessWidget {
 }
 
 class _NewsCard extends StatelessWidget {
-  const _NewsCard({required this.item});
+  const _NewsCard({required this.item, required this.openLink});
 
   final NewsItem item;
+  final LinkOpener openLink;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: SizedBox(
-        width: 300,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: item.imageUrl,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => const ColoredBox(color: AppColors.primarySoft),
-              errorWidget: (_, _, _) => const ColoredBox(
-                color: AppColors.primarySoft,
-                child: Icon(Icons.image_outlined, color: AppColors.primary, size: 36),
-              ),
+    return GestureDetector(
+      onTap: () {
+        final uri = Uri.tryParse(item.link);
+        if (uri == null || !uri.hasScheme) return;
+        openLink(uri);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: SizedBox(
+          width: 300,
+          child: CachedNetworkImage(
+            imageUrl: item.imageUrl,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => const ColoredBox(color: AppColors.primarySoft),
+            errorWidget: (_, _, _) => const ColoredBox(
+              color: AppColors.primarySoft,
+              child: Icon(Icons.image_outlined, color: AppColors.primary, size: 36),
             ),
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, AppColors.overlay80],
-                  stops: [0.45, 1],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 12,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    item.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.date,
-                    style: const TextStyle(color: AppColors.imageCaption, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

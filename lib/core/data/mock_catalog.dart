@@ -1,6 +1,7 @@
 import '../../features/achievements/domain/entities/achievement.dart';
 import '../../features/gallery/domain/entities/gallery_album.dart';
 import '../../features/home/domain/entities/news_item.dart';
+import '../../features/quiz/domain/entities/quiz.dart';
 import '../theme/app_assets.dart';
 
 /// بيانات تجريبية إلى أن تُربط واجهات الـ API.
@@ -14,17 +15,79 @@ abstract final class MockCatalog {
   static const news = [
     NewsItem(
       id: 'nw1',
-      title: 'انطلاق التسجيل للفصل الدراسي الجديد',
       imageUrl: 'https://picsum.photos/seed/news1/800/400',
-      date: 'منذ يومين',
+      link: 'https://www.google.com/',
     ),
     NewsItem(
       id: 'nw2',
-      title: 'ورش تقوية مجانية في الرياضيات والعلوم',
       imageUrl: 'https://picsum.photos/seed/news2/800/400',
-      date: 'منذ أسبوع',
+      link: 'https://www.google.com/',
     ),
   ];
+
+  /// بطاقات «اختباراتي». العدّاد 20 يطابق التصميم؛ الأسئلة المعروضة ثلاثة.
+  static const quizzes = [
+    Quiz(id: '6', title: 'اختبار رياضيات', instructor: 'أ.عمر النابلسي', questionsCount: 20),
+    Quiz(id: '7', title: 'نشاطات رياضيات', instructor: 'أ.باسم السليمان', questionsCount: 20, kind: QuizKind.activity),
+  ];
+
+  /// تفاصيل الحل والنتيجة. العدّادات 17/3 من 20 تعطي 85٪ كما في التصميم.
+  static const quizDetails = <String, QuizDetails>{
+    '6': QuizDetails(
+      id: '6',
+      title: 'اختبار رياضيات',
+      questionsCount: 20,
+      correctAnswers: 17,
+      failedAnswers: 3,
+      questions: [
+        QuizQuestion(
+          id: 'q1',
+          text: 'ما هي عاصمة فرنسا؟',
+          answers: [
+            QuizAnswer(id: 'a11', text: 'مدريد', isCorrect: false),
+            QuizAnswer(id: 'a12', text: 'باريس', isCorrect: true, isSelected: true),
+            QuizAnswer(id: 'a13', text: 'روما', isCorrect: false),
+          ],
+        ),
+        QuizQuestion(
+          id: 'q2',
+          text: 'أي كوكب يُعرف بالكوكب الأحمر؟',
+          answers: [
+            QuizAnswer(id: 'a21', text: 'المشتري', isCorrect: false, isSelected: true),
+            QuizAnswer(id: 'a22', text: 'المريخ', isCorrect: true),
+            QuizAnswer(id: 'a23', text: 'الزهرة', isCorrect: false),
+          ],
+        ),
+        QuizQuestion(
+          id: 'q3',
+          text: 'كم عدد قارات العالم؟',
+          answers: [
+            QuizAnswer(id: 'a31', text: '5', isCorrect: false),
+            QuizAnswer(id: 'a32', text: '6', isCorrect: false),
+            QuizAnswer(id: 'a33', text: '7', isCorrect: true, isSelected: true),
+          ],
+        ),
+      ],
+    ),
+    '7': QuizDetails(
+      id: '7',
+      title: 'نشاطات رياضيات',
+      questionsCount: 20,
+      correctAnswers: 17,
+      failedAnswers: 3,
+      questions: [
+        QuizQuestion(
+          id: 'q7',
+          text: 'ما ناتج 7 × 8؟',
+          answers: [
+            QuizAnswer(id: 'a71', text: '54', isCorrect: false),
+            QuizAnswer(id: 'a72', text: '56', isCorrect: true, isSelected: true),
+            QuizAnswer(id: 'a73', text: '64', isCorrect: false),
+          ],
+        ),
+      ],
+    ),
+  };
 
   static const achievements = [
     Achievement(id: 'a1', title: 'أول خطوة', subtitle: 'أكمل أول درس', unlocked: true),

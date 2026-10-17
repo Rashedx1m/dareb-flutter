@@ -1,19 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-/// خبر يظهر في قسم «آخر الأخبار» على الصفحة الرئيسية.
+/// خبر في شريط «آخر الأخبار». الخادم يرسل صورة ورابطاً فقط، بلا عنوان ولا تاريخ.
 class NewsItem extends Equatable {
   const NewsItem({
     required this.id,
-    required this.title,
     required this.imageUrl,
-    required this.date,
+    required this.link,
   });
 
   final String id;
-  final String title;
   final String imageUrl;
-  final String date;
+  final String link;
 
   @override
-  List<Object?> get props => [id, title];
+  List<Object?> get props => [id, imageUrl, link];
 }

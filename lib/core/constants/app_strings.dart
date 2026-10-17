@@ -76,7 +76,6 @@ abstract final class AppStrings {
   static const noTestsFound = 'لا توجد نتائج مطابقة';
   static const noMyExams = 'لا توجد اختبارات بعد';
   static const noMyActivities = 'لا توجد نشاطات يومية بعد';
-  static const myTestsEntrySubtitle = 'اختباراتك ونشاطاتك اليومية';
   static const quizResult = 'النتيجة';
   static const quizFinishedTitle = 'تم إنهاء الاختبار بنجاح!';
   static const quizFinishedSubtitle = 'لقد حققت نتيجة رائعة، استمر في هذا الأداء المتميز.';

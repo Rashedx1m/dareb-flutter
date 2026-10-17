@@ -125,6 +125,24 @@ void main() {
           {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x/1.png', 'is_subscription': false},
         ],
       })
+      ..on('/home-page/index', body: {
+        'message': 'ok',
+        'data': {
+          'sliders': [
+            {'id': 1, 'link': 'https://www.google.com/', 'image': 'https://x/1.png'},
+          ],
+          'subjects': [
+            {'id': 1, 'name': 'ناردين الشطناوي', 'is_free': false, 'image': 'https://x/1.png', 'is_subscription': false},
+          ],
+          'news': [
+            {'id': 9, 'link': 'https://www.google.com/', 'image': 'https://x/1.png'},
+          ],
+          'courses': [courseJson],
+          'notification_unread': 0,
+          'completion_rate': 0,
+          'subject_count': 1,
+        },
+      })
       ..on('/packages/all', body: {
         'message': 'ok',
         'data': [
