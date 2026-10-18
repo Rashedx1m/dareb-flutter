@@ -375,6 +375,40 @@ void main() {
       expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.success));
     });
 
+    test('refresh يحدّث القائمة الظاهرة دون loading، وفشله يُبقيها', () async {
+      final results = <Either<Failure, List<Course>>>[
+        const Right([]),
+        const Right([_course]),
+        const Left(ServerFailure('x')),
+      ];
+      repository.myCourses = () async => results.removeAt(0);
+      final cubit = MyCoursesCubit(GetMyCourses(repository));
+      await cubit.load();
+      final states = <MyCoursesState>[];
+      final subscription = cubit.stream.listen(states.add);
+
+      await cubit.refresh();
+      expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.success, courses: [_course]));
+
+      await cubit.refresh();
+      expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.success, courses: [_course]));
+
+      await Future<void>.delayed(Duration.zero);
+      await subscription.cancel();
+      expect(states.map((s) => s.status), everyElement(MyCoursesStatus.success));
+    });
+
+    test('refresh بعد فشل التحميل يحمّل من جديد', () async {
+      final results = <Either<Failure, List<Course>>>[const Left(ServerFailure('x')), const Right([_course])];
+      repository.myCourses = () async => results.removeAt(0);
+      final cubit = MyCoursesCubit(GetMyCourses(repository));
+
+      await cubit.load();
+      await cubit.refresh();
+
+      expect(cubit.state, const MyCoursesState(status: MyCoursesStatus.success, courses: [_course]));
+    });
+
     test('إغلاق الصفحة قبل وصول الرد لا يرمي خطأ', () async {
       final response = Completer<Either<Failure, List<Course>>>();
       repository.myCourses = () => response.future;

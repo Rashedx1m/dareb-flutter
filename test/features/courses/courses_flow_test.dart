@@ -443,6 +443,58 @@ void main() {
 
       expect(find.text(AppStrings.keepLearning), findsOneWidget);
     });
+
+    testWidgets('السحب على القائمة الفارغة يحدّثها', (tester) async {
+      repository.myCourses.addAll([const Right([]), Right([_course(isSubscribed: true)])]);
+      await pumpMyCourses(tester);
+      expect(find.text(AppStrings.noMyCourses), findsOneWidget);
+
+      await tester.fling(find.text(AppStrings.noMyCourses), const Offset(0, 400), 1000);
+      await tester.pumpAndSettle();
+
+      expect(find.text(AppStrings.keepLearning), findsOneWidget);
+    });
+
+    // التبويب يبقى حياً في StatefulShellRoute، فكود فُعّل في تبويب آخر لم يكن يظهر
+    // حتى يُعاد تشغيل التطبيق (2026-10-18).
+    testWidgets('العودة إلى التبويب تحدّث المواد', (tester) async {
+      repository.myCourses.addAll([const Right([]), Right([_course(isSubscribed: true)])]);
+      tester.view
+        ..physicalSize = const Size(1800, 3600)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: '/my-courses',
+        routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (_, _, shell) => shell,
+            branches: [
+              StatefulShellBranch(routes: [
+                GoRoute(
+                  path: '/my-courses',
+                  builder: (_, _) => BlocProvider(
+                    create: (_) => MyCoursesCubit(GetMyCourses(repository))..load(),
+                    child: const MyCoursesPage(),
+                  ),
+                ),
+              ]),
+              StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (_, _) => const Text('profile'))]),
+            ],
+          ),
+        ],
+      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.noMyCourses), findsOneWidget);
+
+      router.go('/profile');
+      await tester.pumpAndSettle();
+      router.go('/my-courses');
+      await tester.pumpAndSettle();
+
+      expect(find.text(AppStrings.keepLearning), findsOneWidget);
+      expect(repository.myCourses, isEmpty);
+    });
   });
 
   group('صفحة الدورة', () {

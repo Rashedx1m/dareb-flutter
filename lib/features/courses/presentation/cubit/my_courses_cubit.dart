@@ -24,4 +24,14 @@ class MyCoursesCubit extends Cubit<MyCoursesState> {
       ),
     );
   }
+
+  /// يحدّث قائمة ظاهرة دون مؤشر التحميل، عند العودة إلى التبويب أو السحب. فشل
+  /// التحديث يُبقي القائمة السابقة بدل أن يستبدلها بشاشة خطأ.
+  Future<void> refresh() async {
+    if (state.status == MyCoursesStatus.loading) return;
+    if (state.status != MyCoursesStatus.success) return load();
+    final result = await _getMyCourses(const NoParams());
+    if (isClosed) return;
+    result.fold((_) {}, (courses) => emit(state.copyWith(courses: courses)));
+  }
 }

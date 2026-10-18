@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/page_header.dart';
@@ -27,6 +28,18 @@ class MyCoursesPage extends StatefulWidget {
 class _MyCoursesPageState extends State<MyCoursesPage> {
   _Tab _tab = _Tab.subjects;
   String _query = '';
+
+  /// الصفحة تبقى حية حين يُترك تبويبها، وgo_router يطفئ مؤقتات التبويب المخفي.
+  /// فعودتها تعني عودة الطالب، ربما بعد تفعيل كود، فتُحدَّث القائمة.
+  bool _visible = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible = TickerMode.valuesOf(context).enabled;
+    if (visible && !_visible) context.read<MyCoursesCubit>().refresh();
+    _visible = visible;
+  }
 
   /// البحث حالة عرض محلية تُطبَّق على المواد المحمّلة في [MyCoursesCubit].
   List<Course> _filter(List<Course> courses) {
@@ -89,27 +102,35 @@ class _SubjectsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MyCoursesCubit, MyCoursesState>(
       builder: (context, state) {
+        final cubit = context.read<MyCoursesCubit>();
         final courses = filter(state.courses);
+        // السحب للتحديث على القائمة الفارغة أيضاً، فتظهر مادة فُعّل كودها للتو.
+        Widget refreshable(Widget list) =>
+            RefreshIndicator(color: AppColors.primary, onRefresh: cubit.refresh, child: list);
         return switch (state.status) {
           MyCoursesStatus.initial || MyCoursesStatus.loading => const LoadingView(),
-          MyCoursesStatus.failure => ErrorView(
-              message: state.error,
-              onRetry: () => context.read<MyCoursesCubit>().load(),
+          MyCoursesStatus.failure => ErrorView(message: state.error, onRetry: cubit.load),
+          MyCoursesStatus.success when courses.isEmpty => refreshable(
+              ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [EmptyView(message: searching ? AppStrings.noSearchResults : AppStrings.noMyCourses)],
+              ),
             ),
-          MyCoursesStatus.success when courses.isEmpty =>
-            EmptyView(message: searching ? AppStrings.noSearchResults : AppStrings.noMyCourses),
           // الظل يحتاج مساحة حول البطاقات، فالمسافة العلوية داخل القائمة لا فوقها.
-          MyCoursesStatus.success => ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
-              itemCount: courses.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 28),
-              itemBuilder: (context, i) {
-                final course = courses[i];
-                return MySubjectCard(
-                  course: course,
-                  onContinue: () => context.push('/courses/${course.id}'),
-                );
-              },
+          MyCoursesStatus.success => refreshable(
+              ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+                itemCount: courses.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 28),
+                itemBuilder: (context, i) {
+                  final course = courses[i];
+                  return MySubjectCard(
+                    course: course,
+                    onContinue: () => context.push('/courses/${course.id}'),
+                  );
+                },
+              ),
             ),
         };
       },
