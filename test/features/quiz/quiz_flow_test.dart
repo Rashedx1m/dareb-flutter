@@ -105,9 +105,9 @@ void main() {
 
   setUp(() => repository = _FakeRepository());
 
-  Future<void> pump(WidgetTester tester, String location) async {
+  Future<void> pump(WidgetTester tester, String location, {Size size = const Size(1800, 3600)}) async {
     tester.view
-      ..physicalSize = const Size(1800, 3600)
+      ..physicalSize = size
       ..devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
@@ -294,6 +294,15 @@ void main() {
       expect(find.text(AppStrings.yourAnswerWrong), findsOneWidget);
       expect(find.text(AppStrings.correctAnswerLabel), findsOneWidget);
       expect(find.text('أ، ب'), findsOneWidget);
+    });
+
+    testWidgets('بطاقات النتيجة تضيق على هاتف عرضه 360 ولا تفيض', (tester) async {
+      // ظهر «RIGHT OVERFLOWED BY 5.0 PIXELS» على هاتف حقيقي حين كان عرض البطاقة ثابتاً 103.
+      repository.quizLoads.add(const Right(_scored));
+      await pump(tester, '/quiz/6/result', size: const Size(1080, 2400));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(AppStrings.questionsCountLabel), findsOneWidget);
     });
 
     testWidgets('تأكد من الأجوبة يفتح المراجعة', (tester) async {

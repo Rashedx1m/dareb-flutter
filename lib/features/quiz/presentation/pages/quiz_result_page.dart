@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -76,39 +78,48 @@ class _Body extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 56),
-                // البطاقات بارتفاع أطولها إن التفّ اسم أحدها على سطرين.
-                IntrinsicHeight(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _StatCard(
-                        icon: PhosphorIconsFill.sealQuestion,
-                        iconColor: AppColors.primary,
-                        iconFill: AppColors.primarySoft,
-                        value: quiz.questionsCount,
-                        label: AppStrings.questionsCountLabel,
+                // عرض التصميم 103، وتضيق البطاقات على الهواتف الأضيق بدل أن تفيض.
+                // والارتفاع بارتفاع أطولها إن التفّ اسم أحدها على سطرين.
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = math.min(103.0, (constraints.maxWidth - 32) / 3);
+                    return IntrinsicHeight(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _StatCard(
+                            icon: PhosphorIconsFill.sealQuestion,
+                            iconColor: AppColors.primary,
+                            iconFill: AppColors.primarySoft,
+                            value: quiz.questionsCount,
+                            label: AppStrings.questionsCountLabel,
+                            width: width,
+                          ),
+                          const SizedBox(width: 16),
+                          _StatCard(
+                            icon: PhosphorIconsFill.checkCircle,
+                            iconColor: AppColors.statTeal,
+                            iconFill: AppColors.primarySoft,
+                            value: quiz.correctAnswers,
+                            label: AppStrings.correctAnswersLabel,
+                            width: width,
+                            barColor: AppColors.statTeal,
+                          ),
+                          const SizedBox(width: 16),
+                          _StatCard(
+                            icon: PhosphorIconsFill.xCircle,
+                            iconColor: AppColors.resultWrongIcon,
+                            iconFill: AppColors.resultWrongFill,
+                            value: quiz.failedAnswers,
+                            label: AppStrings.wrongAnswersLabel,
+                            width: width,
+                            barColor: AppColors.resultWrongBar,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      _StatCard(
-                        icon: PhosphorIconsFill.checkCircle,
-                        iconColor: AppColors.statTeal,
-                        iconFill: AppColors.primarySoft,
-                        value: quiz.correctAnswers,
-                        label: AppStrings.correctAnswersLabel,
-                        barColor: AppColors.statTeal,
-                      ),
-                      const SizedBox(width: 16),
-                      _StatCard(
-                        icon: PhosphorIconsFill.xCircle,
-                        iconColor: AppColors.resultWrongIcon,
-                        iconFill: AppColors.resultWrongFill,
-                        value: quiz.failedAnswers,
-                        label: AppStrings.wrongAnswersLabel,
-                        barColor: AppColors.resultWrongBar,
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -179,6 +190,7 @@ class _StatCard extends StatelessWidget {
     required this.iconFill,
     required this.value,
     required this.label,
+    required this.width,
     this.barColor,
   });
 
@@ -187,6 +199,7 @@ class _StatCard extends StatelessWidget {
   final Color iconFill;
   final int value;
   final String label;
+  final double width;
 
   /// لا شريط تحت «عدد الأسئلة».
   final Color? barColor;
@@ -195,7 +208,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bar = barColor;
     return Container(
-      width: 103,
+      width: width,
       constraints: const BoxConstraints(minHeight: 180),
       decoration: BoxDecoration(
         color: Colors.white,

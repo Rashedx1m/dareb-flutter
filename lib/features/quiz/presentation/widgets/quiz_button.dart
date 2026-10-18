@@ -58,7 +58,8 @@ class QuizButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon case final icon?) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
-                  Text(label),
+                  // يضيق بنقاط على الشاشات الضيقة أو مع خط مكبّر بدل أن يفيض.
+                  Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
                 ],
               ),
       ),
