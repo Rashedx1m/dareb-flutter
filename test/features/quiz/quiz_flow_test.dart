@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:educational_app/core/constants/app_strings.dart';
 import 'package:educational_app/core/error/failures.dart';
+import 'package:educational_app/core/theme/app_icons.dart';
 import 'package:educational_app/core/widgets/error_view.dart';
 import 'package:educational_app/features/quiz/domain/entities/quiz.dart';
 import 'package:educational_app/features/quiz/domain/repositories/quiz_repository.dart';
@@ -334,6 +335,22 @@ void main() {
       expect(directionOf('666÷222'), TextDirection.ltr);
       expect(directionOf('ان ناتج العملية التالية هو :'), TextDirection.rtl);
       expect(directionOf('1 ÷ 3'), TextDirection.ltr);
+    });
+
+    testWidgets('أيقونة كل بطاقة نتيجة في وسط بطاقتها، مهما قصر اسمها', (tester) async {
+      // كانت أيقونة «عدد الأسئلة» و«الأجوبة الخطأ» تنزاح إلى البداية، وتتوسط فقط
+      // أيقونة البطاقة التي التفّ اسمها على سطرين.
+      // خط الاختبار عريض فيلتف كل اسم ويملأ بطاقته فيخفي الخلل؛ تصغيره يُبقي الأسماء
+      // قصيرة كما على الهاتف.
+      tester.platformDispatcher.textScaleFactorTestValue = 0.5;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      repository.quizLoads.add(const Right(_scored));
+      await pump(tester, '/quiz/6/result');
+
+      for (final icon in [PhosphorIconsFill.sealQuestion, PhosphorIconsFill.checkCircle, PhosphorIconsFill.xCircle]) {
+        final card = find.ancestor(of: find.byIcon(icon), matching: find.byType(Stack)).first;
+        expect(tester.getCenter(find.byIcon(icon)).dx, moreOrLessEquals(tester.getCenter(card).dx, epsilon: 0.5));
+      }
     });
 
     testWidgets('تأكد من الأجوبة يفتح المراجعة', (tester) async {

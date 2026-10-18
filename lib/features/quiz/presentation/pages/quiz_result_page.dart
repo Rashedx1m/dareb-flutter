@@ -217,6 +217,9 @@ class _StatCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
+        // العمود بعرض أعرض عنصر فيه، فيُوضع في الوسط لا في البداية، وإلا انزاحت
+        // الأيقونة مع النص القصير («عدد الأسئلة») وتوسطت فقط مع النص الملتف.
+        alignment: Alignment.topCenter,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 26, 8, 16),
