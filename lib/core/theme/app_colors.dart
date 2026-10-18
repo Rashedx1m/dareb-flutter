@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 /// إذا نسخت كود اللون من اللوحة اليمنى في فيجما، عدّل القيم هنا فقط.
 abstract final class AppColors {
   static const primary = Color(0xFF34BBBD);
-  static const primaryDark = Color(0xFF2A9698);
   static const primarySoft = Color(0xFFE6F7F7);
   static const primaryMid = Color(0xFFB3E4E5);
   static const headerTeal = Color(0xFF34BBBD);
-  static const navy = Color(0xFF355C8A);
   static const textPrimary = Color(0xFF1C2434);
   static const textSecondary = Color(0xFF7B8794);
   static const textMuted = Color(0xFFA0AAB5);
@@ -20,7 +18,6 @@ abstract final class AppColors {
   static const keypadKey = Color(0xFFFFFFFF);
   static const danger = Color(0xFFE74C3C);
   static const success = Color(0xFF27AE60);
-  static const warning = Color(0xFFF5A623);
   static const shadow = Color(0x14000000);
   static const sourceSelected = Color(0xFF8EA6F2);
   static const iconBlue = Color(0xFF7CA4F2);
@@ -51,7 +48,6 @@ abstract final class AppColors {
   static const overlay40 = Color(0x66000000);
   static const overlay60 = Color(0x99000000);
   static const overlay70 = Color(0xB3000000);
-  static const overlay80 = Color(0xCC000000);
   static const videoBackground = Color(0xFF111111);
   static const viewerBackground = Color(0xF20E1114); // خلفية عارض الصور
   // الصفحة الرئيسية والمعرض والاختبارات والتنزيلات.
@@ -61,12 +57,20 @@ abstract final class AppColors {
   static const progressText = Color(0xFF8A9AA8);
   static const iconTileBlue = Color(0xFFEAF1FF);
   static const dotInactive = Color(0xFFD9DEE5);
-  static const imageCaption = Color(0xFFE0E6EC); // نص فوق صورة الخبر
   static const tabTrack = Color(0xFFB0B8BC);
   static const tabLabel = Color(0xFFF2F5F6);
   static const quizCardBorder = Color(0xFFBFD3F3);
-  static const reviewWrongFill = Color(0xFFFDECEC);
-  static const reviewWrongBorder = Color(0xFFF3B4B4);
+  static const reviewWrongFill = Color(0xFFFFF5F4);
+  static const reviewWrongBorder = Color(0xFFE58A8F);
+  static const reviewWrongBadge = Color(0xFFFFD9D4); // رقم السؤال الخاطئ في المراجعة
+  static const reviewWrongBar = Color(0xFFD7595C); // حافة بطاقة السؤال الخاطئ
+  static const answerFill = Color(0xFFEBFBFB); // الخيار المختار وصندوق الإجابة الصحيحة
+  static const quizLineLight = Color(0xFF8CE6DC); // طرفا الخط المتدرّج أعلى بطاقة السؤال
+  static const quizLineDark = Color(0xFF1F8F79);
+  static const resultWrongFill = Color(0xFFFFE4E8); // دائرة أيقونة الأجوبة الخطأ في النتيجة
+  static const resultWrongIcon = Color(0xFFB0272F);
+  static const resultWrongBar = Color(0xFFD48E8E);
+  static const mutedButtonFill = Color(0xFFF2F8F8); // زر «الرجوع للصفحة الرئيسية»
   static const metaText = Color(0xFF5C5C5C);
   // صفحة الدورة: «مسار التعلم» وبطاقات دروسه.
   static const pathTitle = Color(0xFF000000);

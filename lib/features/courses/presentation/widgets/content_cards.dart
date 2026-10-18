@@ -25,6 +25,7 @@ class ContentCard extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.borderColor = AppColors.albumBorder,
+    this.radius = 20,
   });
 
   final double height;
@@ -39,14 +40,17 @@ class ContentCard extends StatelessWidget {
   /// أزرق أوضح في نتائج البحث.
   final Color borderColor;
 
+  /// زوايا أصغر (10) في قائمة «اختباراتي».
+  final double radius;
+
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: borderColor)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius), side: BorderSide(color: borderColor)),
       child: InkWell(
         onTap: onTap,
-        customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
         child: SizedBox(
           height: height,
           child: Row(

@@ -2,22 +2,32 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
-/// رقم السؤال في دائرة فيروزية كما في شاشتي الحل والمراجعة.
+/// رقم السؤال في دائرة. في صفحة الحل فاتحة برقم فيروزي، وفي المراجعة تأخذ لون
+/// صحة الإجابة.
 class QuestionBadge extends StatelessWidget {
-  const QuestionBadge({super.key, required this.number});
+  const QuestionBadge({
+    super.key,
+    required this.number,
+    this.size = 38,
+    this.fill = AppColors.primarySoft,
+    this.textColor = AppColors.primary,
+  });
 
   final int number;
+  final double size;
+  final Color fill;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
+      width: size,
+      height: size,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       child: Text(
         '$number',
-        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+        style: TextStyle(color: textColor, fontSize: 15, fontFamily: 'Lato'),
       ),
     );
   }

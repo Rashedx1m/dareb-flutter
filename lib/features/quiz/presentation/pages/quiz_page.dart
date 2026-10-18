@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/page_header.dart';
 import '../../domain/entities/quiz.dart';
 import '../cubit/quiz_cubit.dart';
 import '../widgets/question_badge.dart';
+import '../widgets/quiz_button.dart';
 
 /// صفحة حل الاختبار: كل الأسئلة في صفحة واحدة، و«النتيجة» بعد الإجابة عنها كلها.
 class QuizPage extends StatelessWidget {
@@ -50,22 +50,14 @@ class QuizPage extends StatelessWidget {
                       message: state.error,
                       onRetry: () => context.read<QuizCubit>().load(quizId),
                     ),
-                  QuizStatus.success when quiz != null => _Questions(quiz: quiz, selected: state.selected),
+                  QuizStatus.success when quiz != null => _Questions(
+                      quiz: quiz,
+                      selected: state.selected,
+                      sending: state.attend == AttendStatus.sending,
+                    ),
                   _ => const LoadingView(),
                 },
               ),
-              if (state.status == QuizStatus.success && quiz != null)
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    child: AppButton(
-                      label: AppStrings.quizResult,
-                      loading: state.attend == AttendStatus.sending,
-                      onPressed: context.read<QuizCubit>().allAnswered ? context.read<QuizCubit>().submit : null,
-                    ),
-                  ),
-                ),
             ],
           ),
         );
@@ -74,38 +66,52 @@ class QuizPage extends StatelessWidget {
   }
 }
 
+/// الأسئلة في قائمة، وزر «النتيجة» يطفو فوق آخرها كما في التصميم.
 class _Questions extends StatelessWidget {
-  const _Questions({required this.quiz, required this.selected});
+  const _Questions({required this.quiz, required this.selected, required this.sending});
 
   final QuizDetails quiz;
   final Map<String, String> selected;
+  final bool sending;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      itemCount: quiz.questions.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 16),
-      itemBuilder: (context, i) {
-        final question = quiz.questions[i];
-        return _QuestionCard(
-          number: i + 1,
-          question: question,
-          selectedId: selected[question.id],
-          onSelect: (answerId) => context.read<QuizCubit>().select(question.id, answerId),
-        );
-      },
+    final cubit = context.read<QuizCubit>();
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return Stack(
+      children: [
+        ListView.separated(
+          padding: EdgeInsetsDirectional.fromSTEB(16, 28, 22, bottom + 96),
+          itemCount: quiz.questions.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 30),
+          itemBuilder: (context, i) {
+            final question = quiz.questions[i];
+            return _QuestionCard(
+              number: i + 1,
+              question: question,
+              selectedId: selected[question.id],
+              onSelect: (answerId) => cubit.select(question.id, answerId),
+            );
+          },
+        ),
+        PositionedDirectional(
+          start: 16,
+          end: 15,
+          bottom: bottom + 16,
+          child: QuizButton(
+            label: AppStrings.quizResult,
+            loading: sending,
+            onPressed: cubit.allAnswered ? cubit.submit : null,
+          ),
+        ),
+      ],
     );
   }
 }
 
+/// بطاقة السؤال: خط متدرّج في أعلاها، ثم الرقم والنص، ثم الخيارات.
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({
-    required this.number,
-    required this.question,
-    required this.selectedId,
-    required this.onSelect,
-  });
+  const _QuestionCard({required this.number, required this.question, required this.selectedId, required this.onSelect});
 
   final int number;
   final QuizQuestion question;
@@ -115,43 +121,59 @@ class _QuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 12, offset: Offset(0, 4))],
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 16, offset: Offset(0, 4))],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  question.text,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700, height: 1.5),
-                ),
-              ),
-              const SizedBox(width: 12),
-              QuestionBadge(number: number),
-            ],
-          ),
-          const SizedBox(height: 16),
-          for (final answer in question.answers)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _AnswerTile(
-                text: answer.text,
-                selected: answer.id == selectedId,
-                onTap: () => onSelect(answer.id),
+          // الطرف الداكن في البداية (اليمين) كما في التصميم.
+          Container(
+            height: 3,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.centerStart,
+                end: AlignmentDirectional.centerEnd,
+                colors: [AppColors.quizLineDark, AppColors.quizLineLight],
               ),
             ),
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 25, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    QuestionBadge(number: number),
+                    const SizedBox(width: 17),
+                    Expanded(
+                      child: Text(
+                        question.text,
+                        style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, height: 1.5),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 26),
+                for (final (i, answer) in question.answers.indexed) ...[
+                  if (i > 0) const SizedBox(height: 16),
+                  _AnswerTile(text: answer.text, selected: answer.id == selectedId, onTap: () => onSelect(answer.id)),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
+/// خيار الإجابة: إطار رمادي، والمختار مظلل بلا إطار، مع دائرة الاختيار وشريط
+/// فيروزي في البداية.
 class _AnswerTile extends StatelessWidget {
   const _AnswerTile({required this.text, required this.selected, required this.onTap});
 
@@ -161,34 +183,45 @@ class _AnswerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selected ? AppColors.primarySoft : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52, minWidth: double.infinity),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                child: Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: selected ? BorderSide.none : const BorderSide(color: AppColors.fieldBorder),
+    );
+    return Semantics(
+      selected: selected,
+      child: Material(
+        color: selected ? AppColors.answerFill : Colors.white,
+        shape: shape,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: shape,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 67, minWidth: double.infinity),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 16),
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: selected ? AppColors.primary : AppColors.textPrimary, fontSize: 16),
+                  ),
                 ),
-              ),
-              if (selected)
-                const PositionedDirectional(
-                  end: 14,
-                  child: _SelectedMark(),
-                ),
-            ],
+                if (selected) ...[
+                  const PositionedDirectional(start: 22, child: _SelectedMark()),
+                  PositionedDirectional(
+                    start: 2,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 4,
+                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
@@ -202,16 +235,16 @@ class _SelectedMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 22,
-      height: 22,
+      width: 21,
+      height: 21,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary, width: 2),
       ),
       child: Container(
-        width: 10,
-        height: 10,
+        width: 11,
+        height: 11,
         decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
       ),
     );

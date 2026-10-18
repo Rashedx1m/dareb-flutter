@@ -167,7 +167,7 @@ void main() {
 
       expect(find.text(AppStrings.noMyExams), findsOneWidget);
 
-      await tester.tap(find.text(AppStrings.tabDailyActivities));
+      await tester.tap(find.text(AppStrings.tabActivities));
       await tester.pumpAndSettle();
 
       expect(find.text(AppStrings.noMyActivities), findsOneWidget);
@@ -181,14 +181,14 @@ void main() {
       await pump(tester, '/tests');
 
       expect(find.text('هذا اختبار رباضيات'), findsOneWidget);
-      expect(find.text('2 ${AppStrings.questionUnit}'), findsOneWidget);
+      expect(find.text('2 ${AppStrings.questionsUnit}'), findsOneWidget);
       expect(find.text('22'), findsNothing);
 
-      await tester.tap(find.text(AppStrings.tabDailyActivities));
+      await tester.tap(find.text(AppStrings.tabActivities));
       await tester.pumpAndSettle();
       expect(find.text('نشاط يومي'), findsOneWidget);
 
-      await tester.tap(find.text(AppStrings.tabTests));
+      await tester.tap(find.text(AppStrings.tabExams));
       await tester.pumpAndSettle();
       await tester.tap(find.text('هذا اختبار رباضيات'));
       await tester.pumpAndSettle();
@@ -263,6 +263,37 @@ void main() {
       expect(find.text('110'), findsOneWidget);
       expect(find.text('333'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
+    });
+
+    testWidgets('السؤال بأكثر من إجابة صحيحة: اختيار الثانية صحيح، والخطأ يعرض الصحيحتين', (tester) async {
+      // الاختبار 1 على خادم التدريب علّم خيارين صحيحين للسؤال نفسه.
+      QuizQuestion question(String selectedId) => QuizQuestion(
+            id: selectedId,
+            text: 'س$selectedId',
+            answers: [
+              QuizAnswer(id: '1', text: 'أ', isCorrect: true, isSelected: selectedId == '1'),
+              QuizAnswer(id: '2', text: 'ب', isCorrect: true, isSelected: selectedId == '2'),
+              QuizAnswer(id: '3', text: 'ج', isCorrect: false, isSelected: selectedId == '3'),
+            ],
+          );
+      repository.quizLoads.add(
+        Right(
+          QuizDetails(
+            id: '1',
+            title: 'اختبار',
+            questionsCount: 2,
+            correctAnswers: 1,
+            failedAnswers: 1,
+            questions: [question('2'), question('3')],
+          ),
+        ),
+      );
+      await pump(tester, '/quiz/1/review');
+
+      expect(find.text(AppStrings.yourAnswerCorrect), findsOneWidget);
+      expect(find.text(AppStrings.yourAnswerWrong), findsOneWidget);
+      expect(find.text(AppStrings.correctAnswerLabel), findsOneWidget);
+      expect(find.text('أ، ب'), findsOneWidget);
     });
 
     testWidgets('تأكد من الأجوبة يفتح المراجعة', (tester) async {

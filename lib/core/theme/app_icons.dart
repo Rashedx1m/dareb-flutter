@@ -19,7 +19,6 @@ abstract final class PhosphorIconsRegular {
   static const bank = IconData(0xe0b4, fontFamily: _family);
   static const genderMale = IconData(0xe6e2, fontFamily: _family);
   static const genderFemale = IconData(0xe6e0, fontFamily: _family);
-  static const flask = IconData(0xe79e, fontFamily: _family);
   static const bookOpen = IconData(0xe0e6, fontFamily: _family);
   static const users = IconData(0xe4d6, fontFamily: _family);
   static const facebookLogo = IconData(0xe226, fontFamily: _family);
@@ -36,7 +35,6 @@ abstract final class PhosphorIconsRegular {
   static const handWaving = IconData(0xe580, fontFamily: _family);
   static const trophy = IconData(0xe67e, fontFamily: _family);
   // صفحات الملف الشخصي والدعم.
-  static const student = IconData(0xe73e, fontFamily: _family);
   static const question = IconData(0xe3e8, fontFamily: _family);
   static const headset = IconData(0xe584, fontFamily: _family);
   static const envelopeSimpleOpen = IconData(0xe21a, fontFamily: _family);
@@ -54,7 +52,6 @@ abstract final class PhosphorIconsRegular {
   static const brain = IconData(0xe74e, fontFamily: _family);
   static const chalkboardTeacher = IconData(0xe600, fontFamily: _family);
   static const wrench = IconData(0xe5d4, fontFamily: _family);
-  static const camera = IconData(0xe10e, fontFamily: _family);
   static const handCoins = IconData(0xea8c, fontFamily: _family);
   static const calculator = IconData(0xe538, fontFamily: _family);
   static const receipt = IconData(0xe3ec, fontFamily: _family);
@@ -65,14 +62,12 @@ abstract final class PhosphorIconsRegular {
   static const timer = IconData(0xe492, fontFamily: _family);
   static const lock = IconData(0xe2fa, fontFamily: _family);
   static const chats = IconData(0xe17c, fontFamily: _family);
-  static const cornersOut = IconData(0xe1d0, fontFamily: _family);
   static const shareNetwork = IconData(0xe408, fontFamily: _family);
   static const downloadSimple = IconData(0xe20c, fontFamily: _family);
   static const paperPlaneRight = IconData(0xe396, fontFamily: _family);
 }
 
 abstract final class PhosphorIconsFill {
-  static const sealCheck = IconData(0xe606, fontFamily: 'PhosphorFill');
   static const house = IconData(0xe2c2, fontFamily: 'PhosphorFill');
   static const image = IconData(0xe2ca, fontFamily: 'PhosphorFill');
   static const books = IconData(0xe758, fontFamily: 'PhosphorFill');
@@ -91,5 +86,11 @@ abstract final class PhosphorIconsFill {
   static const megaphoneSimple = IconData(0xe642, fontFamily: 'PhosphorFill');
   static const trayArrowDown = IconData(0xe010, fontFamily: 'PhosphorFill');
   static const warning = IconData(0xe4e0, fontFamily: 'PhosphorFill');
-  static const play = IconData(0xe3d0, fontFamily: 'PhosphorFill');
+  // شاشتا نتيجة الاختبار ومراجعته.
+  static const checkCircle = IconData(0xe184, fontFamily: 'PhosphorFill');
+  static const xCircle = IconData(0xe4f8, fontFamily: 'PhosphorFill');
+  static const star = IconData(0xe46a, fontFamily: 'PhosphorFill');
+  static const medal = IconData(0xe320, fontFamily: 'PhosphorFill');
+  static const sealQuestion = IconData(0xe608, fontFamily: 'PhosphorFill');
+  static const listChecks = IconData(0xeadc, fontFamily: 'PhosphorFill');
 }

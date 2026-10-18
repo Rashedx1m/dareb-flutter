@@ -68,12 +68,11 @@ class QuizQuestion extends Equatable {
     return null;
   }
 
-  QuizAnswer? get correct {
-    for (final answer in answers) {
-      if (answer.isCorrect) return answer;
-    }
-    return null;
-  }
+  /// كل الخيارات الصحيحة: الخادم قد يعلّم أكثر من خيار صحيح للسؤال نفسه.
+  List<QuizAnswer> get correctAnswers => [for (final answer in answers) if (answer.isCorrect) answer];
+
+  /// صحيح إن كان الخيار المختار أحد الخيارات الصحيحة، لا أولها فقط.
+  bool get isAnsweredCorrectly => selected?.isCorrect ?? false;
 
   @override
   List<Object?> get props => [id, text, answers];

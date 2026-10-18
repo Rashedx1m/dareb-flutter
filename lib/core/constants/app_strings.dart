@@ -17,7 +17,6 @@ abstract final class AppStrings {
   static const schoolPrivate = 'مدرسة خاصة';
   static const schoolInstitute = 'معهد';
   static const schoolOther = 'أخرى';
-  static const nameHint = 'الاسم الكامل';
   static const otpTitle = 'أدخل ';
   static const otpTitleHighlight = 'رمز التحقق';
   static const otpSubtitle = 'أدخل الرمز الذي أرسل إلى الرقم';
@@ -63,16 +62,10 @@ abstract final class AppStrings {
   static const errorFieldsRequired = 'أكمل جميع الحقول';
   static const errorOtpIncomplete = 'رمز التحقق غير مكتمل';
   static const errorOtpInvalid = 'رمز التحقق غير صحيح';
-  static const home = 'الرئيسية';
   static const courses = 'الدورات';
-  static const tests = 'اختباراتي';
-  static const profile = 'حسابي';
   // شاشة «اختباراتي» (My Tests).
   static const myTests = 'اختباراتي';
-  static const tabTests = 'اختبارات';
-  static const tabDailyActivities = 'نشاطات يومية';
   static const searchHere = 'ابحث هنا...';
-  static const questionUnit = 'سؤال';
   static const noTestsFound = 'لا توجد نتائج مطابقة';
   static const noMyExams = 'لا توجد اختبارات بعد';
   static const noMyActivities = 'لا توجد نشاطات يومية بعد';
@@ -94,7 +87,6 @@ abstract final class AppStrings {
   static const galleryEmpty = 'لا توجد صور في هذا الألبوم بعد';
   static const galleryNoAlbums = 'لا توجد ألبومات بعد';
   static const photoCounter = 'من'; // «3 من 12»
-  static const searchHint = 'ابحث هنا...';
   static const welcomeBack = 'أهلاً بعودتك، ';
   static const pointsLabel = 'نقطة';
   static const coursesCountLabel = 'دورات';
@@ -106,9 +98,6 @@ abstract final class AppStrings {
   static const checkAccount = 'تفقّد حسابك الآن';
   static const subjects = 'المواد';
   static const showAll = 'أظهر الكل';
-  static const science = 'العلوم';
-  static const math = 'الرياضيات';
-  static const socialStudies = 'الاجتماعيات';
   static const latestNews = 'آخر الأخبار';
   static const featuredCourses = 'أبرز الدورات';
   static const chaptersLabel = 'فصول';
@@ -122,16 +111,9 @@ abstract final class AppStrings {
   static const exitWord = 'الخروج';
   static const genderHint = 'الجنس';
   static const accountSaved = 'تم حفظ بياناتك بنجاح';
-  static const search = 'ابحث عن مادة';
-  static const searchTitle = 'البحث';
   static const searchPrompt = 'ابدأ البحث عن مادة';
   static const noSearchResults = 'لا توجد مواد بهذا الاسم';
-  static const continueLearning = 'أكمل القانون';
-  static const continueQuiz = 'أكمل مسابقتك';
-  static const progressTitle = 'تقدمك الدراسي';
-  static const popularCourses = 'الدورات الشائعة';
   static const seeAll = 'عرض الكل';
-  static const categories = 'التصنيفات';
   static const noSubjects = 'لا توجد مواد متاحة بعد';
   static const notifications = 'الإشعارات';
   static const noNotifications = 'لا توجد إشعارات بعد';
@@ -144,7 +126,6 @@ abstract final class AppStrings {
   static const pm = 'مساءً';
   static const achievements = 'إنجازاتي';
   static const achievementsEmpty = 'لا توجد مواد لمتابعة إنجازها بعد';
-  static const myCourses = 'دوراتي';
   static const subscription = 'الاشتراك';
   static const checkout = 'إتمام الشراء';
   static const about = 'حول التطبيق';
@@ -213,17 +194,12 @@ abstract final class AppStrings {
   static const cashInstructions =
       'تواصل مع الإدارة من «تواصل معنا» في الملف الشخصي لترتيب الدفع نقداً واستلام كود الاشتراك.';
   static const errorImageType = 'الصورة يجب أن تكون بصيغة JPG أو PNG';
-  static const startLesson = 'ابدأ الدرس';
   static const subscribe = 'اشترك الآن';
-  static const pay = 'ادفع الآن';
   // الدورات والدروس.
   static const noCourses = 'لا توجد دورات متاحة بعد';
   static const noMyCourses = 'لم تشترك في أي دورة بعد';
-  static const lessonsTitle = 'الدروس';
   static const noLessons = 'لا توجد دروس بعد';
   static const examLesson = 'اختبار';
-  static const lesson = 'الدرس';
-  static const semesterLessons = 'دروس الفصل';
   static const subscribersOnlyLesson = 'هذا الدرس للمشتركين';
   // صفحة الدورة.
   static const courseDescription = 'الوصف';

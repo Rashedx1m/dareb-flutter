@@ -231,7 +231,7 @@ class _HomeHeader extends StatelessWidget {
           const SizedBox(height: 16),
           Semantics(
             button: true,
-            label: AppStrings.searchHint,
+            label: AppStrings.searchHere,
             child: GestureDetector(
               onTap: onSearch,
               child: Container(
@@ -247,7 +247,7 @@ class _HomeHeader extends StatelessWidget {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        AppStrings.searchHint,
+                        AppStrings.searchHere,
                         style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                       ),
                     ),

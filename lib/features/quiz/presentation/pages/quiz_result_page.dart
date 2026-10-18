@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/quiz.dart';
 import '../cubit/quiz_result_cubit.dart';
+import '../widgets/quiz_button.dart';
 
 /// شاشة إنهاء الاختبار: النسبة والعدّادات من `GET /exams/result`.
 class QuizResultPage extends StatelessWidget {
@@ -44,72 +44,126 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      child: Column(
-        children: [
-          const Spacer(),
-          Container(
-            width: 112,
-            height: 112,
-            decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-            child: const Icon(PhosphorIconsRegular.medal, color: Colors.white, size: 56),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 16),
+            child: Column(
+              children: [
+                const _Badge(),
+                const SizedBox(height: 28),
+                const Text(
+                  AppStrings.quizFinishedTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 26, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  AppStrings.quizFinishedSubtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.metaText, fontSize: 15),
+                ),
+                const SizedBox(height: 22),
+                Text(
+                  '${quiz.percent}%',
+                  style: const TextStyle(
+                    color: AppColors.accentBlue,
+                    fontSize: 76,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 56),
+                // البطاقات بارتفاع أطولها إن التفّ اسم أحدها على سطرين.
+                IntrinsicHeight(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _StatCard(
+                        icon: PhosphorIconsFill.sealQuestion,
+                        iconColor: AppColors.primary,
+                        iconFill: AppColors.primarySoft,
+                        value: quiz.questionsCount,
+                        label: AppStrings.questionsCountLabel,
+                      ),
+                      const SizedBox(width: 16),
+                      _StatCard(
+                        icon: PhosphorIconsFill.checkCircle,
+                        iconColor: AppColors.statTeal,
+                        iconFill: AppColors.primarySoft,
+                        value: quiz.correctAnswers,
+                        label: AppStrings.correctAnswersLabel,
+                        barColor: AppColors.statTeal,
+                      ),
+                      const SizedBox(width: 16),
+                      _StatCard(
+                        icon: PhosphorIconsFill.xCircle,
+                        iconColor: AppColors.resultWrongIcon,
+                        iconFill: AppColors.resultWrongFill,
+                        value: quiz.failedAnswers,
+                        label: AppStrings.wrongAnswersLabel,
+                        barColor: AppColors.resultWrongBar,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 28),
-          const Text(
-            AppStrings.quizFinishedTitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.nameDark, fontSize: 24, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            AppStrings.quizFinishedSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            '${quiz.percent}%',
-            style: const TextStyle(color: AppColors.iconBlue, fontSize: 48, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 28),
-          Row(
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+          child: Column(
             children: [
-              _StatCard(
-                icon: PhosphorIconsRegular.exam,
-                iconColor: AppColors.primary,
-                value: quiz.questionsCount,
-                label: AppStrings.questionsCountLabel,
-                barColor: AppColors.primary,
+              QuizButton(
+                label: AppStrings.reviewAnswers,
+                icon: PhosphorIconsFill.listChecks,
+                height: 55,
+                onPressed: () => context.push('/quiz/$quizId/review'),
               ),
-              const SizedBox(width: 10),
-              _StatCard(
-                icon: PhosphorIconsFill.sealCheck,
-                iconColor: AppColors.success,
-                value: quiz.correctAnswers,
-                label: AppStrings.correctAnswersLabel,
-                barColor: AppColors.primary,
-              ),
-              const SizedBox(width: 10),
-              _StatCard(
-                icon: PhosphorIconsRegular.xCircle,
-                iconColor: AppColors.danger,
-                value: quiz.failedAnswers,
-                label: AppStrings.wrongAnswersLabel,
-                barColor: AppColors.danger,
+              const SizedBox(height: 16),
+              QuizButton(
+                label: AppStrings.backToHome,
+                icon: PhosphorIconsRegular.house,
+                height: 55,
+                muted: true,
+                onPressed: () => context.go('/home'),
               ),
             ],
           ),
-          const Spacer(),
-          AppButton(
-            label: AppStrings.reviewAnswers,
-            onPressed: () => context.push('/quiz/$quizId/review'),
+        ),
+      ],
+    );
+  }
+}
+
+/// الوسام في دائرة فيروزية، ونجمتان صغيرتان حوله كما في التصميم.
+class _Badge extends StatelessWidget {
+  const _Badge();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 220,
+      height: 180,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 128,
+            height: 128,
+            decoration: const BoxDecoration(color: AppColors.statTeal, shape: BoxShape.circle),
+            child: const Icon(PhosphorIconsFill.medal, color: Colors.white, size: 60),
           ),
-          const SizedBox(height: 12),
-          AppButton(
-            label: AppStrings.backToHome,
-            outlined: true,
-            onPressed: () => context.go('/home'),
+          // مواضع بصرية ثابتة لا تنعكس مع اتجاه النص.
+          const Positioned(left: 187, top: 0, child: Icon(PhosphorIconsFill.star, color: AppColors.iconBlue, size: 20)),
+          const Positioned(
+            left: 7,
+            top: 127,
+            child: Icon(PhosphorIconsFill.star, color: AppColors.primaryMid, size: 24),
           ),
         ],
       ),
@@ -117,48 +171,84 @@ class _Body extends StatelessWidget {
   }
 }
 
+/// بطاقة عدّاد: الأيقونة في دائرة، ثم الرقم واسمه، وشريط ملوّن في أسفلها.
 class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.icon,
     required this.iconColor,
+    required this.iconFill,
     required this.value,
     required this.label,
-    required this.barColor,
+    this.barColor,
   });
 
   final IconData icon;
   final Color iconColor;
+  final Color iconFill;
   final int value;
   final String label;
-  final Color barColor;
+
+  /// لا شريط تحت «عدد الأسئلة».
+  final Color? barColor;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [BoxShadow(color: AppColors.shadowSoft, blurRadius: 10, offset: Offset(0, 4))],
-          border: Border(bottom: BorderSide(color: barColor, width: 3)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: iconColor, size: 28),
-            const SizedBox(height: 10),
-            Text(
-              '$value',
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w800),
+    final bar = barColor;
+    return Container(
+      width: 103,
+      constraints: const BoxConstraints(minHeight: 180),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 16, offset: Offset(0, 4))],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 26, 8, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 47,
+                  height: 47,
+                  decoration: BoxDecoration(color: iconFill, shape: BoxShape.circle),
+                  child: Icon(icon, color: iconColor, size: 24),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  '$value',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 22,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.metaText, fontSize: 14, height: 1.3),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.3),
+          ),
+          if (bar != null)
+            Positioned(
+              left: 6,
+              right: 6,
+              bottom: 0,
+              height: 5,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: bar,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+                ),
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

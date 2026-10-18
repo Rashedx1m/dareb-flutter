@@ -1,5 +1,3 @@
-import '../../../../core/data/mock_catalog.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/quiz.dart';
 import '../models/quiz_model.dart';
@@ -55,63 +53,5 @@ class QuizRemoteDataSourceImpl implements QuizRemoteDataSource {
       fields: {'answers_id[]': answerIds},
       parse: (data) => QuizScoreModel.fromJson(data as Map<String, dynamic>),
     );
-  }
-}
-
-/// تنفيذ تجريبي من [MockCatalog]، يُستبدل في حقن الاعتماديات بالمصدر الحقيقي.
-class QuizMockDataSource implements QuizRemoteDataSource {
-  const QuizMockDataSource();
-
-  QuizModel _card(Quiz quiz) => QuizModel(
-        id: quiz.id,
-        title: quiz.title,
-        instructor: quiz.instructor,
-        questionsCount: quiz.questionsCount,
-        kind: quiz.kind,
-      );
-
-  QuizDetailsModel _details(QuizDetails details) => QuizDetailsModel(
-        id: details.id,
-        title: details.title,
-        questionsCount: details.questionsCount,
-        correctAnswers: details.correctAnswers,
-        failedAnswers: details.failedAnswers,
-        questions: [
-          for (final q in details.questions)
-            QuizQuestionModel(
-              id: q.id,
-              text: q.text,
-              answers: [
-                for (final a in q.answers)
-                  QuizAnswerModel(id: a.id, text: a.text, isCorrect: a.isCorrect, isSelected: a.isSelected),
-              ],
-            ),
-        ],
-      );
-
-  @override
-  Future<List<QuizModel>> getMyExams() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return [for (final quiz in MockCatalog.quizzes) if (quiz.kind == QuizKind.test) _card(quiz)];
-  }
-
-  @override
-  Future<List<QuizModel>> getMyActivities() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return [for (final quiz in MockCatalog.quizzes) if (quiz.kind == QuizKind.activity) _card(quiz)];
-  }
-
-  @override
-  Future<QuizDetailsModel> getQuiz(String id) async {
-    await Future<void>.delayed(MockCatalog.latency);
-    final details = MockCatalog.quizDetails[id];
-    if (details == null) throw const ServerException('الاختبار غير موجود');
-    return _details(details);
-  }
-
-  @override
-  Future<QuizScoreModel> attendExam(List<String> answerIds) async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return const QuizScoreModel(questionsCount: 20, correctAnswers: 17, failedAnswers: 3);
   }
 }
