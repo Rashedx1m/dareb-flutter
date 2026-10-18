@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../constants/app_strings.dart';
+import '../theme/app_assets.dart';
 import '../theme/app_icons.dart';
 import '../theme/app_colors.dart';
 import 'darb_logo.dart';
@@ -425,7 +426,7 @@ class SuccessBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     // أيقونة الختم (seal-check) المستخرجة من التصميم بلونها الأزرق #7CA4F2.
     return SvgPicture.asset(
-      'assets/icons/seal_check_fill.svg',
+      AppAssets.icSealCheck,
       width: size,
       height: size,
     );

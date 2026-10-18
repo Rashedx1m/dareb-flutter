@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 
-/// صورة معرض: رابط من الخادم، أو أصل محلي في المصدر التجريبي.
+/// صورة معرض من رابط الخادم، ومكانها ملوّن بأيقونة إن غاب الرابط أو فشل.
 class GalleryImage extends StatelessWidget {
   const GalleryImage({super.key, required this.url, this.fit = BoxFit.cover});
 
@@ -24,12 +24,9 @@ class GalleryImage extends StatelessWidget {
         ),
       );
     }
-    if (url.isEmpty) {
-      return const ColoredBox(
-        color: AppColors.primarySoft,
-        child: Icon(PhosphorIconsRegular.image, color: AppColors.primary, size: 28),
-      );
-    }
-    return Image.asset(url, fit: fit);
+    return const ColoredBox(
+      color: AppColors.primarySoft,
+      child: Icon(PhosphorIconsRegular.image, color: AppColors.primary, size: 28),
+    );
   }
 }

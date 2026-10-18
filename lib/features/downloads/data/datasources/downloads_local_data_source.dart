@@ -1,4 +1,3 @@
-import '../../../../core/data/mock_catalog.dart';
 import '../../domain/entities/downloaded_file.dart';
 
 /// الملفات المحفوظة على الجهاز. يرمي `CacheException` عند تعذّر قراءتها.
@@ -12,9 +11,12 @@ class DownloadsMockDataSource implements DownloadsLocalDataSource {
 
   static const _title = 'مقدمة الإحصاء 4';
 
+  /// زمن قراءة محاكى حتى يظهر التحميل.
+  static const _latency = Duration(milliseconds: 250);
+
   @override
   Future<List<DownloadedFile>> getDownloads() async {
-    await Future<void>.delayed(MockCatalog.latency);
+    await Future<void>.delayed(_latency);
     return const [
       DownloadedFile(id: 'd1', title: _title, chapter: 1, kind: DownloadKind.video, duration: '22:30'),
       DownloadedFile(id: 'd2', title: _title, chapter: 2, kind: DownloadKind.pdf, pages: 40),

@@ -165,7 +165,7 @@ class NotificationsRemoteDataSourceImpl implements NotificationsRemoteDataSource
 - المسار يبدأ بـ `/`.
 - `parse:` في كل طلب يُرجع بيانات.
 - لا `try/catch`: `ApiClient` يرمي `ServerException` و`ValidationException` و`AuthException` برسائل عربية.
-- إن لم يجهز الـ endpoint بعد: `NotificationsMockDataSource implements NotificationsRemoteDataSource` يقرأ من `MockCatalog`، ويُستبدل لاحقاً في DI وحده.
+- إن لم يجهز الـ endpoint بعد: `NotificationsMockDataSource implements NotificationsRemoteDataSource` يعيد بيانات ثابتة من التصميم، ويُستبدل لاحقاً في DI وحده، ثم يُحذف.
 
 **RepositoryImpl**: ثلاث خطوات ثابتة، ولا `try/catch`.
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../constants/app_strings.dart';
+import '../theme/app_assets.dart';
 
 class DarbLogo extends StatelessWidget {
   const DarbLogo({
@@ -16,7 +17,7 @@ class DarbLogo extends StatelessWidget {
     return Semantics(
       label: AppStrings.appName,
       child: SvgPicture.asset(
-        'assets/icons/Group.svg',
+        AppAssets.logo,
         width: size,
         height: size,
         fit: BoxFit.contain,

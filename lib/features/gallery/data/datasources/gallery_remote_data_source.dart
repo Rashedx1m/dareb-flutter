@@ -1,7 +1,5 @@
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
-import '../../domain/entities/gallery_album.dart';
 import '../models/gallery_album_model.dart';
 
 /// مصدر ألبومات المعرض. يرمي استثناءات [ApiClient] أو [ServerException] عند الفشل.
@@ -33,34 +31,5 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
       if (album.id == id) return album;
     }
     throw const ServerException('الألبوم غير موجود');
-  }
-}
-
-/// تنفيذ تجريبي من [MockCatalog]، يُستبدل بتنفيذ الـ API في حقن الاعتماديات فقط.
-class GalleryMockDataSource implements GalleryRemoteDataSource {
-  const GalleryMockDataSource();
-
-  @override
-  Future<List<GalleryAlbumModel>> getAlbums() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return [for (final album in MockCatalog.galleryAlbums) _model(album)];
-  }
-
-  @override
-  Future<GalleryAlbumModel> getAlbum(String id) async {
-    await Future<void>.delayed(MockCatalog.latency);
-    for (final album in MockCatalog.galleryAlbums) {
-      if (album.id == id) return _model(album);
-    }
-    throw const ServerException('الألبوم غير موجود');
-  }
-
-  static GalleryAlbumModel _model(GalleryAlbum album) {
-    return GalleryAlbumModel(
-      id: album.id,
-      title: album.title,
-      cover: album.cover,
-      photos: album.photos,
-    );
   }
 }

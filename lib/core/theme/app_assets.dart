@@ -14,14 +14,4 @@ abstract final class AppAssets {
   static const logoColor = 'assets/icons/logo_color.svg';
   static const icQuiz = 'assets/icons/ic_quiz.svg'; // أيقونة بطاقة الاختبار (لوح + ؟)
   static const icActivity = 'assets/icons/ic_activity.svg'; // أيقونة النشاط اليومي (رأس + دمبل)
-
-  // صور المعرض (ألبومات الطلاب) — صور حقيقية مقصوصة من التصميم، ست لقطات مختلفة.
-  static const galleryPhotos = <String>[
-    'assets/images/gallery/photo_1.png',
-    'assets/images/gallery/photo_2.png',
-    'assets/images/gallery/photo_3.png',
-    'assets/images/gallery/photo_4.png',
-    'assets/images/gallery/photo_5.png',
-    'assets/images/gallery/photo_6.png',
-  ];
 }

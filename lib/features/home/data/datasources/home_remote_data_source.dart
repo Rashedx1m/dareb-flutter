@@ -1,4 +1,3 @@
-import '../../../../core/data/mock_catalog.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/home_feed_model.dart';
 
@@ -17,24 +16,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     return _client.get(
       '/home-page/index',
       parse: (data) => HomeFeedModel.fromJson(data as Map<String, dynamic>),
-    );
-  }
-}
-
-/// تنفيذ تجريبي من [MockCatalog]، يُستبدل بتنفيذ الـ API في حقن الاعتماديات فقط.
-class HomeMockDataSource implements HomeRemoteDataSource {
-  const HomeMockDataSource();
-
-  @override
-  Future<HomeFeedModel> getHome() async {
-    await Future<void>.delayed(MockCatalog.latency);
-    return HomeFeedModel(
-      sliders: const [],
-      subjects: const [],
-      news: MockCatalog.news,
-      courses: const [],
-      completionRate: 0.4,
-      subjectCount: 22,
     );
   }
 }

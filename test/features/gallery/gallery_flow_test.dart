@@ -17,11 +17,8 @@ import 'package:go_router/go_router.dart';
 const _album = GalleryAlbum(
   id: '14',
   title: 'Tamkeen',
-  cover: 'assets/images/gallery/photo_1.png',
-  photos: [
-    'assets/images/gallery/photo_1.png',
-    'assets/images/gallery/photo_2.png',
-  ],
+  cover: 'https://x/1.jpg',
+  photos: ['https://x/1.jpg', 'https://x/2.jpg'],
 );
 
 class _FakeGalleryRepository extends Fake implements GalleryRepository {
