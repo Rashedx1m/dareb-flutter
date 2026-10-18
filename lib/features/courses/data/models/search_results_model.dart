@@ -4,7 +4,8 @@ import 'subject_model.dart';
 
 /// رد `home-page/search?text=`: `{subjects, exams, dailyActivities}`. المواد بطاقات
 /// قصيرة (`id, name, image, is_free, is_subscription`)، والاختبارات والنشاطات لم
-/// تظهر في نتيجة بعد، فتُقرأ بشكل `subjects/details`.
+/// تظهر في نتيجة بعد، فتُقرأ بشكل `subjects/details`. اشتراك الطالب بمادة الاختبار
+/// لا يصل في البحث، فالاختبار المدفوع يطلب الاشتراك من هنا ويُفتح من صفحة مادته.
 class SearchResultsModel extends SearchResults {
   const SearchResultsModel({super.subjects, super.exams, super.activities});
 

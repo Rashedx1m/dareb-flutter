@@ -248,11 +248,58 @@ void main() {
         title: 'هذا اختبار رباضيات',
         instructor: '',
         questionsCount: 2,
-        isFree: false,
+        isFree: true,
         isSubscribed: false,
       ),
     ]);
     expect(details.activities, isEmpty);
+  });
+
+  test('«مجاني» من الربط لا من الاختبار، فنشاط مجاني في مادة مدفوعة يُفتح', () {
+    // رد subjects/details?id=1 في 2026-10-18: المادة مدفوعة، وربط النشاط 12 مجاني
+    // في اللوحة، و exam.is_free الداخلي false كما في كل الاختبارات.
+    final details = SubjectDetailsModel.fromJson({
+      'content': {..._courseJson, 'points_count': 0, 'point_rate': 0, 'is_first_story': false},
+      'exams': [],
+      'dailyActivities': [
+        {
+          'id': 12,
+          'expiry_date': '2027-10-16',
+          'type': 'الأختبارات العامة',
+          'is_free': true,
+          'exam': {
+            'id': 7,
+            'title': 'اختبار رياضيات',
+            'professor': '',
+            'type': {'id': 2, 'name': 'Exam'},
+            'questions': [],
+            'questions_count': 2,
+            'subscriptions_count': 0,
+            'is_subscription': false,
+            'is_free': false,
+          },
+        },
+      ],
+    });
+
+    expect(details.course.isFree, isFalse);
+    expect(details.activities.single.isFree, isTrue);
+    expect(details.activities.single.isSubscribed, isFalse);
+  });
+
+  test('الاشتراك بالمادة يفتح اختباراتها المدفوعة، لأن الاختبار لا يُشترك به وحده', () {
+    final paid = {
+      ..._subjectDetailsJson,
+      'content': {..._subjectDetailsJson['content']! as Map<String, dynamic>, 'is_subscription': true},
+      'exams': [
+        {...(_subjectDetailsJson['exams']! as List).single as Map<String, dynamic>, 'is_free': false},
+      ],
+    };
+
+    final exam = SubjectDetailsModel.fromJson(paid).exams.single;
+
+    expect(exam.isFree, isFalse);
+    expect(exam.isSubscribed, isTrue);
   });
 
   test('بطاقة بلا lession_rate تُرفض', () {

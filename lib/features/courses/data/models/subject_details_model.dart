@@ -13,23 +13,30 @@ class SubjectDetailsModel extends SubjectDetails {
 
   factory SubjectDetailsModel.fromJson(Map<String, dynamic> json) {
     final content = json['content'] as Map<String, dynamic>;
+    // الاشتراك يكون بالمادة لا بالاختبار، فاختباراتها ونشاطاتها تتبعها.
+    final subscribed = content['is_subscription'] as bool;
     return SubjectDetailsModel(
       course: CourseModel.fromJson(content),
       pointsCount: content['points_count'] as int,
-      exams: _exams(json['exams']),
-      activities: _exams(json['dailyActivities']),
+      exams: _exams(json['exams'], subscribed: subscribed),
+      activities: _exams(json['dailyActivities'], subscribed: subscribed),
     );
   }
 
-  static List<SubjectExamModel> _exams(Object? list) => [
-        for (final item in ((list as List?) ?? const []).cast<Map<String, dynamic>>()) SubjectExamModel.fromJson(item),
+  static List<SubjectExamModel> _exams(Object? list, {required bool subscribed}) => [
+        for (final item in ((list as List?) ?? const []).cast<Map<String, dynamic>>())
+          SubjectExamModel.fromJson(item, subjectSubscribed: subscribed),
       ];
 }
 
-/// عنصر من `exams` أو `dailyActivities`: `{id, expiry_date, type, is_free, exam}`،
-/// والاختبار نفسه في `exam` بعنوانه وأستاذه وعدد أسئلته. `is_free` الخارجي للمادة
-/// و`exam.is_free` للاختبار، ويُقرأ الثاني. شكل النشاطات لم يظهر بعد (قائمتها فارغة
-/// على خادم التدريب)، ويُفترض مثل الاختبارات.
+/// عنصر من `exams` أو `dailyActivities`: ربط بين المادة والاختبار
+/// `{id, expiry_date, type, is_free, exam}`، والاختبار نفسه في `exam` بعنوانه وأستاذه
+/// وعدد أسئلته. النوعان صفحة واحدة في لوحة التحكم («الأختبارات العامة»): نوع
+/// «الأختبارات» يصل في `exams`، ونوع «الأختبارات العامة» في `dailyActivities`.
+///
+/// «مجاني» هو `is_free` الخارجي، أي حقل «مجاني» الذي يضبطه المشرف لكل ربط.
+/// `exam.is_free` الداخلي `false` دائماً ولا حقل له في اللوحة: المادة 1 مدفوعة وربطها
+/// 12 مجاني (2026-10-18). ولا نوع اشتراك للاختبار في اللوحة، فالاشتراك بمادته.
 class SubjectExamModel extends SubjectExam {
   const SubjectExamModel({
     required super.id,
@@ -40,16 +47,17 @@ class SubjectExamModel extends SubjectExam {
     required super.isSubscribed,
   });
 
-  /// في البحث قد يأتي الاختبار نفسه بلا غلاف `exam`، فيُقرأ من المستوى الأعلى.
-  factory SubjectExamModel.fromJson(Map<String, dynamic> json) {
+  /// في البحث قد يأتي الاختبار نفسه بلا غلاف `exam`، فيُقرأ كله من المستوى الأعلى.
+  /// [subjectSubscribed] اشتراك الطالب بمادة الاختبار حين يُعرف، كما في صفحة المادة.
+  factory SubjectExamModel.fromJson(Map<String, dynamic> json, {bool subjectSubscribed = false}) {
     final exam = (json['exam'] as Map<String, dynamic>?) ?? json;
     return SubjectExamModel(
       id: '${exam['id']}',
       title: exam['title'] as String,
       instructor: (exam['professor'] as String?) ?? '',
       questionsCount: exam['questions_count'] as int,
-      isFree: exam['is_free'] as bool,
-      isSubscribed: exam['is_subscription'] as bool,
+      isFree: json['is_free'] as bool,
+      isSubscribed: subjectSubscribed || exam['is_subscription'] as bool,
     );
   }
 }

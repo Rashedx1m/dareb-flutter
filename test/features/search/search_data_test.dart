@@ -86,6 +86,9 @@ void main() {
 
     expect(results.exams.single.title, 'هذا اختبار رباضيات');
     expect(results.exams.single.id, '6');
+    // «مجاني» من الغلاف حين يوجد، ومن الاختبار نفسه حين يأتي بلا غلاف.
+    expect(results.exams.single.isFree, isTrue);
+    expect(results.activities.single.isFree, isFalse);
     expect(results.activities.single.questionsCount, 2);
   });
 
