@@ -9,6 +9,7 @@ import '../../../../core/widgets/page_header.dart';
 import '../../domain/entities/quiz.dart';
 import '../cubit/quiz_cubit.dart';
 import '../widgets/question_badge.dart';
+import '../widgets/question_text.dart';
 import '../widgets/quiz_button.dart';
 
 /// صفحة حل الاختبار: كل الأسئلة في صفحة واحدة، و«النتيجة» بعد الإجابة عنها كلها.
@@ -151,7 +152,7 @@ class _QuestionCard extends StatelessWidget {
                     QuestionBadge(number: number),
                     const SizedBox(width: 17),
                     Expanded(
-                      child: Text(
+                      child: QuestionText(
                         question.text,
                         style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, height: 1.5),
                       ),
@@ -202,9 +203,9 @@ class _AnswerTile extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 16),
-                  child: Text(
+                  child: QuestionText(
                     text,
-                    textAlign: TextAlign.center,
+                    center: true,
                     style: TextStyle(color: selected ? AppColors.primary : AppColors.textPrimary, fontSize: 16),
                   ),
                 ),

@@ -10,6 +10,7 @@ import '../../../../core/widgets/page_header.dart';
 import '../../domain/entities/quiz.dart';
 import '../cubit/quiz_result_cubit.dart';
 import '../widgets/question_badge.dart';
+import '../widgets/question_text.dart';
 import '../widgets/quiz_button.dart';
 
 /// مراجعة تفصيلية بعد الحضور، من `GET /exams/result` لا من حالة الصفحة السابقة.
@@ -128,7 +129,7 @@ class _ReviewCard extends StatelessWidget {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
+                              child: QuestionText(
                                 question.text,
                                 style: const TextStyle(
                                   color: AppColors.textPrimary,
@@ -203,7 +204,7 @@ class _AnswerBox extends StatelessWidget {
         children: [
           Text(caption, style: const TextStyle(color: AppColors.metaText, fontSize: 15)),
           const SizedBox(height: 6),
-          Text(
+          QuestionText(
             text,
             style: TextStyle(
               color: valueColor,

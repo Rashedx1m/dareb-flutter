@@ -305,6 +305,37 @@ void main() {
       expect(find.text(AppStrings.questionsCountLabel), findsOneWidget);
     });
 
+    testWidgets('سطر المعادلة يُعرض من اليسار إلى اليمين، والسطر العربي من اليمين', (tester) async {
+      // سؤال الاختبار 6 على خادم التدريب: «666÷222» كان يظهر «222÷666» داخل الصفحة العربية.
+      repository.quizLoads.add(
+        const Right(
+          QuizDetails(
+            id: '6',
+            title: 'اختبار',
+            questionsCount: 1,
+            correctAnswers: 0,
+            failedAnswers: 0,
+            questions: [
+              QuizQuestion(
+                id: '52',
+                text: 'ان ناتج العملية التالية هو :\n666÷222',
+                answers: [
+                  QuizAnswer(id: '205', text: '3', isCorrect: true),
+                  QuizAnswer(id: '206', text: '1 ÷ 3', isCorrect: false),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+      await pump(tester, '/quiz/6');
+
+      TextDirection? directionOf(String text) => tester.widget<Text>(find.text(text)).textDirection;
+      expect(directionOf('666÷222'), TextDirection.ltr);
+      expect(directionOf('ان ناتج العملية التالية هو :'), TextDirection.rtl);
+      expect(directionOf('1 ÷ 3'), TextDirection.ltr);
+    });
+
     testWidgets('تأكد من الأجوبة يفتح المراجعة', (tester) async {
       repository.quizLoads.addAll(const [Right(_scored), Right(_scored)]);
       await pump(tester, '/quiz/6/result');
