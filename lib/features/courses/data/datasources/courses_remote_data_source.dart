@@ -43,6 +43,8 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
     return _client.get(
       '/subscriptions/my',
       parse: (data) {
+        // بلا اشتراكات يعيد الخادم `data: []` بدل `{subjects: []}` (2026-10-18).
+        if (data is List && data.isEmpty) return const [];
         final items = ((data as Map<String, dynamic>)['subjects'] as List).cast<Map<String, dynamic>>();
         final courses = <String, CourseModel>{};
         for (final item in items) {

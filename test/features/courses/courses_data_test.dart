@@ -424,9 +424,10 @@ void main() {
     });
 
     test('بلا اشتراكات تعود قائمة فارغة', () async {
+      // الرد الحقيقي لحساب بلا اشتراكات في 2026-10-18: مصفوفة لا كائن.
       adapter.on('/subscriptions/my', body: {
-        'message': 'ok',
-        'data': {'subjects': []},
+        'message': 'تمت العملية بنجاح',
+        'data': [],
       });
 
       expect((await repository.getMyCourses()).getOrElse(() => [_course]), isEmpty);
