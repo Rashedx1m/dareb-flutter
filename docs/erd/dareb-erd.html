@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Dareb ERD</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  :root { --ink: #1f2937; --muted: #6b7280; --line: #d1d5db; --teal: #0f9d94; --soft: #f3f4f6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; color: var(--ink); background: #fff; font-size: 12px; }
+  .page { page-break-after: always; break-after: page; padding: 4px 6px; }
+  @media screen { .page { width: 277mm; height: 190mm; overflow: hidden; border-bottom: 2px dashed #e5e7eb; } }
+  .page:last-of-type { page-break-after: auto; break-after: auto; }
+  h1 { font-size: 22px; margin: 0 0 2px; color: var(--teal); }
+  h2 { font-size: 17px; margin: 0 0 6px; color: var(--teal); }
+  .en { direction: ltr; unicode-bidi: isolate; font-family: Consolas, "Courier New", monospace; }
+  .sub { color: var(--muted); margin: 0 0 8px; }
+  .row { display: flex; gap: 12px; align-items: flex-start; }
+  .diagram { direction: ltr; flex: 1; text-align: center; }
+  .diagram svg { max-width: 100%; height: auto; max-height: 160mm; }
+  .wide svg { max-height: 118mm; }
+  .mod svg { max-height: 132mm; }
+  .mod.short svg { max-height: 88mm; }
+  .minis table { direction: ltr; flex: 1; }
+  .minis td, .minis th { text-align: left; }
+  .side { width: 70mm; flex: none; }
+  .cards { display: flex; gap: 8px; margin-top: 6px; }
+  .cards .note { flex: 1; margin: 0; }
+  .note { background: var(--soft); border-right: 3px solid var(--teal); padding: 6px 8px; margin: 0 0 6px; border-radius: 4px; }
+  .note b { color: var(--teal); }
+  table { border-collapse: collapse; width: 100%; font-size: 10.5px; }
+  th, td { border: 1px solid var(--line); padding: 3px 5px; vertical-align: top; text-align: right; }
+  th { background: var(--soft); }
+  td.en, th.en { text-align: left; }
+  .chain { direction: rtl; margin: 0 0 6px; line-height: 1.9; }
+  .chip { display: inline-block; border: 1px solid var(--line); border-radius: 12px; padding: 1px 8px; margin: 1px 2px; background: #fff; }
+  .chip .en { color: var(--teal); }
+  .arrow { color: var(--muted); margin: 0 3px; }
+  .tree { direction: ltr; text-align: left; font-family: Consolas, monospace; font-size: 10.5px; white-space: pre; background: var(--soft); padding: 6px 8px; border-radius: 4px; margin: 0; }
+  .legend td { font-size: 10.5px; }
+  .foot { color: var(--muted); font-size: 10px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Overview -->
+<section class="page">
+  <h1>درب: مخطط قاعدة البيانات <span class="en">ERD</span></h1>
+  <p class="sub">مبني من الردود الحقيقية لخادم <span class="en">training.tamkeen-dev.com/dareb</span>، ومن مجموعة <span class="en">Postman «Tamkeen Training»</span>، ومن لوحة التحكم، وأسماء الشاشات من فيجما «تطبيق تعليمي». صفحة ١: كل الجداول المترابطة.</p>
+  <div class="diagram wide"><pre class="mermaid">
+%%{init: {"er": {"fontSize": 20, "minEntityWidth": 90, "entityPadding": 12}}}%%
+erDiagram
+  stages ||--o{ branches : has
+  branches ||--o{ users : studies
+  schools ||--o{ users : attends
+  branches ||--o{ subjects : offers
+  subjects ||--o{ semesters : has
+  semesters ||--o{ lessions : has
+  lessions ||--o{ comments : has
+  users ||--o{ comments : writes
+  lessions ||--o{ lession_attends : tracked
+  users ||--o{ lession_attends : attends
+  subjects ||--o{ daily_activities : links
+  exams ||--o{ daily_activities : linked
+  exams ||--o{ questions : has
+  questions ||--o{ answers : has
+  answers ||--o{ user_answers : chosen
+  users ||--o{ user_answers : answers
+  packages ||--o{ package_subject : includes
+  subjects ||--o{ package_subject : in
+  codes ||--o{ subscriptions : activates
+  users ||--o{ subscriptions : owns
+  subjects |o--o{ subscriptions : target
+  packages |o--o{ subscriptions : target
+  researches |o--o{ subscriptions : target
+  notifications ||--o{ notification_user : sent
+  users ||--o{ notification_user : receives
+  galleries ||--o{ gallery_images : has
+  users ||--o{ points_history : earns
+</pre></div>
+    <div class="cards">
+      <div class="note"><b>تسلسل المحتوى</b><div class="chain">
+        <span class="chip">المرحلة <span class="en">stages</span></span><span class="arrow">←</span>
+        <span class="chip">الفرع <span class="en">branches</span></span><span class="arrow">←</span>
+        <span class="chip">المادة <span class="en">subjects</span></span><span class="arrow">←</span>
+        <span class="chip">الفصل <span class="en">semesters</span></span><span class="arrow">←</span>
+        <span class="chip">الدرس <span class="en">lessions</span></span><span class="arrow">←</span>
+        <span class="chip">النقاش <span class="en">comments</span></span></div></div>
+      <div class="note"><b>تسلسل الاختبار</b><div class="chain">
+        <span class="chip">المادة</span><span class="arrow">←</span>
+        <span class="chip">الربط <span class="en">daily_activities</span></span><span class="arrow">←</span>
+        <span class="chip">الاختبار <span class="en">exams</span></span><span class="arrow">←</span>
+        <span class="chip">السؤال <span class="en">questions</span></span><span class="arrow">←</span>
+        <span class="chip">الإجابة <span class="en">answers</span></span></div></div>
+      <div class="note"><b>تسلسل الاشتراك</b><div class="chain">
+        <span class="chip">الكود <span class="en">codes</span></span><span class="arrow">←</span>
+        <span class="chip">الاشتراك <span class="en">subscriptions</span></span><span class="arrow">←</span>
+        <span class="chip">مادة أو باقة أو بحث</span></div></div>
+      <div class="note"><b>جداول مستقلة بلا علاقات</b><br>
+        <span class="chip en">sliders</span><span class="chip en">news</span><span class="chip en">faqs</span><span class="chip en">pages</span><span class="chip en">settings</span><span class="chip en">contact_us</span><span class="chip en">payment_methods</span></div>
+      <div class="note"><b>ليست جداول</b><br>المحافظة قيمة ثابتة داخل المدرسة ووكيل الدفع (<span class="en">damascus</span>، <span class="en">aleppo</span>…) من <span class="en">governorates/all</span>. و«الدورة» في <span class="en">Postman</span> هي المادة نفسها: لا جدول <span class="en">courses</span>.</div>
+    </div>
+</section>
+
+<!-- 2. Names and hierarchy -->
+<section class="page">
+  <h2>الأسماء والتسلسل: <span class="en">Postman</span> ↔ الجداول ↔ فيجما</h2>
+  <div class="row">
+    <pre class="tree" style="width:62mm;flex:none">Tamkeen Training
+└─ User
+   ├─ Auth
+   ├─ Profile
+   ├─ Users
+   ├─ Home Page
+   ├─ Sliders
+   ├─ News
+   ├─ Gallery
+   ├─ Schools
+   ├─ Payment Methods
+   ├─ Stages
+   ├─ Branches
+   ├─ Subjects
+   ├─ Courses
+   ├─ Lessions
+   ├─ Packages
+   ├─ Comments
+   ├─ Exams
+   ├─ Daily Activities
+   ├─ Subscriptions
+   ├─ Notifications
+   ├─ Faqs
+   ├─ Settings
+   ├─ Contact Us
+   └─ Pages</pre>
+    <table>
+      <tr><th class="en">Postman folder</th><th class="en">Tables</th><th>الشاشة في فيجما</th><th class="en">Frame</th></tr>
+      <tr><td class="en">Auth</td><td class="en">users</td><td>أدخل إلى حسابك · أدخل رمز التحقق</td><td class="en">2-1376 · 2-725</td></tr>
+      <tr><td class="en">Profile</td><td class="en">users · points_history</td><td>الملف الشخصي · إنجازاتي</td><td class="en">2-4980 · 2-5278</td></tr>
+      <tr><td class="en">Users</td><td class="en">users · schools · branches</td><td>إستكمل معلوماتك · عدل معلوماتك الشخصية</td><td class="en">2-1084 … 2-1165 · 2-16991</td></tr>
+      <tr><td class="en">Home Page</td><td class="en">sliders · news · subjects</td><td>الرئيسية · نتائج البحث</td><td class="en">2-1426 · 2-12755</td></tr>
+      <tr><td class="en">Sliders · News</td><td class="en">sliders · news</td><td>الرئيسية: البانر والأخبار</td><td class="en">2-1426</td></tr>
+      <tr><td class="en">Gallery</td><td class="en">galleries · gallery_images</td><td>المعرض · صور الألبوم · عارض الصورة</td><td class="en">2-17270 · 2-4817 · 2-4877</td></tr>
+      <tr><td class="en">Schools</td><td class="en">schools</td><td>إستكمل معلوماتك: مدرسة/معهد</td><td class="en">2-958</td></tr>
+      <tr><td class="en">Stages · Branches</td><td class="en">stages · branches</td><td>إستكمل معلوماتك: الفرع</td><td class="en">2-1014</td></tr>
+      <tr><td class="en">Subjects</td><td class="en">subjects · daily_activities</td><td>كل الفئات · صفحة المادة: المحتوى، الاختبارات، النشاطات اليومية</td><td class="en">2-9669 · 2-10634 · 2-12145 · 2-12456</td></tr>
+      <tr><td class="en">Courses</td><td class="en">subjects · semesters · lessions</td><td>صفحة الدورة ومسار التعلم · قصة الدورة</td><td class="en">2-13072 · 2-14025</td></tr>
+      <tr><td class="en">Lessions</td><td class="en">lessions · lession_attends</td><td>صفحة الدرس · اشترك الآن · أكمل الدرس السابق</td><td class="en">2-14583 · 2-14206 · 2-14393</td></tr>
+      <tr><td class="en">Comments</td><td class="en">comments</td><td>النقاشات داخل صفحة الدرس</td><td class="en">2-14583</td></tr>
+      <tr><td class="en">Exams</td><td class="en">exams · questions · answers · user_answers</td><td>إختباراتي · سؤال الاختبار · تم الإنهاء · المراجعة التفصيلية</td><td class="en">2-4323 · 2-11725 · 2-11931 · 2-11795</td></tr>
+      <tr><td class="en">Daily Activities</td><td class="en">daily_activities</td><td>إختباراتي: النشاطات اليومية</td><td class="en">2-4576</td></tr>
+      <tr><td class="en">Packages</td><td class="en">packages · package_subject</td><td>الاشتراكات · المواد المتاحة في الباقة</td><td class="en">2-11243 · 2-11307</td></tr>
+      <tr><td class="en">Subscriptions</td><td class="en">subscriptions · codes</td><td>الاشتراكات: إدخال الكود · موادي: المواد، الفصول، الباقات</td><td class="en">2-11243 · 2-3289 · 2-3756 · 2-4005</td></tr>
+      <tr><td class="en">Payment Methods</td><td class="en">payment_methods</td><td>إتمام الشراء</td><td class="en">2-11667</td></tr>
+      <tr><td class="en">Notifications</td><td class="en">notifications · notification_user</td><td>الإشعارات</td><td class="en">2-11985</td></tr>
+      <tr><td class="en">Faqs</td><td class="en">faqs</td><td>الأسئلة الشائعة</td><td class="en">2-5876</td></tr>
+      <tr><td class="en">Settings · Contact Us</td><td class="en">settings · contact_us</td><td>تواصل معنا</td><td class="en">2-16498</td></tr>
+      <tr><td class="en">Pages</td><td class="en">pages</td><td>سياسة الخصوصية · سياسة الاستخدام · حول التطبيق</td><td class="en">2-6002 · 2-5964 · 2-16181</td></tr>
+    </table>
+  </div>
+  <p class="foot">ملف فيجما: «تطبيق تعليمي»، صفحة «ui desgin». أسماء الطبقات فيه غير موثوقة، فالمرجع معرّف الإطار. الجدولان <span class="en">codes</span> و<span class="en">researches</span> يظهران في لوحة التحكم («الأكواد»، «الأبحاث») لا في <span class="en">Postman</span>.</p>
+</section>
+
+<!-- 3. Users & registration -->
+<section class="page">
+  <h2>١. المستخدمون والتسجيل <span class="en">Auth · Profile · Users · Schools · Stages · Branches</span></h2>
+  <div class="diagram mod"><pre class="mermaid">
+%%{init: {"er": {"layoutDirection": "LR"}}}%%
+erDiagram
+  stages ||--o{ branches : has
+  branches ||--o{ users : studies
+  schools ||--o{ users : attends
+  users ||--o{ points_history : earns
+  stages {
+    int id PK
+    string name
+  }
+  branches {
+    int id PK
+    int stage_id FK "nested under stages"
+    string name
+  }
+  schools {
+    int id PK
+    string name
+    enum governorate "damascus, aleppo, ..."
+    int type "schools/all filter"
+  }
+  users {
+    int id PK
+    string phone UK
+    string f_name
+    string l_name
+    string email
+    string image
+    int age
+    enum gender "1 Male"
+    enum know_about_app "1 Facebook ..."
+    int school_id FK
+    int branch_id FK
+    int points
+    int medals
+    int cups
+    string device_id "auth/active"
+    string fcm_token "auth/active"
+  }
+  points_history {
+    int id PK "inferred"
+    int user_id FK
+    enum kind "points, medals, cups"
+    int amount
+    datetime created_at
+  }
+</pre></div>
+    <div class="cards">
+      <div class="note"><b>تسجيل الدخول</b><br>رقم الهاتف فقط، ثم رمز تحقق (<span class="en">1111</span> على خادم التدريب)، فيعود توكن الجلسة.</div>
+      <div class="note"><b>حساب ناقص</b><br>حساب جديد بلا اسم، فيكمله الطالب عبر <span class="en">users/edit</span>: الاسم والمدرسة والفرع والعمر والجنس وكيف عرف التطبيق.</div>
+      <div class="note"><b>أرقام محسوبة لا مخزّنة</b><br><span class="en">subject_count · semester_count · package_count</span> تُحسب من الاشتراكات في <span class="en">profile/get</span>.</div>
+    </div>
+</section>
+
+<!-- 4. Curriculum -->
+<section class="page">
+  <h2>٢. المنهاج والدروس <span class="en">Subjects · Courses · Lessions · Comments</span></h2>
+  <div class="diagram mod"><pre class="mermaid">
+%%{init: {"er": {"layoutDirection": "LR"}}}%%
+erDiagram
+  branches ||--o{ subjects : offers
+  subjects ||--o{ semesters : has
+  semesters ||--o{ lessions : has
+  lessions ||--o{ comments : has
+  users ||--o{ comments : writes
+  lessions ||--o{ lession_attends : tracked
+  users ||--o{ lession_attends : attends
+  subjects {
+    int id PK
+    int branch_id FK "inferred: list follows the user"
+    string name
+    string image
+    string course_name
+    string professor
+    text text
+    decimal price
+    bool is_free
+    string story_image
+    text story_text
+    int points_count
+  }
+  semesters {
+    int id PK
+    int subject_id FK
+    string name
+    decimal price
+    bool is_free
+  }
+  lessions {
+    int id PK
+    int semester_id FK
+    string name
+    enum type "1 File, 2 Video, 3 Exam"
+    string url "YouTube"
+    string file "PDF"
+    string time "HH:MM:SS"
+    int order
+    bool is_free
+  }
+  lession_attends {
+    int id PK
+    int user_id FK
+    int lession_id FK
+    datetime created_at
+  }
+  comments {
+    int id PK
+    int lession_id FK
+    int user_id FK
+    text comment
+    datetime created_at
+  }
+  branches {
+    int id PK
+  }
+  users {
+    int id PK
+  }
+</pre></div>
+    <div class="cards">
+      <div class="note"><b>المادة هي «الدورة»</b><br><span class="en">courses/paginate</span> يعيد بطاقات مواد، و<span class="en">courses/details?subject_id=</span> يعيد فصولها ودروسها.</div>
+      <div class="note"><b>حقول محسوبة لكل طالب</b><br><span class="en">is_subscription · is_attended · lession_rate · semester_rate · subscriptions_count</span> لا تُخزّن في هذه الجداول.</div>
+      <div class="note"><b>الحضور</b><br>يحفظ <span class="en">attend-lession</span> سطراً فيه الدرس والطالب، ومنه تظهر «تمت المشاهدة» ويُفتح الدرس التالي.</div>
+      <div class="note"><b>الاسم كما في الخادم</b><br><span class="en">lessions</span> بهذا الإملاء في كل المسارات والحقول.</div>
+    </div>
+</section>
+
+<!-- 5. Exams -->
+<section class="page">
+  <h2>٣. الاختبارات والنشاطات <span class="en">Exams · Daily Activities</span></h2>
+  <div class="diagram mod"><pre class="mermaid">
+%%{init: {"er": {"layoutDirection": "LR"}}}%%
+erDiagram
+  subjects ||--o{ daily_activities : links
+  exams ||--o{ daily_activities : linked
+  exams ||--o{ questions : has
+  questions ||--o{ answers : has
+  answers ||--o{ user_answers : chosen
+  users ||--o{ user_answers : answers
+  daily_activities {
+    int id PK
+    int subject_id FK
+    int exam_id FK
+    enum type "exams or dailyActivities"
+    bool is_free "the real free flag"
+    date expiry_date
+  }
+  exams {
+    int id PK
+    string title
+    string professor
+  }
+  questions {
+    int id PK
+    int exam_id FK
+    text title "HTML"
+  }
+  answers {
+    int id PK
+    int question_id FK
+    string title
+    bool correct
+  }
+  user_answers {
+    int id PK "inferred"
+    int user_id FK
+    int answer_id FK "answers_id[]"
+  }
+  subjects {
+    int id PK
+  }
+  users {
+    int id PK
+  }
+</pre></div>
+    <div class="cards">
+      <div class="note"><b>جدول ربط واحد لنوعين</b><br>لوحة التحكم «الأختبارات العامة» (<span class="en">admin/daily_activities</span>): النوع «الأختبارات» يعود تحت <span class="en">exams</span>، والنوع «الأختبارات العامة» تحت <span class="en">dailyActivities</span>.</div>
+      <div class="note"><b>«مجاني» على الربط</b><br><span class="en">is_free</span> الذي يغيّره المشرف هو حقل الربط. حقل <span class="en">exam.is_free</span> الداخلي يبقى <span class="en">false</span>.</div>
+      <div class="note"><b>النتيجة</b><br><span class="en">attend-exam</span> يرسل معرّفات الإجابات، و<span class="en">exams/result</span> يعيدها في <span class="en">current_answer</span> مع <span class="en">correct_answers · failed_answers</span>.</div>
+    </div>
+</section>
+
+<!-- 6. Subscriptions -->
+<section class="page">
+  <h2>٤. الاشتراكات والدفع <span class="en">Packages · Subscriptions · Payment Methods</span></h2>
+  <div class="diagram mod"><pre class="mermaid">
+erDiagram
+  packages ||--o{ package_subject : includes
+  subjects ||--o{ package_subject : in
+  codes ||--o{ subscriptions : activates
+  users ||--o{ subscriptions : owns
+  subjects |o--o{ subscriptions : target
+  packages |o--o{ subscriptions : target
+  researches |o--o{ subscriptions : target
+  packages {
+    int id PK
+    string name
+    text description
+    decimal price
+    int duration "days"
+    string image
+  }
+  package_subject {
+    int package_id PK,FK
+    int subject_id PK,FK
+  }
+  codes {
+    int id PK
+    string code UK "ZZr5fH"
+    enum target "research, subject, package"
+    int target_id
+    bool is_free
+    int limit "remaining uses"
+    date expiry_date
+    date subscription_end_date
+    bool status
+  }
+  subscriptions {
+    int id PK
+    int user_id FK
+    int code_id FK
+    enum target "subject, package, research"
+    int target_id
+    decimal price
+  }
+  researches {
+    int id PK "dashboard only"
+  }
+  payment_methods {
+    int id PK
+    string name "agent"
+    string phone
+    enum governorate
+    string method "Al-Haram, Al-Fouad"
+    string image
+  }
+  subjects {
+    int id PK
+  }
+  users {
+    int id PK
+  }
+</pre></div>
+    <div class="cards">
+      <div class="note"><b>لا شراء من التطبيق</b><br>الطالب يدفع عند وكيل من <span class="en">payment_methods</span>، فيحصل على كود، ثم <span class="en">subscriptions/add {code}</span> ينشئ الاشتراك.</div>
+      <div class="note"><b>الكود والاشتراك</b><br>الكود الواحد يستعمله أكثر من طالب حتى ينفد حدّه، وكل استعمال اشتراك جديد. الهدف: بحث أو مادة أو باقة، لا اختبار.</div>
+      <div class="note"><b>اشتراكاتي</b><br>يعيد <span class="en">subscriptions/my</span> مواد الطالب مع سعر كل اشتراك، وقائمة فارغة إن لم يشترك بشيء.</div>
+    </div>
+</section>
+
+<!-- 7. Content -->
+<section class="page">
+  <h2>٥. المحتوى والتطبيق <span class="en">Home · Gallery · Notifications · Faqs · Settings · Pages · Contact Us</span></h2>
+  <div class="diagram mod short"><pre class="mermaid">
+erDiagram
+  galleries ||--o{ gallery_images : has
+  notifications ||--o{ notification_user : sent
+  users ||--o{ notification_user : receives
+  users |o--o{ contact_us : sends
+  galleries {
+    int id PK
+    string name
+  }
+  gallery_images {
+    int id PK "inferred"
+    int gallery_id FK
+    string image
+  }
+  notifications {
+    int id PK
+    string title
+    text text
+    datetime created_at
+  }
+  notification_user {
+    int notification_id PK,FK
+    int user_id PK,FK
+    bool is_read "pivot"
+  }
+  contact_us {
+    int id PK
+    int user_id FK "inferred, optional"
+    string f_name
+    string l_name
+    string phone
+    text text
+  }
+  users {
+    int id PK
+  }
+</pre></div>
+    <div class="cards minis">
+      <table><tr><th class="en" colspan="2">sliders</th></tr><tr><td class="en">id</td><td class="en">PK</td></tr><tr><td class="en">image</td><td></td></tr><tr><td class="en">link</td><td></td></tr></table>
+      <table><tr><th class="en" colspan="2">news</th></tr><tr><td class="en">id</td><td class="en">PK</td></tr><tr><td class="en">image</td><td></td></tr><tr><td class="en">link</td><td></td></tr></table>
+      <table><tr><th class="en" colspan="2">faqs</th></tr><tr><td class="en">id</td><td class="en">PK</td></tr><tr><td class="en">question</td><td></td></tr><tr><td class="en">answer</td><td></td></tr></table>
+      <table><tr><th class="en" colspan="2">pages</th></tr><tr><td class="en">id</td><td class="en">PK</td></tr><tr><td class="en">slug</td><td class="en">privacy-policy · terms-conditions · about-application</td></tr><tr><td class="en">title · content</td><td></td></tr></table>
+      <table><tr><th class="en" colspan="2">settings  (infos/all)</th></tr><tr><td class="en">key</td><td class="en">facebook · instagram · telegram · whatsapp</td></tr><tr><td class="en">value</td><td class="en">URL</td></tr></table>
+    </div>
+    <div class="cards">
+      <div class="note"><b>الإشعارات</b><br>علاقة كثير إلى كثير: كل إشعار يصل لعدة طلاب، وحالة القراءة في <span class="en">pivot.is_read</span>.</div>
+      <div class="note"><b>الرئيسية والبحث</b><br><span class="en">home-page/index</span> و<span class="en">home-page/search</span> بلا جداول خاصة: يجمعان من <span class="en">sliders · news · subjects · exams</span>.</div>
+      <div class="note"><b>دليل الرسم</b><table class="legend">
+        <tr><td class="en">||--o{</td><td>واحد إلى كثير</td></tr>
+        <tr><td class="en">|o--o{</td><td>اختياري: صفر أو واحد إلى كثير</td></tr>
+        <tr><td class="en">PK · FK · UK</td><td>مفتاح أساسي · أجنبي · قيمة لا تتكرر</td></tr>
+        <tr><td class="en">"inferred"</td><td>مستنتج، لم يظهر في رد</td></tr>
+      </table></div>
+    </div>
+  <p class="foot">الحقول من الردود الحقيقية. أسماء الجداول والمفاتيح الأجنبية مستنتجة من المسارات وتداخل الردود واصطلاحات <span class="en">Laravel</span>، لأن قاعدة البيانات عند خادم تمكين.</p>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'strict', er: { useMaxWidth: true, fontSize: 13 } });
+</script>
+</body>
+</html>

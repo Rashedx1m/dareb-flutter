@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Dareb Map</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  :root { --ink: #1f2937; --muted: #6b7280; --line: #d1d5db; --teal: #0f9d94; --soft: #f3f4f6; --get: #0f766e; --post: #b45309; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; color: var(--ink); background: #fff; font-size: 12.5px; }
+  .page { page-break-after: always; break-after: page; padding: 4px 6px; }
+  .page:last-of-type { page-break-after: auto; break-after: auto; }
+  @media screen { .page { width: 277mm; height: 190mm; overflow: hidden; border-bottom: 2px dashed #e5e7eb; } }
+  h1 { font-size: 22px; margin: 0 0 2px; color: var(--teal); }
+  h2 { font-size: 17px; margin: 0 0 6px; color: var(--teal); }
+  h3 { font-size: 14px; margin: 0 0 4px; color: var(--ink); }
+  .sub { color: var(--muted); margin: 0 0 8px; }
+  .en { direction: ltr; unicode-bidi: isolate; font-family: Consolas, "Courier New", monospace; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  .card p { margin: 4px 0 0; color: var(--muted); font-size: 11.5px; }
+  .diagram { direction: ltr; text-align: center; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .h svg { max-height: 62mm; }
+  .j svg { max-height: 40mm; }
+  table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+  th, td { border: 1px solid var(--line); padding: 4px 6px; vertical-align: top; text-align: right; }
+  th { background: var(--soft); }
+  td.sec { background: #ecfdf5; color: var(--teal); font-weight: 700; width: 24mm; }
+  td.fr { direction: ltr; text-align: left; color: var(--muted); font-family: Consolas, monospace; font-size: 10.5px; width: 30mm; }
+  td.api { direction: ltr; text-align: left; width: 82mm; }
+  .m { display: inline-block; font-family: Consolas, monospace; font-size: 10.5px; border-radius: 4px; padding: 0 5px; margin: 1px 0; white-space: nowrap; }
+  .g { background: #ccfbf1; color: var(--get); }
+  .p { background: #ffedd5; color: var(--post); }
+  .none { color: var(--muted); }
+  .legend { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Hierarchy -->
+<section class="page">
+  <h1>درب: خريطة مبسطة للتطبيق</h1>
+  <p class="sub">التسلسل، ثم رحلة الطالب، ثم كل شاشة والطلبات التي تستعملها. تحت كل اسم عربي اسمه في مجموعة <span class="en">Postman</span>.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>١. المحتوى التعليمي</h3>
+      <div class="diagram h"><pre class="mermaid">
+flowchart LR
+  stage["المرحلة<br/><small>Stages</small>"] --> branch["الفرع<br/><small>Branches</small>"] --> subject["المادة<br/><small>Subjects · Courses</small>"] --> semester["الفصل<br/><small>Semesters</small>"] --> lesson["الدرس<br/><small>Lessions</small>"] --> comment["النقاشات<br/><small>Comments</small>"]
+  lesson -.- kinds["فيديو · ملف · اختبار"]
+</pre></div>
+      <p>المادة فيها فصول، والفصل فيه دروس. الدرس فيديو أو ملف أو اختبار، وتحته نقاشات الطلاب.</p>
+    </div>
+    <div class="card">
+      <h3>٢. الطالب</h3>
+      <div class="diagram h"><pre class="mermaid">
+flowchart LR
+  gov["المحافظة"] --> school["المدرسة<br/><small>Schools</small>"] --> student(["الطالب<br/><small>Users</small>"])
+  stage2["المرحلة<br/><small>Stages</small>"] --> branch2["الفرع<br/><small>Branches</small>"] --> student
+</pre></div>
+      <p>كل طالب في مدرسة واحدة وفرع واحد. الفرع يحدد المواد التي يراها.</p>
+    </div>
+    <div class="card">
+      <h3>٣. الاختبارات</h3>
+      <div class="diagram h"><pre class="mermaid">
+flowchart LR
+  subj["المادة<br/><small>Subjects</small>"] --> ex["الاختبارات<br/><small>Exams</small>"]
+  subj --> da["النشاطات اليومية<br/><small>Daily Activities</small>"]
+  ex --> q["الأسئلة"] --> a["الإجابات"]
+  da --> q
+</pre></div>
+      <p>المشرف يربط الاختبار بالمادة، ويحدد هل هو اختبار أم نشاط يومي، وهل هو مجاني.</p>
+    </div>
+    <div class="card">
+      <h3>٤. الاشتراك</h3>
+      <div class="diagram h"><pre class="mermaid">
+flowchart LR
+  pm["وكيل الدفع<br/><small>Payment Methods</small>"] -->|"يدفع ويأخذ"| code["الكود"] -->|"يفعّله في التطبيق"| sub["الاشتراك<br/><small>Subscriptions</small>"]
+  sub --> what["مادة أو باقة"]
+  pkg["الباقة<br/><small>Packages</small>"] --> many["عدة مواد"]
+</pre></div>
+      <p>لا شراء داخل التطبيق: الدفع عند الوكيل، والتفعيل بالكود. الباقة مجموعة مواد بسعر واحد.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. User flow -->
+<section class="page">
+  <h2>رحلة الطالب في التطبيق</h2>
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h3>١. الدخول والتسجيل</h3>
+      <div class="diagram j"><pre class="mermaid">
+flowchart LR
+  splash(["شاشة البداية"]) -->|"أول مرة"| login["أدخل إلى حسابك"] --> otp["رمز التحقق"]
+  otp -->|"حساب جديد"| reg["إستكمل معلوماتك"] --> done["مبروك، تم التسجيل"] --> home(["الرئيسية"])
+  otp -->|"حساب مكتمل"| home
+  splash -->|"جلسة محفوظة"| home
+</pre></div>
+      <p>الدخول برقم الهاتف ورمز تحقق. الحساب الجديد يكمل معلوماته في ست خطوات قصيرة.</p>
+    </div>
+    <div class="card">
+      <h3>٢. التعلّم</h3>
+      <div class="diagram j"><pre class="mermaid">
+flowchart LR
+  home(["الرئيسية"]) --> cats["كل الفئات"] --> subject["صفحة المادة"] --> course["صفحة الدورة<br/>ومسار التعلم"] --> lesson["صفحة الدرس"]
+  mine(["موادي"]) --> course
+</pre></div>
+      <p>الدرس يُفتح بالترتيب: يكمل الطالب الدرس السابق أولاً، فيظهر عليه «تمت المشاهدة».</p>
+    </div>
+    <div class="card">
+      <h3>٣. الاشتراك</h3>
+      <div class="diagram j"><pre class="mermaid">
+flowchart LR
+  lock{{"درس مقفل<br/>اشترك الآن"}} --> subs["الاشتراكات"]
+  subs -->|"باقة"| checkout["إتمام الشراء<br/>وكيل الدفع"]
+  checkout -->|"دفع وأخذ كوداً"| subs
+  subs -->|"كود صحيح"| mine(["موادي"])
+</pre></div>
+      <p>يدفع الطالب عند وكيل، ثم يكتب الكود في صفحة الاشتراكات، فتظهر المادة في «موادي».</p>
+    </div>
+    <div class="card">
+      <h3>٤. الاختبار</h3>
+      <div class="diagram j"><pre class="mermaid">
+flowchart LR
+  subject["صفحة المادة<br/>أو إختباراتي"] --> quiz["سؤال الاختبار"] --> result["تم الإنهاء"] --> review["المراجعة<br/>التفصيلية"] --> home(["الرئيسية"])
+</pre></div>
+      <p>يجيب سؤالاً سؤالاً، ثم يرى نتيجته، ثم يراجع الإجابات الصحيحة والخاطئة.</p>
+    </div>
+    <div class="card">
+      <h3>٥. الشريط السفلي</h3>
+      <div class="diagram j"><pre class="mermaid">
+flowchart LR
+  home(["الرئيسية"]) --> h1["البحث · الإشعارات<br/>كل الفئات · إنجازاتي"]
+  gallery(["المعرض"]) --> g1["صور الألبوم<br/>عارض الصورة"]
+  mine(["موادي"]) --> m1["صفحة الدورة"]
+  profile(["الملف الشخصي"]) --> p1["إختباراتي · إنجازاتي · الاشتراكات<br/>تواصل معنا · حول التطبيق · تسجيل الخروج"]
+</pre></div>
+      <p>أربع شاشات ثابتة أسفل التطبيق، ومن كل واحدة تُفتح شاشاتها الفرعية.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Screens and endpoints (part 1) -->
+<section class="page">
+  <h2>الشاشات والطلبات (١ من ٢)</h2>
+  <table>
+    <tr><th>القسم</th><th>الشاشة في فيجما</th><th>ماذا يفعل الطالب</th><th>الطلبات</th><th>الإطار</th></tr>
+    <tr><td class="sec" rowspan="5">الدخول والتسجيل</td><td>شاشة البداية</td><td>يفتح التطبيق، فيذهب للرئيسية إن كان مسجلاً</td><td class="api"><span class="none">لا طلب: يقرأ الجلسة المحفوظة</span></td><td class="fr">2-523</td></tr>
+    <tr><td>أدخل إلى حسابك</td><td>يكتب رقم هاتفه</td><td class="api"><span class="m p">POST auth/login</span></td><td class="fr">2-1376</td></tr>
+    <tr><td>أدخل رمز التحقق</td><td>يكتب الرمز، أو يطلب إعادة إرساله</td><td class="api"><span class="m p">POST auth/active</span> <span class="m p">POST auth/login</span></td><td class="fr">2-725 · 2-783</td></tr>
+    <tr><td>إستكمل معلوماتك</td><td>الاسم، الجنس، العمر، المدرسة، الفرع، كيف عرف التطبيق</td><td class="api"><span class="m g">GET governorates/all</span> <span class="m g">GET schools/all</span> <span class="m g">GET branches/all</span> <span class="m p">POST users/edit</span></td><td class="fr">2-1084 … 2-1165</td></tr>
+    <tr><td>مبروك! تم التسجيل</td><td>ينتقل إلى الرئيسية</td><td class="api"><span class="none">لا طلب</span></td><td class="fr">2-1071</td></tr>
+    <tr><td class="sec" rowspan="4">الرئيسية</td><td>الرئيسية</td><td>يرى الإعلانات والمواد والدورات والأخبار وتقدّمه</td><td class="api"><span class="m g">GET home-page/index</span> <span class="m g">GET profile/get</span></td><td class="fr">2-1426</td></tr>
+    <tr><td>كل الدورات</td><td>«عرض الكل» تحت الدورات</td><td class="api"><span class="m g">GET courses/paginate</span></td><td class="fr">—</td></tr>
+    <tr><td>نتائج البحث</td><td>يبحث عن مادة أو اختبار</td><td class="api"><span class="m g">GET home-page/search</span></td><td class="fr">2-12755</td></tr>
+    <tr><td>الإشعارات</td><td>يقرأ إشعاراته</td><td class="api"><span class="m g">GET notifications/get</span></td><td class="fr">2-11985</td></tr>
+    <tr><td class="sec" rowspan="5">المواد والدروس</td><td>كل الفئات</td><td>يختار مادة</td><td class="api"><span class="m g">GET subjects/all</span></td><td class="fr">2-9669</td></tr>
+    <tr><td>صفحة المادة: المحتوى، الاختبارات، النشاطات اليومية</td><td>يرى دورات المادة واختباراتها</td><td class="api"><span class="m g">GET subjects/details</span></td><td class="fr">2-10634 · 2-12145 · 2-12456</td></tr>
+    <tr><td>صفحة الدورة ومسار التعلم</td><td>يرى الفصول والدروس، المفتوح والمقفل</td><td class="api"><span class="m g">GET courses/details</span></td><td class="fr">2-13072 · 2-14025</td></tr>
+    <tr><td>صفحة الدرس مع النقاشات</td><td>يشاهد الفيديو أو يفتح الملف، ويعلّق</td><td class="api"><span class="m g">GET lessions/details</span> <span class="m p">POST lessions/attend-lession</span> <span class="m p">POST comments/add-comment</span></td><td class="fr">2-14583</td></tr>
+    <tr><td>موادي</td><td>يرى المواد التي اشترك فيها</td><td class="api"><span class="m g">GET subscriptions/my</span></td><td class="fr">2-3289</td></tr>
+  </table>
+  <p class="legend"><span class="m g">GET</span> قراءة بيانات · <span class="m p">POST</span> إرسال أو حفظ. كل الطلبات تحت <span class="en">training.tamkeen-dev.com/dareb/public/api</span>.</p>
+</section>
+
+<!-- 4. Screens and endpoints (part 2) -->
+<section class="page">
+  <h2>الشاشات والطلبات (٢ من ٢)</h2>
+  <table>
+    <tr><th>القسم</th><th>الشاشة في فيجما</th><th>ماذا يفعل الطالب</th><th>الطلبات</th><th>الإطار</th></tr>
+    <tr><td class="sec" rowspan="3">الاختبارات</td><td>إختباراتي: الاختبارات والنشاطات اليومية</td><td>يرى اختباراته</td><td class="api"><span class="m g">GET exams/my</span> <span class="m g">GET daily-activities/my</span></td><td class="fr">2-4323 · 2-4576</td></tr>
+    <tr><td>سؤال الاختبار</td><td>يجيب سؤالاً سؤالاً، ثم يرسل إجاباته</td><td class="api"><span class="m g">GET exams/result</span> <span class="m p">POST exams/attend-exam</span></td><td class="fr">2-11725</td></tr>
+    <tr><td>تم الإنهاء · المراجعة التفصيلية</td><td>يرى نتيجته وإجاباته الصحيحة والخاطئة</td><td class="api"><span class="m g">GET exams/result</span></td><td class="fr">2-11931 · 2-11795</td></tr>
+    <tr><td class="sec" rowspan="3">الاشتراكات</td><td>الاشتراكات</td><td>يختار باقة، أو يكتب كوداً ويفعّله</td><td class="api"><span class="m g">GET packages/all</span> <span class="m p">POST subscriptions/add</span></td><td class="fr">2-11243</td></tr>
+    <tr><td>المواد المتاحة في الباقة</td><td>يرى ما تفتحه الباقة</td><td class="api"><span class="m g">GET packages/details</span></td><td class="fr">2-11307</td></tr>
+    <tr><td>إتمام الشراء</td><td>يختار وكيل دفع ويقرأ تعليماته</td><td class="api"><span class="m g">GET packages/all</span> <span class="m g">GET payment-methods/all</span></td><td class="fr">2-11667</td></tr>
+    <tr><td class="sec">المعرض</td><td>المعرض · صور الألبوم · عارض الصورة</td><td>يتصفح الألبومات وصورها</td><td class="api"><span class="m g">GET galleries/all</span></td><td class="fr">2-17270 · 2-4817 · 2-4877</td></tr>
+    <tr><td class="sec" rowspan="7">الملف الشخصي</td><td>الملف الشخصي</td><td>يرى بياناته ونقاطه</td><td class="api"><span class="m g">GET profile/get</span></td><td class="fr">2-4980</td></tr>
+    <tr><td>عدل معلوماتك الشخصية</td><td>يغيّر اسمه ومدرسته وصورته</td><td class="api"><span class="m g">GET schools/all</span> <span class="m p">POST users/update</span> <span class="m p">POST users/update-image</span></td><td class="fr">2-16991</td></tr>
+    <tr><td>إنجازاتي</td><td>يرى نقاطه وتقدّمه في مواده</td><td class="api"><span class="m g">GET profile/get</span> <span class="m g">GET subscriptions/my</span></td><td class="fr">2-5278</td></tr>
+    <tr><td>تواصل معنا</td><td>يرسل رسالة للإدارة</td><td class="api"><span class="m p">POST contact-us/add</span></td><td class="fr">2-16498</td></tr>
+    <tr><td>حول التطبيق</td><td>يرى روابط التواصل الاجتماعي</td><td class="api"><span class="m g">GET infos/all</span></td><td class="fr">2-16181</td></tr>
+    <tr><td>الأسئلة الشائعة · سياسة الخصوصية · سياسة الاستخدام · الكورسات المحملة</td><td>يقرأ</td><td class="api"><span class="none">لا طلب: نص التصميم، والتنزيلات على الهاتف</span></td><td class="fr">2-5876 · 2-6002 · 2-5964 · 2-16781</td></tr>
+    <tr><td>تأكيد تسجيل الخروج</td><td>يخرج من حسابه</td><td class="api"><span class="m g">GET auth/logout</span></td><td class="fr">2-15921</td></tr>
+  </table>
+  <div class="card" style="margin-top:8px">
+    <h3>طلبات موجودة في Postman ولا يستعملها التطبيق</h3>
+    <p style="color:var(--ink)">
+      <span class="en">sliders · news</span>: تصل ضمن طلب الرئيسية. ·
+      <span class="en">faqs · pages</span>: بيانات تجريبية أو عناوين فقط على الخادم. ·
+      <span class="en">yt-dlp</span>: يرد بخطأ دائماً، فالفيديو يعمل من يوتيوب مباشرة. ·
+      <span class="en">auth/delete</span>: يحذف الحساب، فلا يُستدعى. ·
+      <span class="en">profile/points · medals · cups · users/top</span>: لا شاشة لها في التصميم.
+    </p>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'strict',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis', nodeSpacing: 28, rankSpacing: 38 },
+    themeVariables: { fontFamily: 'Segoe UI, Tahoma, sans-serif', fontSize: '15px' } });
+</script>
+</body>
+</html>

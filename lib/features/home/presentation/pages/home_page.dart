@@ -32,6 +32,7 @@ class HomePage extends StatelessWidget {
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
           child: Scaffold(
+            resizeToAvoidBottomInset: true,
             backgroundColor: Colors.white,
             body: RefreshIndicator(
               color: AppColors.primary,
@@ -213,7 +214,12 @@ class _HomeHeader extends StatelessWidget {
               _HeaderIconButton(
                 tooltip: AppStrings.achievements,
                 onTap: onAchievements,
-                child: const Icon(PhosphorIconsRegular.trophy, color: Colors.white, size: 22),
+                child: Image.asset(
+                  'assets/icons/trophy.png',
+                  width: 100,
+                  height: 100,
+                  // color: Colors.white,
+                ),
               ),
               const SizedBox(width: 8),
               _HeaderIconButton(
@@ -278,11 +284,15 @@ class _HeaderIconButton extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: Colors.white.withValues(alpha: 0.22),
+        // color: Colors.white.withValues(alpha: 0.22),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
           child: SizedBox(
             width: 42,
             height: 42,
