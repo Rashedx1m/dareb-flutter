@@ -218,18 +218,17 @@ class _HomeHeader extends StatelessWidget {
                   'assets/icons/trophy.png',
                   width: 100,
                   height: 100,
-                  // color: Colors.white,
+
                 ),
               ),
               const SizedBox(width: 8),
               _HeaderIconButton(
                 tooltip: AppStrings.notifications,
                 onTap: onNotify,
-                child: SvgPicture.asset(
-                  AppAssets.icNotification,
-                  width: 22,
-                  height: 22,
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                child: Image.asset(
+                  'assets/icons/icNotification.png',
+                  width: 100,
+                  height: 100,
                 ),
               ),
             ],
