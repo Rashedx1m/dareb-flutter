@@ -10,7 +10,9 @@ class HomeBanner extends Equatable {
 
   final String id;
   final String imageUrl;
-  final String link;
+
+  /// رابط خارجي يُفتح عند الضغط، أو `null` لسلايدر بلا رابط فلا يُفتح شيء.
+  final String? link;
 
   @override
   List<Object?> get props => [id, imageUrl, link];

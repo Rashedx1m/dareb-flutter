@@ -76,6 +76,25 @@ void main() {
     expect(HomeFeedModel.fromJson({..._json, 'sliders': <Object>[]}).sliders, isEmpty);
   });
 
+  // بعد تنظيف الخادم في 2026-10-31 كانت الرئيسية تعرض «رد غير متوقع» لأن `link` قُرئ إجبارياً.
+  test('سلايدر بلا رابط مربوط بدورة يُقرأ ورابطه null', () {
+    final feed = HomeFeedModel.fromJson({
+      ..._json,
+      'sliders': [
+        {
+          'id': 1,
+          'link': null,
+          'image': 'https://training.tamkeen-dev.com/dareb/public/storage/16/wallpaperflare.com_wallpaper-(41).jpg',
+          'type': 'course',
+          'type_id': 4,
+        },
+      ],
+    });
+
+    expect(feed.sliders.single.id, '1');
+    expect(feed.sliders.single.link, isNull);
+  });
+
   test('completion_rate المئوية 40 تصبح 0.4', () {
     expect(HomeFeedModel.fromJson({..._json, 'completion_rate': 40}).completionRate, 0.4);
   });

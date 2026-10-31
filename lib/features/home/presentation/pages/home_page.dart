@@ -425,7 +425,8 @@ class _PromoCarousel extends StatefulWidget {
 class _PromoCarouselState extends State<_PromoCarousel> {
   var _page = 0;
 
-  Future<void> _open(String link) async {
+  Future<void> _open(String? link) async {
+    if (link == null) return;
     final uri = Uri.tryParse(link);
     if (uri == null || !uri.hasScheme) return;
     await widget.openLink(uri);
