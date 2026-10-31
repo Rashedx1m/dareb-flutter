@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/page_header.dart';
+import '../../../../core/widgets/refresh_on_return.dart';
 import '../../domain/entities/course.dart';
 import '../cubit/my_courses_cubit.dart';
 import '../widgets/my_subject_card.dart';
@@ -29,18 +30,6 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
   _Tab _tab = _Tab.subjects;
   String _query = '';
 
-  /// الصفحة تبقى حية حين يُترك تبويبها، وgo_router يطفئ مؤقتات التبويب المخفي.
-  /// فعودتها تعني عودة الطالب، ربما بعد تفعيل كود، فتُحدَّث القائمة.
-  bool _visible = true;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final visible = TickerMode.valuesOf(context).enabled;
-    if (visible && !_visible) context.read<MyCoursesCubit>().refresh();
-    _visible = visible;
-  }
-
   /// البحث حالة عرض محلية تُطبَّق على المواد المحمّلة في [MyCoursesCubit].
   List<Course> _filter(List<Course> courses) {
     final q = _query.trim();
@@ -53,40 +42,44 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          PageHeader(
-            title: AppStrings.mySubjects,
-            titleIcon: PhosphorIconsFill.books,
-            onNotifications: () => context.push('/notifications'),
-            short: true,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 17, 16, 21),
-            child: OutlinedSearchField(onChanged: (v) => setState(() => _query = v)),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: PillTabs(
-              tabs: const {
-                _Tab.subjects: AppStrings.subjects,
-                _Tab.semesters: AppStrings.tabSemesters,
-                _Tab.packages: AppStrings.tabPackages,
-              },
-              selected: _tab,
-              onSelect: (t) => setState(() => _tab = t),
+    return RefreshOnReturn(
+      // ربما فُعّل كود في تبويب آخر.
+      onReturn: () => context.read<MyCoursesCubit>().refresh(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            PageHeader(
+              title: AppStrings.mySubjects,
+              titleIcon: PhosphorIconsFill.books,
+              onNotifications: () => context.push('/notifications'),
+              short: true,
             ),
-          ),
-          Expanded(
-            child: switch (_tab) {
-              _Tab.subjects => _SubjectsTab(filter: _filter, searching: _query.trim().isNotEmpty),
-              _Tab.semesters => const EmptyView(message: AppStrings.noMySemesters),
-              _Tab.packages => const EmptyView(message: AppStrings.noMyPackages),
-            },
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 17, 16, 21),
+              child: OutlinedSearchField(onChanged: (v) => setState(() => _query = v)),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: PillTabs(
+                tabs: const {
+                  _Tab.subjects: AppStrings.subjects,
+                  _Tab.semesters: AppStrings.tabSemesters,
+                  _Tab.packages: AppStrings.tabPackages,
+                },
+                selected: _tab,
+                onSelect: (t) => setState(() => _tab = t),
+              ),
+            ),
+            Expanded(
+              child: switch (_tab) {
+                _Tab.subjects => _SubjectsTab(filter: _filter, searching: _query.trim().isNotEmpty),
+                _Tab.semesters => const EmptyView(message: AppStrings.noMySemesters),
+                _Tab.packages => const EmptyView(message: AppStrings.noMyPackages),
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

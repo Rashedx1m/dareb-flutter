@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -12,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/utils/external_link.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../../core/widgets/refresh_on_return.dart';
 import '../../../courses/domain/entities/course.dart';
 import '../../../courses/domain/entities/subject.dart';
 import '../../domain/entities/home_banner.dart';
@@ -27,34 +27,38 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
-      builder: (context, state) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.white,
-            body: RefreshIndicator(
-              color: AppColors.primary,
-              onRefresh: () => context.read<HomeCubit>().load(),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _HomeHeader(
-                    name: state.user?.name ?? '',
-                    points: state.points,
-                    coursesCount: state.user?.enrolledCoursesCount ?? 0,
-                    onSearch: () => context.push('/search'),
-                    onNotify: () => context.push('/notifications'),
-                    onAchievements: () => context.push('/achievements'),
-                  ),
-                  _HomeBody(state: state, openLink: openLink),
-                ],
+    return RefreshOnReturn(
+      // النسبة وعدد الكورسات يتغيّران بعد مشاهدة درس أو تفعيل كود.
+      onReturn: () => context.read<HomeCubit>().load(),
+      child: BlocBuilder<HomeCubit, HomeState>(
+        builder: (context, state) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
+            child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              backgroundColor: Colors.white,
+              body: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () => context.read<HomeCubit>().load(),
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _HomeHeader(
+                      name: state.user?.name ?? '',
+                      points: state.points,
+                      coursesCount: state.user?.enrolledCoursesCount ?? 0,
+                      onSearch: () => context.push('/search'),
+                      onNotify: () => context.push('/notifications'),
+                      onAchievements: () => context.push('/achievements'),
+                    ),
+                    _HomeBody(state: state, openLink: openLink),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -382,6 +386,8 @@ class _ProgressCard extends StatelessWidget {
             lineWidth: 8,
             percent: progress.clamp(0, 1),
             animation: true,
+            // التحديث عند العودة يحرّك الدائرة من النسبة السابقة لا من الصفر.
+            animateFromLastPercent: true,
             progressColor: AppColors.primary,
             backgroundColor: AppColors.progressTrack,
             circularStrokeCap: CircularStrokeCap.round,

@@ -90,7 +90,7 @@ abstract final class AppStrings {
   static const welcomeBack = 'أهلاً بعودتك، ';
   static const pointsLabel = 'نقطة';
   static const coursesCountLabel = 'دورات';
-  static const curriculumProgress = 'تقدم المنهاج ';
+  static const curriculumProgress = 'تقدم المنهاج';
   static const details = 'التفاصيل';
   static const progressSubtitle = 'أنت على الطريق الصحيح لإتمام دوراتك.';
   static const coursesCount = 'كورس';

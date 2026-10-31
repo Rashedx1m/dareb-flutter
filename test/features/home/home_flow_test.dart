@@ -19,6 +19,7 @@ import 'package:educational_app/features/home/presentation/pages/home_page.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 const _user = User(id: 'u1', name: 'أحمد المصري', phone: '0501234567', points: 55, enrolledCoursesCount: 6);
 
@@ -57,6 +58,31 @@ class _FakeHomeRepository implements HomeRepository {
 
   @override
   Future<Either<Failure, HomeFeed>> getHome() async => result;
+}
+
+HomeFeed _feedWith(double completionRate, int subjectCount) {
+  return HomeFeed(
+    sliders: _feed.sliders,
+    subjects: _feed.subjects,
+    news: _feed.news,
+    courses: _feed.courses,
+    completionRate: completionRate,
+    subjectCount: subjectCount,
+  );
+}
+
+/// يعيد الردود بالترتيب ويكرر الأخير، ويعدّ الطلبات.
+class _QueueHomeRepository implements HomeRepository {
+  _QueueHomeRepository(this.feeds);
+  final List<HomeFeed> feeds;
+  var calls = 0;
+
+  @override
+  Future<Either<Failure, HomeFeed>> getHome() async {
+    final feed = feeds[calls < feeds.length ? calls : feeds.length - 1];
+    calls++;
+    return Right(feed);
+  }
 }
 
 class _FakeAuthRepository extends Fake implements AuthRepository {
@@ -144,5 +170,75 @@ void main() {
 
     expect(find.byType(ErrorView), findsOneWidget);
     expect(find.text('تعذر جلب الصفحة'), findsOneWidget);
+  });
+
+  // الرئيسية تبويب يبقى حياً، فكانت النسبة وعدد الكورسات لا يتغيّران بعد مشاهدة درس أو
+  // تفعيل كود حتى يُسحب للتحديث (2026-10-23).
+  group('التحديث عند العودة', () {
+    late _QueueHomeRepository home;
+    late GoRouter router;
+
+    Future<void> pumpShell(WidgetTester tester) async {
+      tester.view
+        ..physicalSize = const Size(1800, 3600)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      home = _QueueHomeRepository([_feedWith(0, 1), _feedWith(0.5, 2)]);
+      final auth = _FakeAuthRepository();
+      router = GoRouter(
+        initialLocation: '/home',
+        routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (_, _, shell) => shell,
+            branches: [
+              StatefulShellBranch(routes: [
+                GoRoute(
+                  path: '/home',
+                  builder: (_, _) => BlocProvider(
+                    create: (_) => HomeCubit(
+                      getHome: GetHome(home),
+                      getCurrentUser: GetCurrentUser(auth),
+                      refreshProfile: RefreshProfile(auth),
+                    )..load(),
+                    child: const HomePage(openLink: _noopLink),
+                  ),
+                ),
+              ]),
+              StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (_, _) => const Text('profile'))]),
+            ],
+          ),
+          GoRoute(path: '/lesson', builder: (_, _) => const Scaffold(body: Text('lesson'))),
+        ],
+      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+      expect(find.text('0%'), findsOneWidget);
+      expect(find.text('1 ${AppStrings.coursesCount}'), findsOneWidget);
+    }
+
+    testWidgets('العودة إلى التبويب تحدّث النسبة وعدد الكورسات', (tester) async {
+      await pumpShell(tester);
+
+      router.go('/profile');
+      await tester.pumpAndSettle();
+      router.go('/home');
+      await tester.pumpAndSettle();
+
+      expect(find.text('50%'), findsOneWidget);
+      expect(find.text('2 ${AppStrings.coursesCount}'), findsOneWidget);
+      expect(home.calls, 2);
+    });
+
+    testWidgets('إغلاق صفحة فُتحت فوق الرئيسية يحدّثها', (tester) async {
+      await pumpShell(tester);
+
+      router.push('/lesson');
+      await tester.pumpAndSettle();
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(find.text('50%'), findsOneWidget);
+      expect(home.calls, 2);
+    });
   });
 }

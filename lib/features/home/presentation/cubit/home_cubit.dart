@@ -31,7 +31,7 @@ class HomeCubit extends Cubit<HomeState> {
     final (feed, cachedUser, freshUser) = await (
       _getHome(const NoParams()),
       _getCurrentUser(const NoParams()),
-      // النقاط والاسم يتغيّران على الخادم، فتُحدَّث مع كل فتح للصفحة.
+      // النقاط والاسم يتغيّران على الخادم، فتُحدَّث مع كل ظهور للصفحة.
       _refreshProfile(const NoParams()),
     ).wait;
     if (isClosed) return;
