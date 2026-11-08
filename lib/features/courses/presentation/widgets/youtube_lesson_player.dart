@@ -72,6 +72,9 @@ class _YoutubeLessonPlayerState extends State<YoutubeLessonPlayer> {
         showFullscreenButton: true,
         interfaceLanguage: 'ar',
         privacyEnhancedMode: false,
+        // هوية التطبيق لصفحة المشغّل. بدونها تعمل الصفحة باسم youtube.com فيرفض يوتيوب
+        // كل الفيديوهات: embedder.identity.denied، الخطأ 152 (2026-11-08).
+        origin: 'https://com.drb.educational_app',
       ),
       onWebResourceError: (error) {
         if (isPlayerLoadError(error)) _fail();
