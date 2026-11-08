@@ -61,6 +61,11 @@ import '../../features/notifications/data/repositories/notifications_repository_
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
 import '../../features/notifications/domain/usecases/get_notifications.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
+import '../../features/points/data/datasources/points_remote_data_source.dart';
+import '../../features/points/data/repositories/points_repository_impl.dart';
+import '../../features/points/domain/repositories/points_repository.dart';
+import '../../features/points/domain/usecases/get_points_history.dart';
+import '../../features/points/presentation/cubit/points_cubit.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/quiz/data/datasources/quiz_remote_data_source.dart';
 import '../../features/quiz/data/repositories/quiz_repository_impl.dart';
@@ -118,6 +123,7 @@ Future<void> initDependencies() async {
   _initGallery();
   _initNotifications();
   _initAchievements();
+  _initPoints();
   _initSubscription();
   _initProfile();
   _initSupport();
@@ -222,6 +228,15 @@ void _initNotifications() {
     ..registerLazySingleton<NotificationsRepository>(() => NotificationsRepositoryImpl(sl()))
     ..registerLazySingleton(() => GetNotifications(sl()))
     ..registerFactory(() => NotificationsCubit(sl()));
+}
+
+void _initPoints() {
+  sl
+    // تجريبي إلى أن يعيد `profile/points` سجلاً فيه بيانات؛ التبديل إلى الخادم هنا وحده.
+    ..registerLazySingleton<PointsRemoteDataSource>(PointsMockDataSource.new)
+    ..registerLazySingleton<PointsRepository>(() => PointsRepositoryImpl(sl()))
+    ..registerLazySingleton(() => GetPointsHistory(sl()))
+    ..registerFactory(() => PointsCubit(sl()));
 }
 
 void _initAchievements() {

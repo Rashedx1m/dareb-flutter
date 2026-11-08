@@ -117,7 +117,11 @@ class _ProfileBlock extends StatelessWidget {
             children: [
               _Stat(value: user?.semestersCount ?? 0, label: AppStrings.statSemesters),
               const _StatDivider(),
-              _Stat(value: user?.points ?? 0, label: AppStrings.statPoints),
+              _Stat(
+                value: user?.points ?? 0,
+                label: AppStrings.statPoints,
+                onTap: () => context.push('/points'),
+              ),
               const _StatDivider(),
               _Stat(value: user?.enrolledCoursesCount ?? 0, label: AppStrings.statCourses),
               const _StatDivider(),
@@ -163,28 +167,35 @@ class _Avatar extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label});
+  const _Stat({required this.value, required this.label, this.onTap});
 
   final int value;
   final String label;
 
+  /// النقاط وحدها تفتح صفحة تفصّلها (سجل نقاطي).
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            '$value',
-            style: const TextStyle(
-              fontFamily: 'Lato',
-              color: AppColors.statTeal,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          children: [
+            Text(
+              '$value',
+              style: const TextStyle(
+                fontFamily: 'Lato',
+                color: AppColors.statTeal,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppColors.statLabel, fontSize: 12, fontWeight: FontWeight.w500)),
-        ],
+            const SizedBox(height: 2),
+            Text(label, style: const TextStyle(color: AppColors.statLabel, fontSize: 12, fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
   }

@@ -32,6 +32,8 @@ import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/points/presentation/cubit/points_cubit.dart';
+import '../../features/points/presentation/pages/points_page.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/quiz/presentation/cubit/quiz_cubit.dart';
@@ -284,6 +286,13 @@ GoRouter createRouter() {
         builder: (_, _) => BlocProvider(
           create: (_) => sl<AchievementsCubit>()..load(),
           child: const AchievementsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/points',
+        builder: (_, _) => BlocProvider(
+          create: (_) => sl<PointsCubit>()..load(),
+          child: const PointsPage(),
         ),
       ),
       GoRoute(path: '/faq', builder: (_, _) => const FaqPage()),

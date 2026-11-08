@@ -196,6 +196,7 @@ void main() {
   const paths = [
     '/notifications',
     '/achievements',
+    '/points',
     '/subscription',
     '/checkout?package=1',
     '/gallery',

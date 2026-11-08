@@ -126,6 +126,11 @@ abstract final class AppStrings {
   static const pm = 'مساءً';
   static const achievements = 'إنجازاتي';
   static const achievementsEmpty = 'لا توجد مواد لمتابعة إنجازها بعد';
+  // سجل نقاطي.
+  static const pointsHistory = 'سجل نقاطي';
+  static const pointsTotal = 'مجموع النقاط';
+  static const pointsEarned = 'نقاط مكتسبة';
+  static const noPointsYet = 'لم تكسب نقاطاً بعد، شاهد الدروس وحلّ الاختبارات لتبدأ';
   static const subscription = 'الاشتراك';
   static const checkout = 'إتمام الشراء';
   static const about = 'حول التطبيق';
