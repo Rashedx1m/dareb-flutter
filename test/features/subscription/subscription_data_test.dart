@@ -159,10 +159,10 @@ void main() {
       expect(formatPrice(0), '0');
     });
 
-    test('سعر الباقة مع مدتها، والمجانية «تجربة»', () {
-      expect(packagePriceLabel(const SubscriptionPackage(id: '1', name: 'x', price: 55000, durationDays: 365)), '55 ألف ل.س/ سنة');
-      expect(packagePriceLabel(const SubscriptionPackage(id: '2', name: 'x', price: 0, durationDays: 7)), '0 ل.س/ 7 أيام تجربة');
-      expect(packagePriceLabel(const SubscriptionPackage(id: '3', name: 'x', price: 9000)), '9 ألف ل.س');
+    test('مدة الباقة، والمجانية «تجربة»، وبلا مدة لا شيء', () {
+      expect(packagePeriodLabel(const SubscriptionPackage(id: '1', name: 'x', price: 55000, durationDays: 365)), 'سنة');
+      expect(packagePeriodLabel(const SubscriptionPackage(id: '2', name: 'x', price: 0, durationDays: 7)), '7 أيام تجربة');
+      expect(packagePeriodLabel(const SubscriptionPackage(id: '3', name: 'x', price: 9000)), isNull);
     });
   });
 }

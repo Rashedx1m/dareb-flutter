@@ -33,7 +33,6 @@ abstract final class PhosphorIconsRegular {
   static const books = IconData(0xe758, fontFamily: _family);
   static const user = IconData(0xe4c2, fontFamily: _family);
   static const handWaving = IconData(0xe580, fontFamily: _family);
-  static const trophy = IconData(0xe67e, fontFamily: _family);
   // صفحات الملف الشخصي والدعم.
   static const question = IconData(0xe3e8, fontFamily: _family);
   static const headset = IconData(0xe584, fontFamily: _family);

@@ -5,10 +5,6 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_sheet.dart';
-import '../domain/entities/lesson.dart';
-
-/// الدرس يُفتح في التطبيق إن لم يكن مقفلاً ولم يكن اختباراً (لا صفحة للاختبار بعد).
-bool canOpenLesson(Lesson lesson) => !lesson.isLocked && lesson.type != LessonType.exam;
 
 /// نافذة «اشترك الآن واحصل عليه» عند الضغط على درس مقفل، و«اشترك» يفتح صفحة الاشتراك.
 Future<void> showSubscribeDialog(BuildContext context) async {

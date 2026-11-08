@@ -86,7 +86,6 @@ abstract final class AppStrings {
   static const gallery = 'المعرض';
   static const galleryEmpty = 'لا توجد صور في هذا الألبوم بعد';
   static const galleryNoAlbums = 'لا توجد ألبومات بعد';
-  static const photoCounter = 'من'; // «3 من 12»
   static const welcomeBack = 'أهلاً بعودتك، ';
   static const pointsLabel = 'نقطة';
   static const coursesCountLabel = 'دورات';
@@ -113,7 +112,6 @@ abstract final class AppStrings {
   static const accountSaved = 'تم حفظ بياناتك بنجاح';
   static const searchPrompt = 'ابدأ البحث عن مادة';
   static const noSearchResults = 'لا توجد مواد بهذا الاسم';
-  static const seeAll = 'عرض الكل';
   static const noSubjects = 'لا توجد مواد متاحة بعد';
   static const notifications = 'الإشعارات';
   static const noNotifications = 'لا توجد إشعارات بعد';

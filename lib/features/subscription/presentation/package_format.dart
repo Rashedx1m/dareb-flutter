@@ -8,13 +8,6 @@ String formatPrice(double price) {
   return price.toStringAsFixed(2);
 }
 
-/// «55 ألف ل.س/ سنة» أو «0 ل.س/ 7 أيام تجربة».
-String packagePriceLabel(SubscriptionPackage package) {
-  final price = '${formatPrice(package.price)} ${AppStrings.currency}';
-  final period = packagePeriodLabel(package);
-  return period == null ? price : '$price/ $period';
-}
-
 /// «سنة» أو «7 أيام تجربة»، ويظهر في التصميم أصغر من السعر.
 String? packagePeriodLabel(SubscriptionPackage package) {
   final period = _period(package.durationDays);
