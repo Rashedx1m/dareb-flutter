@@ -7,7 +7,8 @@ import '../../../../core/theme/app_icons.dart';
 import '../../domain/entities/lesson.dart';
 import '../lesson_path.dart';
 
-/// مساحة الدرس أعلى الصفحة: تمتد تحت شريط الحالة بزوايا سفلية دائرية.
+/// مساحة الدرس أعلى الصفحة: تمتد تحت شريط الحالة بزوايا سفلية دائرية، وفوقها زر
+/// الرجوع في كل حالات الصفحة.
 class LessonMediaFrame extends StatelessWidget {
   const LessonMediaFrame({super.key, required this.child, this.clip = true});
 
@@ -21,15 +22,46 @@ class LessonMediaFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
     final box = ColoredBox(color: AppColors.videoBackground, child: child);
     return SizedBox(
-      height: MediaQuery.paddingOf(context).top + height,
-      child: clip
-          ? ClipRRect(
+      height: top + height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (clip)
+            ClipRRect(
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
               child: box,
             )
-          : box,
+          else
+            box,
+          // في النهاية لأن شارة مدة الفيديو تشغل البداية.
+          PositionedDirectional(top: top + 3, end: 25, child: const _BackButton()),
+        ],
+      ),
+    );
+  }
+}
+
+/// بخلفية داكنة حتى لا يضيع السهم الأبيض فوق صورة فيديو فاتحة.
+class _BackButton extends StatelessWidget {
+  const _BackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: AppStrings.back,
+      child: InkWell(
+        onTap: () => Navigator.of(context).maybePop(),
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.overlay40),
+          child: const Icon(PhosphorIconsRegular.arrowRight, color: Colors.white, size: 22),
+        ),
+      ),
     );
   }
 }
