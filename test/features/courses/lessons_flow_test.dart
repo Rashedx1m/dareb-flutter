@@ -173,6 +173,60 @@ void main() {
     expect(find.text(AppStrings.nowPlaying), findsOneWidget);
   });
 
+  /// تفتح الدرس فوق صفحة أخرى، ليكون للرجوع مكان يعود إليه.
+  Future<void> pushLesson(WidgetTester tester) async {
+    tallView(tester);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => BlocProvider(
+                  create: (_) => cubit()..load('3'),
+                  child: const VideoPage(courseId: '1', lessonId: '3', playerBuilder: _fakePlayer),
+                ),
+              ),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> expectBackCloses(WidgetTester tester) async {
+    await tester.tap(find.byTooltip(AppStrings.back));
+    await tester.pumpAndSettle();
+    expect(find.text('open'), findsOneWidget);
+    expect(find.byType(VideoPage), findsNothing);
+  }
+
+  testWidgets('زر الرجوع يغلق الدرس من الغلاف', (tester) async {
+    repository.lessons.add(Right(_details(_lesson('3', LessonType.video))));
+    await pushLesson(tester);
+
+    await expectBackCloses(tester);
+  });
+
+  testWidgets('زر الرجوع يغلق الدرس أثناء التشغيل', (tester) async {
+    repository.lessons.add(Right(_details(_lesson('3', LessonType.video))));
+    await pushLesson(tester);
+    await tapPlay(tester);
+    expect(find.text('player q0zaEGbs-cE'), findsOneWidget);
+
+    await expectBackCloses(tester);
+  });
+
+  testWidgets('زر الرجوع يغلق الدرس عند فشل تحميله', (tester) async {
+    repository.lessons.add(const Left(ServerFailure('المحتوى المطلوب غير موجود')));
+    await pushLesson(tester);
+
+    await expectBackCloses(tester);
+  });
+
   testWidgets('درس مفتوح في المسار يُفتح مكان الحالي، والدرس الحالي لا يستجيب', (tester) async {
     repository.lessons.addAll([
       Right(_details(_lesson('3', LessonType.video, isAttended: true), attended3: true)),
